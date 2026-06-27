@@ -1,10 +1,7 @@
 spring:
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    #    url: "jdbc:mysql://localhost:3306/carpmap?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
-    #    username: root
-    #    password: 12345
-    #    url: "jdbc:mysql://192.168.0.120:3306/carpmap?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
+    #    url: "jdbc:mysql://192.168.0.120:3306/nirton?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
     #    username: test
     #    password: 12345
     url: "jdbc:mysql://localhost:3306/nirton?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
