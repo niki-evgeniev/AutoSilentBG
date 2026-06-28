@@ -4,17 +4,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import lombok.Getter;
+import jakarta.persistence.Column;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import nevg.nirton.Models.Enums.RoleType;
 
 @Entity
-@Table(name = "users_roles")
+@Table(name = "users_roles", uniqueConstraints = @jakarta.persistence.UniqueConstraint(columnNames = "role_type"))
 @NoArgsConstructor
 public class UserRole extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role_type", nullable = false)
     private RoleType roleType;
 
     public RoleType getRoleType() {
