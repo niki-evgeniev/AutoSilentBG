@@ -2,6 +2,7 @@ package nevg.nirton.Service.Impl;
 
 import nevg.nirton.Models.Entity.User;
 import nevg.nirton.Models.Entity.UserRole;
+import nevg.nirton.Models.Security.ShopUserDetails;
 import nevg.nirton.Repository.UserRepository;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,23 +22,18 @@ public class ShopUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserDetails userDetails = userRepository.findByEmail(email)
+        return userRepository.findByEmailIgnoreCase(email.trim())
                 .map(ShopUserService::mapUser)
                 .orElseThrow(() -> new UsernameNotFoundException("User " + email + " not found"));
-
-        System.out.printf("LOGIN USER " + userDetails.getUsername() + "%n");
-        return userDetails;
     }
 
     private static UserDetails mapUser(User user) {
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .authorities(user.getRoles()
-                        .stream()
-                        .map(ShopUserService::map)
-                        .toList())
-                .build();
+        return new ShopUserDetails(
+                user.getEmail(),
+                user.getPassword(),
+                user.getFirstName(),
+                user.getRoles().stream().map(ShopUserService::map).toList()
+        );
     }
 
     private static GrantedAuthority map(UserRole userRole) {
