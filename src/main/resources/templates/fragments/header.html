@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<header class="main-header sticky-top" th:fragment="header">
+    <nav class="navbar navbar-expand-lg bg-white">
+        <div class="container">
+            <a class="navbar-brand logo" href="#"><span>N</span>iRTON</a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item"><a class="nav-link active" th:href="@{/}">Начало</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/products}">Категории</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#promo">Промоции</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#products">Нови продукти</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#footer">Контакти</a></li>
+                </ul>
+
+                <div class="header-actions d-flex align-items-center gap-3">
+                    <button class="icon-btn" aria-label="Търсене"><i class="bi bi-search"></i></button>
+                    <button class="icon-btn" aria-label="Профил"><i class="bi bi-person"></i></button>
+                    <button class="cart-btn"><i class="bi bi-cart3 me-2"></i> 0.00 лв.</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+</body>
+</html>

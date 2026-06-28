@@ -8,12 +8,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class UserController {
 
-    @GetMapping("/login")
+    @GetMapping("/user/sign_in")
     public ModelAndView login(){
         return new ModelAndView("login");
     }
 
-    @GetMapping("/register")
+    @GetMapping("/user/sign_up")
     public ModelAndView register(){
         return new ModelAndView("register");
     }

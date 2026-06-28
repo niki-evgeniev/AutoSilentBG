@@ -43,7 +43,8 @@ spring:
           auth: true
           starttls:
             enable: true
-
+nirton:
+  remember.me.key: 1234
   #Cloudinary Properties
   #cloudinary:
   #api-key:

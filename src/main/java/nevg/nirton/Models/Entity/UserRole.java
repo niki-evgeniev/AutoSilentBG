@@ -12,10 +12,16 @@ import nevg.nirton.Models.Enums.RoleType;
 @Entity
 @Table(name = "users_roles")
 @NoArgsConstructor
-@Getter
-@Setter
 public class UserRole extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
+
+    public RoleType getRoleType() {
+        return roleType;
+    }
+
+    public void setRoleType(RoleType roleType) {
+        this.roleType = roleType;
+    }
 }
