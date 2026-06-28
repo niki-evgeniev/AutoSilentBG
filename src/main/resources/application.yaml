@@ -31,7 +31,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
   mail:
     host: smtp.gmail.com
     port: 587
@@ -80,6 +83,4 @@ server:
     max-http-form-post-size: 25MB
     max-swallow-size: 25MB
     max-part-count: 500
-
-
 
