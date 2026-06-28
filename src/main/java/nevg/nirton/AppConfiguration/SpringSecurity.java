@@ -32,6 +32,7 @@ public class SpringSecurity {
                 authorizeRequest -> authorizeRequest
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**").permitAll()
+                        .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt").permitAll()
                         .requestMatchers("/", "/user/sign_in",
                                 "/api/***", "/user/sign_up",
@@ -47,11 +48,11 @@ public class SpringSecurity {
                             .usernameParameter("email")
                             .passwordParameter("password")
                             .defaultSuccessUrl("/", true)
-                            .failureForwardUrl("/users/login-error");
+                            .failureUrl("/user/sign_in?error");
                 }
         ).logout(logout -> logout
                 .logoutUrl("/users/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("/user/sign_in?logout")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
