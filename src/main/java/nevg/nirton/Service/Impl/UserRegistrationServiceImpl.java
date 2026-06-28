@@ -6,7 +6,7 @@ import nevg.nirton.Models.Entity.UserRole;
 import nevg.nirton.Models.Enums.RoleType;
 import nevg.nirton.Repository.UserRepository;
 import nevg.nirton.Repository.UserRoleRepository;
-import nevg.nirton.Service.EmailAlreadyExistsException;
+import nevg.nirton.Service.Exception.EmailAlreadyExistsException;
 import nevg.nirton.Service.UserRegistrationService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;

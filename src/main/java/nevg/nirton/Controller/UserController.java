@@ -3,7 +3,7 @@ package nevg.nirton.Controller;
 
 import jakarta.validation.Valid;
 import nevg.nirton.Models.Dto.UserRegistrationDto;
-import nevg.nirton.Service.EmailAlreadyExistsException;
+import nevg.nirton.Service.Exception.EmailAlreadyExistsException;
 import nevg.nirton.Service.UserRegistrationService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;

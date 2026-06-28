@@ -1,4 +1,4 @@
-package nevg.nirton.Service;
+package nevg.nirton.Service.Exception;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException() {
