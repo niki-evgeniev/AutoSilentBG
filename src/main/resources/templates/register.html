@@ -35,7 +35,10 @@
                         <p>Регистрирай се, за да поръчваш по-бързо и удобно.</p>
                     </div>
 
-                    <form action="#" method="post">
+                    <form th:action="@{/user/sign_up}" th:object="${registration}" method="post" novalidate>
+                        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
+                            Моля, поправете отбелязаните полета.
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group-custom">
@@ -43,12 +46,14 @@
                                     <div class="input-icon-wrap">
                                         <i class="bi bi-person"></i>
                                         <input id="firstName"
-                                               name="firstName"
+                                               th:field="*{firstName}"
                                                type="text"
                                                class="form-control"
+                                               th:errorclass="is-invalid"
                                                placeholder="Иван"
-                                               required>
+                                               autocomplete="given-name" maxlength="50">
                                     </div>
+                                    <div class="invalid-feedback d-block" th:errors="*{firstName}"></div>
                                 </div>
                             </div>
 
@@ -58,12 +63,14 @@
                                     <div class="input-icon-wrap">
                                         <i class="bi bi-person"></i>
                                         <input id="lastName"
-                                               name="lastName"
+                                               th:field="*{lastName}"
                                                type="text"
                                                class="form-control"
+                                               th:errorclass="is-invalid"
                                                placeholder="Иванов"
-                                               required>
+                                               autocomplete="family-name" maxlength="50">
                                     </div>
+                                    <div class="invalid-feedback d-block" th:errors="*{lastName}"></div>
                                 </div>
                             </div>
                         </div>
@@ -73,24 +80,28 @@
                             <div class="input-icon-wrap">
                                 <i class="bi bi-envelope"></i>
                                 <input id="email"
-                                       name="email"
+                                       th:field="*{email}"
                                        type="email"
                                        class="form-control"
+                                       th:errorclass="is-invalid"
                                        placeholder="example@email.com"
-                                       required>
+                                       autocomplete="email" maxlength="254">
                             </div>
+                            <div class="invalid-feedback d-block" th:errors="*{email}"></div>
                         </div>
 
                         <div class="form-group-custom">
-                            <label for="phone">Телефон</label>
+                            <label for="phoneNumber">Телефон <span class="text-muted">(незадължително)</span></label>
                             <div class="input-icon-wrap">
                                 <i class="bi bi-telephone"></i>
-                                <input id="phone"
-                                       name="phone"
+                                <input id="phoneNumber"
+                                       th:field="*{phoneNumber}"
                                        type="tel"
                                        class="form-control"
-                                       placeholder="0888 123 456">
+                                       th:errorclass="is-invalid"
+                                       placeholder="0888 123 456" autocomplete="tel" maxlength="20">
                             </div>
+                            <div class="invalid-feedback d-block" th:errors="*{phoneNumber}"></div>
                         </div>
 
                         <div class="row">
@@ -100,12 +111,14 @@
                                     <div class="input-icon-wrap">
                                         <i class="bi bi-lock"></i>
                                         <input id="password"
-                                               name="password"
+                                               th:field="*{password}"
                                                type="password"
                                                class="form-control"
-                                               placeholder="Минимум 6 символа"
-                                               required>
+                                               th:errorclass="is-invalid"
+                                               placeholder="Минимум 8 символа"
+                                               autocomplete="new-password" maxlength="72">
                                     </div>
+                                    <div class="invalid-feedback d-block" th:errors="*{password}"></div>
                                 </div>
                             </div>
 
@@ -115,24 +128,28 @@
                                     <div class="input-icon-wrap">
                                         <i class="bi bi-lock-fill"></i>
                                         <input id="confirmPassword"
-                                               name="confirmPassword"
+                                               th:field="*{confirmPassword}"
                                                type="password"
                                                class="form-control"
+                                               th:errorclass="is-invalid"
                                                placeholder="Повтори парола"
-                                               required>
+                                               autocomplete="new-password" maxlength="72">
                                     </div>
+                                    <div class="invalid-feedback d-block" th:errors="*{confirmPassword}"></div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-check terms-check">
-                            <input id="terms" class="form-check-input" type="checkbox" required>
-                            <label class="form-check-label" for="terms">
+                            <input id="termsAccepted" th:field="*{termsAccepted}" class="form-check-input"
+                                   th:errorclass="is-invalid" type="checkbox">
+                            <label class="form-check-label" for="termsAccepted">
                                 Съгласен съм с
                                 <a href="#">общите условия</a>
                                 и
                                 <a href="#">политиката за поверителност</a>.
                             </label>
+                            <div class="invalid-feedback d-block" th:errors="*{termsAccepted}"></div>
                         </div>
 
                         <button type="submit" class="btn-auth-primary">
@@ -144,7 +161,7 @@
                         <span>или</span>
                     </div>
 
-                    <a href="login.html" class="btn-auth-secondary">
+                    <a th:href="@{/user/sign_in}" class="btn-auth-secondary">
                         Вече имам профил
                     </a>
                 </div>
