@@ -117,7 +117,9 @@
                     <div class="shop-toolbar">
                         <div>
                             <span>Показани са</span>
-                            <strong>12 продукта</strong>
+                            <strong th:text="|${products.size()} ${products.size() == 1 ? 'продукт' : 'продукта'}|">
+                                0 продукта
+                            </strong>
                         </div>
                         <div class="toolbar-actions">
                             <select class="form-select" aria-label="Сортиране">
@@ -139,125 +141,42 @@
                         <span>В наличност <i class="bi bi-x"></i></span>
                     </div>
 
-                    <div class="row g-4">
-                        <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="row g-4" th:if="${!products.isEmpty()}">
+                        <div class="col-12 col-sm-6 col-xl-4" th:each="product : ${products}">
                             <article class="product-card shop-product-card">
-                                <button class="wishlist-btn" aria-label="Добави в любими"><i class="bi bi-heart"></i>
+                                <button class="wishlist-btn" aria-label="Добави в любими">
+                                    <i class="bi bi-heart"></i>
                                 </button>
-                                <span class="sale-badge">-20%</span>
-                                <div class="product-image"><img src="/images/hero-phone-holder.svg"
-                                                                alt="Стойка за телефон"></div>
-                                <div class="product-content">
-                                    <div class="product-meta"><span>Автоаксесоари</span><span>3-5 мм</span></div>
-                                    <h3>Стойка за телефон за кола</h3>
-                                    <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-half"></i> <span>(128)</span></div>
-                                    <div class="price"><span>24.99 лв.</span> 19.99 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart">Добави в количката</button>
-                                </div>
-                            </article>
-                        </div>
-
-                        <div class="col-12 col-sm-6 col-xl-4">
-                            <article class="product-card shop-product-card">
-                                <button class="wishlist-btn" aria-label="Добави в любими"><i class="bi bi-heart"></i>
-                                </button>
-                                <span class="sale-badge">-25%</span>
-                                <div class="product-image"><img src="/images/hero-car-charger.svg" alt="Бързо зарядно">
+                                <div class="product-image">
+                                    <img th:if="${product.mainImageUrl() != null}"
+                                         th:src="${product.mainImageUrl()}"
+                                         th:alt="${product.name()}">
+                                    <i th:unless="${product.mainImageUrl() != null}"
+                                       class="bi bi-box-seam product-placeholder-icon"></i>
                                 </div>
                                 <div class="product-content">
-                                    <div class="product-meta"><span>Автоаксесоари</span><span>до 2 мм</span></div>
-                                    <h3>Бързо зарядно за кола QC 3.0</h3>
-                                    <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star"></i> <span>(96)</span></div>
-                                    <div class="price"><span>19.99 лв.</span> 14.99 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart">Добави в количката</button>
-                                </div>
-                            </article>
-                        </div>
-
-                        <div class="col-12 col-sm-6 col-xl-4">
-                            <article class="product-card shop-product-card">
-                                <button class="wishlist-btn" aria-label="Добави в любими"><i class="bi bi-heart"></i>
-                                </button>
-                                <span class="sale-badge">-25%</span>
-                                <div class="product-image"><img src="/images/hero-car-mats.svg" alt="Стелки за кола">
-                                </div>
-                                <div class="product-content">
-                                    <div class="product-meta"><span>Автоаксесоари</span><span>6-10 мм</span></div>
-                                    <h3>Стелки за кола универсални</h3>
-                                    <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-half"></i> <span>(74)</span></div>
-                                    <div class="price"><span>39.99 лв.</span> 29.99 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart">Добави в количката</button>
-                                </div>
-                            </article>
-                        </div>
-
-                        <div class="col-12 col-sm-6 col-xl-4">
-                            <article class="product-card shop-product-card">
-                                <button class="wishlist-btn" aria-label="Добави в любими"><i class="bi bi-heart"></i>
-                                </button>
-                                <div class="product-image"><i class="bi bi-box-seam product-placeholder-icon"></i></div>
-                                <div class="product-content">
-                                    <div class="product-meta"><span>3D продукти</span><span>3-5 мм</span></div>
-                                    <h3>3D органайзер за бюро</h3>
-                                    <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star"></i> <span>(41)</span></div>
-                                    <div class="price">16.99 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart">Добави в количката</button>
-                                </div>
-                            </article>
-                        </div>
-
-                        <div class="col-12 col-sm-6 col-xl-4">
-                            <article class="product-card shop-product-card">
-                                <button class="wishlist-btn" aria-label="Добави в любими"><i class="bi bi-heart"></i>
-                                </button>
-                                <span class="new-badge">Ново</span>
-                                <div class="product-image"><i class="bi bi-gift product-placeholder-icon"></i></div>
-                                <div class="product-content">
-                                    <div class="product-meta"><span>Подаръци</span><span>над 10 мм</span></div>
-                                    <h3>Подаръчна кутия графит</h3>
-                                    <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-fill"></i><i class="bi bi-star-half"></i><i
-                                            class="bi bi-star"></i> <span>(23)</span></div>
-                                    <div class="price">12.99 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart">Добави в количката</button>
-                                </div>
-                            </article>
-                        </div>
-
-                        <div class="col-12 col-sm-6 col-xl-4">
-                            <article class="product-card shop-product-card">
-                                <button class="wishlist-btn" aria-label="Добави в любими"><i class="bi bi-heart"></i>
-                                </button>
-                                <div class="product-image"><i class="bi bi-car-front product-placeholder-icon"></i>
-                                </div>
-                                <div class="product-content">
-                                    <div class="product-meta"><span>Органайзери</span><span>6-10 мм</span></div>
-                                    <h3>Органайзер за багажник</h3>
-                                    <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                            class="bi bi-star-half"></i> <span>(63)</span></div>
-                                    <div class="price"><span>29.99 лв.</span> 22.99 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart">Добави в количката</button>
+                                    <div class="product-meta">
+                                        <span th:text="${product.category()}">Категория</span>
+                                        <span th:text="${product.sku()}">Код</span>
+                                    </div>
+                                    <h3 th:text="${product.name()}">Име на продукта</h3>
+                                    <p class="product-description" th:text="${product.description()}">
+                                        Описание на продукта
+                                    </p>
+                                    <div class="price" th:text="|${product.price()} лв.|">0.00 лв.</div>
+                                    <button class="btn btn-orange w-100 add-cart"
+                                            th:disabled="${product.stock() == 0}"
+                                            th:text="${product.stock() > 0 ? 'Добави в количката' : 'Изчерпан'}">
+                                        Добави в количката
+                                    </button>
                                 </div>
                             </article>
                         </div>
                     </div>
 
-                    <nav class="shop-pagination" aria-label="Навигация между страници">
-                        <a class="disabled" href="#"><i class="bi bi-chevron-left"></i></a>
-                        <a class="active" href="#">1</a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#"><i class="bi bi-chevron-right"></i></a>
-                    </nav>
+                    <div class="alert alert-light text-center py-5" th:if="${products.isEmpty()}">
+                        В момента няма активни продукти.
+                    </div>
                 </div>
             </div>
         </div>

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class UserRegistrationServiceImpl implements UserRegistrationService {
@@ -32,15 +33,35 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     }
 
     @Override
+    public void addFirstAdminProfileAndAddRoles() {
+        if (userRepository.count() == 0 && userRoleRepository.count() == 0) {
+            User user = new User();
+            user.setActivate(true);
+            user.setEmail("info@carpmap.bg");
+            String encode = passwordEncoder.encode("12345");
+            user.setPassword(encode);
+            user.setFirstName("Nikolay");
+            user.setLastName("Ivanov");
+            UserRole userRole = userRoleRepository.findByRoleType(RoleType.USER)
+                    .orElseGet(() -> createRole(RoleType.USER));
+            UserRole moderatorRole = userRoleRepository.findByRoleType(RoleType.MODERATOR)
+                    .orElseGet(() -> createRole(RoleType.MODERATOR));
+            UserRole adminRole = userRoleRepository.findByRoleType(RoleType.ADMIN)
+                    .orElseGet(() -> createRole(RoleType.ADMIN));
+            user.setRoles(Set.of(userRole, moderatorRole, adminRole));
+
+            userRepository.save(user);
+        }
+        System.out.println("Successful Add user : info@carpmap.bg and roles: USER, MODERATOR and ADMIN" );
+    }
+
+    @Override
     @Transactional
     public void register(UserRegistrationDto registration) {
         String normalizedEmail = registration.getEmail().trim().toLowerCase(Locale.ROOT);
         if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new EmailAlreadyExistsException();
         }
-
-        UserRole userRole = userRoleRepository.findByRoleType(RoleType.USER)
-                .orElseGet(() -> createRole(RoleType.USER));
 
         User user = new User();
         user.setFirstName(registration.getFirstName().trim());
@@ -49,8 +70,9 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         user.setPhoneNumber(normalizeOptional(registration.getPhoneNumber()));
         user.setPassword(passwordEncoder.encode(registration.getPassword()));
         user.setRegisterDate(LocalDateTime.now());
-        user.setEditDate(LocalDateTime.now());
         user.setActivate(true);
+        UserRole userRole = userRoleRepository.findByRoleType(RoleType.USER)
+                .orElseGet(() -> createRole(RoleType.USER));
         user.getRoles().add(userRole);
 
         try {
@@ -60,6 +82,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             throw new EmailAlreadyExistsException();
         }
     }
+
 
     private UserRole createRole(RoleType roleType) {
         UserRole role = new UserRole();

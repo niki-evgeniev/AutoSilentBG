@@ -30,7 +30,9 @@ public class ProductsController {
 
     @GetMapping("/products")
     public ModelAndView products (){
-        return new ModelAndView("products");
+        ModelAndView modelAndView = new ModelAndView("products");
+        modelAndView.addObject("products", productService.getActiveProducts());
+        return modelAndView;
     }
 
     @GetMapping("/products/add")

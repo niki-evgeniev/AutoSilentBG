@@ -1,6 +1,7 @@
 package nevg.nirton.Service.Impl;
 
 import nevg.nirton.Models.Dto.ProductCreateDto;
+import nevg.nirton.Models.Dto.ProductViewDto;
 import nevg.nirton.Models.Entity.Picture;
 import nevg.nirton.Models.Entity.Product;
 import nevg.nirton.Models.Entity.User;
@@ -14,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -95,6 +98,37 @@ public class ProductServiceImpl implements ProductService {
             throw exception;
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductViewDto> getActiveProducts() {
+        return productRepository.findAllByActiveTrueOrderByAddDateDesc().stream()
+                .map(this::toViewDto)
+                .toList();
+    }
+
+    private ProductViewDto toViewDto(Product product) {
+        String mainImageUrl = product.getPictures().stream()
+                .filter(Picture::isMainImage)
+                .findFirst()
+                .map(picture -> "/ProductImages/"
+                        + UriUtils.encodePathSegment(toDirectoryName(product.getNameProduct()), StandardCharsets.UTF_8)
+                        + "/"
+                        + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
+                .orElse(null);
+
+        return new ProductViewDto(
+                product.getId(),
+                product.getNameProduct(),
+                product.getSku(),
+                product.getCategory(),
+                product.getPrice(),
+                product.getDescription(),
+                product.getStock(),
+                mainImageUrl
+        );
+    }
+
 
     private void validateUniqueFields(ProductCreateDto request) {
         if (productRepository.existsByNameProductIgnoreCase(request.getNameProduct().trim())) {
