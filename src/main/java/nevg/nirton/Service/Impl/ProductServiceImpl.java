@@ -1,6 +1,7 @@
 package nevg.nirton.Service.Impl;
 
 import nevg.nirton.Models.Dto.ProductCreateDto;
+import nevg.nirton.Models.Dto.ProductDetailsDto;
 import nevg.nirton.Models.Dto.ProductViewDto;
 import nevg.nirton.Models.Entity.Picture;
 import nevg.nirton.Models.Entity.Product;
@@ -20,14 +21,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
-import java.nio.charset.StandardCharsets;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -107,6 +109,13 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ProductDetailsDto> getActiveProduct(Long id) {
+        return productRepository.findByIdAndActiveTrue(id)
+                .map(this::toDetailsDto);
+    }
+
     private ProductViewDto toViewDto(Product product) {
         String mainImageUrl = product.getPictures().stream()
                 .filter(Picture::isMainImage)
@@ -127,6 +136,30 @@ public class ProductServiceImpl implements ProductService {
                 product.getStock(),
                 mainImageUrl
         );
+    }
+
+    private ProductDetailsDto toDetailsDto(Product product) {
+        List<String> imageUrls = product.getPictures().stream()
+                .map(picture -> toImageUrl(product, picture))
+                .toList();
+
+        return new ProductDetailsDto(
+                product.getId(),
+                product.getNameProduct(),
+                product.getSku(),
+                product.getCategory(),
+                product.getPrice(),
+                product.getDescription(),
+                product.getStock(),
+                imageUrls
+        );
+    }
+
+    private String toImageUrl(Product product, Picture picture) {
+        return "/ProductImages/"
+                + UriUtils.encodePathSegment(toDirectoryName(product.getNameProduct()), StandardCharsets.UTF_8)
+                + "/"
+                + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8);
     }
 
 

@@ -9,11 +9,14 @@ import nevg.nirton.Service.Exception.ProductAlreadyExistsException;
 import nevg.nirton.Service.Exception.ProductCreationException;
 import nevg.nirton.Service.ProductService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -32,6 +35,15 @@ public class ProductsController {
     public ModelAndView products (){
         ModelAndView modelAndView = new ModelAndView("products");
         modelAndView.addObject("products", productService.getActiveProducts());
+        return modelAndView;
+    }
+
+    @GetMapping("/products/{id}")
+    public ModelAndView productDetails(@PathVariable Long id) {
+        ModelAndView modelAndView = new ModelAndView("product-details");
+        modelAndView.addObject("product", productService.getActiveProduct(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Продуктът не е намерен.")));
         return modelAndView;
     }
 

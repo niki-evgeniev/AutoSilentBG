@@ -34,10 +34,11 @@ public class SpringSecurity {
                         .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt").permitAll()
+                        .requestMatchers("/products/add").authenticated()
                         .requestMatchers("/", "/user/sign_in",
                                 "/api/***", "/user/sign_up",
                                 "/users/login-error", "/users/logout",
-                                "/products").permitAll()
+                                "/products", "/products/*").permitAll()
                         .requestMatchers("/imagesApp/**").permitAll()
                         .anyRequest().authenticated()
         ).formLogin(

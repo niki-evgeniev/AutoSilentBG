@@ -159,16 +159,26 @@
                                         <span th:text="${product.category()}">Категория</span>
                                         <span th:text="${product.sku()}">Код</span>
                                     </div>
-                                    <h3 th:text="${product.name()}">Име на продукта</h3>
-                                    <p class="product-description" th:text="${product.description()}">
+                                    <h3>
+                                        <a class="product-name-link"
+                                           th:href="@{/products/{id}(id=${product.id()})}"
+                                           th:text="${product.name()}">Име на продукта</a>
+                                    </h3>
+                                    <p class="product-card-description" th:text="${product.description()}">
                                         Описание на продукта
                                     </p>
                                     <div class="price" th:text="|${product.price()} лв.|">0.00 лв.</div>
-                                    <button class="btn btn-orange w-100 add-cart"
-                                            th:disabled="${product.stock() == 0}"
-                                            th:text="${product.stock() > 0 ? 'Добави в количката' : 'Изчерпан'}">
-                                        Добави в количката
-                                    </button>
+                                    <div class="product-card-actions">
+                                        <a class="btn btn-outline-dark custom-outline"
+                                           th:href="@{/products/{id}(id=${product.id()})}">
+                                            Виж повече
+                                        </a>
+                                        <button class="btn btn-orange add-cart"
+                                                th:disabled="${product.stock() == 0}"
+                                                th:aria-label="${product.stock() > 0 ? 'Добави в количката' : 'Изчерпан'}">
+                                            <i th:class="${product.stock() > 0 ? 'bi bi-cart-plus' : 'bi bi-x-circle'}"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </article>
                         </div>
