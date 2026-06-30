@@ -1,4 +1,8 @@
 spring:
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
     #    url: "jdbc:mysql://192.168.0.120:3306/nirton?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
@@ -83,4 +87,3 @@ server:
     max-http-form-post-size: 25MB
     max-swallow-size: 25MB
     max-part-count: 500
-
