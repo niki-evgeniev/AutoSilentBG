@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     cartButtons.forEach(function (button) {
         button.addEventListener('click', function () {
             const originalText = button.textContent;
-            button.textContent = 'Добавено ✓';
+            button.textContent = document.body.dataset.cartAdded || 'Added ✓';
             button.disabled = true;
 
             setTimeout(function () {
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updatePrice() {
             if (output) {
-                output.textContent = range.value + ' лв.';
+                output.textContent = range.value + ' ' + (document.body.dataset.currency || 'BGN');
             }
         }
 

@@ -97,6 +97,28 @@ a { text-decoration: none; }
 
 .cart-btn i { color: var(--color-orange); }
 
+.language-switch {
+    display: inline-flex;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f7f7f7;
+}
+
+.language-switch a {
+    padding: 5px 8px;
+    border-radius: 7px;
+    color: var(--color-muted);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.language-switch a.active {
+    background: var(--color-orange);
+    color: #fff;
+}
+
 .hero-section {
     background: radial-gradient(circle at 78% 36%, #fff0e6, transparent 28%), linear-gradient(135deg, #ffffff 0%, #f4f4f4 100%);
     padding: 72px 0 82px;
