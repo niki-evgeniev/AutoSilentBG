@@ -14,28 +14,28 @@ import java.util.List;
 
 public class ProductCreateDto {
 
-    @NotBlank(message = "Името на продукта е задължително.")
-    @Size(min = 2, max = 150, message = "Името трябва да е между 2 и 150 символа.")
+    @NotBlank(message = "{validation.product.name.required}")
+    @Size(min = 2, max = 150, message = "{validation.product.name.size}")
     private String nameProduct;
 
-    @NotBlank(message = "Продуктовият код е задължителен.")
-    @Size(max = 50, message = "Продуктовият код може да е до 50 символа.")
+    @NotBlank(message = "{validation.product.sku.required}")
+    @Size(max = 50, message = "{validation.product.sku.size}")
     private String sku;
 
-    @NotBlank(message = "Категорията е задължителна.")
-    @Size(max = 80, message = "Категорията може да е до 80 символа.")
+    @NotBlank(message = "{validation.product.category.required}")
+    @Size(max = 80, message = "{validation.product.category.size}")
     private String category;
 
-    @NotNull(message = "Цената е задължителна.")
-    @DecimalMin(value = "0.01", message = "Цената трябва да е по-голяма от 0.")
-    @Digits(integer = 10, fraction = 2, message = "Цената може да има най-много 2 знака след десетичната запетая.")
+    @NotNull(message = "{validation.product.price.required}")
+    @DecimalMin(value = "0.01", message = "{validation.product.price.min}")
+    @Digits(integer = 10, fraction = 2, message = "{validation.product.price.digits}")
     private BigDecimal price;
 
-    @NotBlank(message = "Информацията за продукта е задължителна.")
-    @Size(min = 10, max = 5000, message = "Информацията трябва да е между 10 и 5000 символа.")
+    @NotBlank(message = "{validation.product.description.required}")
+    @Size(min = 10, max = 5000, message = "{validation.product.description.size}")
     private String description;
 
-    @Min(value = 0, message = "Наличността не може да бъде отрицателна.")
+    @Min(value = 0, message = "{validation.product.stock.min}")
     private int stock;
 
     private boolean active = true;

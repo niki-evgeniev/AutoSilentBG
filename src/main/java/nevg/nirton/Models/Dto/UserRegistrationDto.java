@@ -8,32 +8,32 @@ import jakarta.validation.constraints.Size;
 
 public class UserRegistrationDto {
 
-    @NotBlank(message = "Името е задължително.")
-    @Size(min = 2, max = 50, message = "Името трябва да е между 2 и 50 символа.")
-    @Pattern(regexp = "^\\p{L}(?:[\\p{L} '-]*\\p{L})?$", message = "Името съдържа невалидни символи.")
+    @NotBlank(message = "{validation.firstName.required}")
+    @Size(min = 2, max = 50, message = "{validation.firstName.size}")
+    @Pattern(regexp = "^\\p{L}(?:[\\p{L} '-]*\\p{L})?$", message = "{validation.firstName.pattern}")
     private String firstName;
 
-    @NotBlank(message = "Фамилията е задължителна.")
-    @Size(min = 2, max = 50, message = "Фамилията трябва да е между 2 и 50 символа.")
-    @Pattern(regexp = "^\\p{L}(?:[\\p{L} '-]*\\p{L})?$", message = "Фамилията съдържа невалидни символи.")
+    @NotBlank(message = "{validation.lastName.required}")
+    @Size(min = 2, max = 50, message = "{validation.lastName.size}")
+    @Pattern(regexp = "^\\p{L}(?:[\\p{L} '-]*\\p{L})?$", message = "{validation.lastName.pattern}")
     private String lastName;
 
-    @NotBlank(message = "Имейлът е задължителен.")
-    @Email(message = "Въведете валиден имейл адрес.")
-    @Size(max = 254, message = "Имейлът е прекалено дълъг.")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
+    @Size(max = 254, message = "{validation.email.size}")
     private String email;
 
-    @Pattern(regexp = "^$|^(?=(?:.*\\d){7,})[+]?[0-9 ()-]{7,20}$", message = "Въведете валиден телефонен номер.")
+    @Pattern(regexp = "^$|^(?=(?:.*\\d){7,})[+]?[0-9 ()-]{7,20}$", message = "{validation.phone.invalid}")
     private String phoneNumber;
 
-    @NotBlank(message = "Паролата е задължителна.")
-    @Size(min = 8, max = 72, message = "Паролата трябва да е между 8 и 72 символа.")
+    @NotBlank(message = "{validation.password.required}")
+    @Size(min = 8, max = 72, message = "{validation.password.size}")
     private String password;
 
-    @NotBlank(message = "Повторете паролата.")
+    @NotBlank(message = "{validation.confirmPassword.required}")
     private String confirmPassword;
 
-    @AssertTrue(message = "Трябва да приемете общите условия.")
+    @AssertTrue(message = "{validation.terms.required}")
     private boolean termsAccepted;
 
     public String getFirstName() {
