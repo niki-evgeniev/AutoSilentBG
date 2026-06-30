@@ -86,7 +86,7 @@ public class ProductsController {
             return productForm(product);
         }
 
-        redirectAttributes.addFlashAttribute("productSuccess", "Продуктът е добавен успешно.");
+        redirectAttributes.addFlashAttribute("productSuccess", true);
         return new ModelAndView("redirect:/products/add");
     }
 

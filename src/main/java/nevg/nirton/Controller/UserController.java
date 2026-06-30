@@ -53,8 +53,7 @@ public class UserController {
             return registrationView(registration);
         }
 
-        redirectAttributes.addFlashAttribute("registrationSuccess",
-                "Регистрацията е успешна. Вече можете да влезете в профила си.");
+        redirectAttributes.addFlashAttribute("registrationSuccess", true);
         return new ModelAndView("redirect:/user/sign_in");
     }
 
