@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="bg">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Добавяне на нов продукт в Nirton.bg">
-    <title>Добави продукт - Nirton.bg</title>
+    <meta name="description" th:content="#{add.meta}">
+    <title th:text="#{add.title}">Добави продукт - Nirton.bg</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/shop.css" rel="stylesheet">
@@ -18,28 +18,28 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Начало</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/products}">Продукти</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Добави продукт</li>
+                    <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/products}" th:text="#{site.products}">Продукти</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{site.addProduct}">Добави продукт</li>
                 </ol>
             </nav>
-            <span class="eyebrow">Управление на каталога</span>
-            <h1>Добави нов продукт</h1>
-            <p>Попълни информацията и добави качествени снимки на продукта.</p>
+            <span class="eyebrow" th:text="#{add.catalog}">Управление на каталога</span>
+            <h1 th:text="#{add.heading}">Добави нов продукт</h1>
+            <p th:text="#{add.intro}">Попълни информацията и добави качествени снимки на продукта.</p>
         </div>
     </section>
 
     <section class="product-form-section">
         <div class="container">
             <div th:if="${productSuccess}" class="alert alert-success product-form-alert" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i><span th:text="${productSuccess}"></span>
+                <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{add.success}"></span>
             </div>
 
             <form th:action="@{/products/add}" th:object="${product}" method="post"
                   enctype="multipart/form-data" class="product-editor" novalidate>
                 <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
                     <i class="bi bi-exclamation-circle-fill me-2"></i>
-                    Моля, поправете отбелязаните полета.
+                    <span th:text="#{form.correctErrors}">Моля, поправете отбелязаните полета.</span>
                     <div th:if="${#fields.hasGlobalErrors()}" th:each="error : ${#fields.globalErrors()}"
                          th:text="${error}" class="mt-1"></div>
                 </div>
@@ -49,16 +49,16 @@
                         <div class="product-editor-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-box-seam"></i></div>
-                                <div><h2>Основна информация</h2><p>Данните, които клиентите ще виждат.</p></div>
+                                <div><h2 th:text="#{add.basic}">Основна информация</h2><p th:text="#{add.basic.text}">Данните, които клиентите ще виждат.</p></div>
                             </div>
 
                             <div class="form-group-custom">
-                                <label for="nameProduct">Име на продукта</label>
+                                <label for="nameProduct" th:text="#{add.name}">Име на продукта</label>
                                 <div class="input-icon-wrap">
                                     <i class="bi bi-tag"></i>
                                     <input id="nameProduct" th:field="*{nameProduct}" type="text"
                                            class="form-control" th:errorclass="is-invalid"
-                                           placeholder="Например: Стойка за телефон" maxlength="150">
+                                           th:placeholder="#{add.name.placeholder}" maxlength="150">
                                 </div>
                                 <div class="invalid-feedback d-block" th:errors="*{nameProduct}"></div>
                             </div>
@@ -66,7 +66,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="sku">Продуктов код</label>
+                                        <label for="sku" th:text="#{add.sku}">Продуктов код</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-upc-scan"></i>
                                             <input id="sku" th:field="*{sku}" type="text" class="form-control"
@@ -77,11 +77,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="category">Категория</label>
+                                        <label for="category" th:text="#{add.category}">Категория</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-grid"></i>
                                             <input id="category" th:field="*{category}" type="text" class="form-control"
-                                                   th:errorclass="is-invalid" placeholder="Автоаксесоари" maxlength="80">
+                                                   th:errorclass="is-invalid" th:placeholder="#{add.category.placeholder}" maxlength="80">
                                         </div>
                                         <div class="invalid-feedback d-block" th:errors="*{category}"></div>
                                     </div>
@@ -89,11 +89,11 @@
                             </div>
 
                             <div class="form-group-custom">
-                                <label for="description">Информация за продукта</label>
+                                <label for="description" th:text="#{add.description}">Информация за продукта</label>
                                 <textarea id="description" th:field="*{description}" class="form-control product-description"
                                           th:errorclass="is-invalid" rows="7" maxlength="5000"
-                                          placeholder="Опиши характеристиките, материала, размерите и начина на употреба..."></textarea>
-                                <div class="form-hint">Между 10 и 5000 символа.</div>
+                                          th:placeholder="#{add.description.placeholder}"></textarea>
+                                <div class="form-hint" th:text="#{add.description.hint}">Между 10 и 5000 символа.</div>
                                 <div class="invalid-feedback d-block" th:errors="*{description}"></div>
                             </div>
                         </div>
@@ -103,12 +103,12 @@
                         <div class="product-editor-card mb-4">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-cash-coin"></i></div>
-                                <div><h2>Цена и наличност</h2><p>Търговски данни за продукта.</p></div>
+                                <div><h2 th:text="#{add.priceStock}">Цена и наличност</h2><p th:text="#{add.priceStock.text}">Търговски данни за продукта.</p></div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group-custom">
-                                        <label for="price">Цена (лв.)</label>
+                                        <label for="price" th:text="#{add.price}">Цена (лв.)</label>
                                         <input id="price" th:field="*{price}" type="number" min="0.01" step="0.01"
                                                class="form-control product-plain-input" th:errorclass="is-invalid" placeholder="19.99">
                                         <div class="invalid-feedback d-block" th:errors="*{price}"></div>
@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group-custom">
-                                        <label for="stock">Наличност</label>
+                                        <label for="stock" th:text="#{add.stock}">Наличност</label>
                                         <input id="stock" th:field="*{stock}" type="number" min="0" step="1"
                                                class="form-control product-plain-input" th:errorclass="is-invalid">
                                         <div class="invalid-feedback d-block" th:errors="*{stock}"></div>
@@ -125,20 +125,20 @@
                             </div>
                             <div class="form-check product-active-check">
                                 <input id="active" th:field="*{active}" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="active">Покажи продукта в магазина</label>
+                                <label class="form-check-label" for="active" th:text="#{add.active}">Покажи продукта в магазина</label>
                             </div>
                         </div>
 
                         <div class="product-editor-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-images"></i></div>
-                                <div><h2>Снимки</h2><p>JPG, PNG или WEBP, до 5 MB всяка.</p></div>
+                                <div><h2 th:text="#{add.images}">Снимки</h2><p th:text="#{add.images.text}">JPG, PNG или WEBP, до 5 MB всяка.</p></div>
                             </div>
 
                             <label for="mainImage" class="product-upload-box">
                                 <i class="bi bi-cloud-arrow-up"></i>
-                                <strong>Главна снимка</strong>
-                                <span>Задължителна, точно 1 снимка</span>
+                                <strong th:text="#{add.mainImage}">Главна снимка</strong>
+                                <span th:text="#{add.mainImage.text}">Задължителна, точно 1 снимка</span>
                                 <input id="mainImage" th:field="*{mainImage}" type="file"
                                        accept="image/jpeg,image/png,image/webp" required>
                             </label>
@@ -146,8 +146,8 @@
 
                             <label for="additionalImages" class="product-upload-box secondary-upload">
                                 <i class="bi bi-images"></i>
-                                <strong>Допълнителни снимки</strong>
-                                <span>Незадължителни, максимум 4</span>
+                                <strong th:text="#{add.additionalImages}">Допълнителни снимки</strong>
+                                <span th:text="#{add.additionalImages.text}">Незадължителни, максимум 4</span>
                                 <input id="additionalImages" th:field="*{additionalImages}" type="file" multiple
                                        accept="image/jpeg,image/png,image/webp">
                             </label>
@@ -157,9 +157,9 @@
                 </div>
 
                 <div class="product-form-actions">
-                    <a th:href="@{/products}" class="btn btn-outline-dark custom-outline">Отказ</a>
+                    <a th:href="@{/products}" class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
-                        <i class="bi bi-plus-circle me-2"></i>Добави продукта
+                        <i class="bi bi-plus-circle me-2"></i><span th:text="#{add.submit}">Добави продукта</span>
                     </button>
                 </div>
             </form>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      lang="en">
+      th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -11,7 +11,7 @@
         <div class="row g-4">
             <div class="col-lg-3">
                 <a class="footer-logo" href="#"><span>N</span>iRTON</a>
-                <p>Nirton.bg е твоят онлайн магазин за качествени продукти на достъпни цени.</p>
+                <p th:text="#{footer.description}">Nirton.bg е твоят онлайн магазин за качествени продукти на достъпни цени.</p>
                 <div class="socials">
                     <a href="#"><i class="bi bi-facebook"></i></a>
                     <a href="#"><i class="bi bi-instagram"></i></a>
@@ -19,27 +19,27 @@
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <h3>Информация</h3>
-                <a href="#">За нас</a>
-                <a href="#">Доставка</a>
-                <a href="#">Връщане и замяна</a>
-                <a href="#">Общи условия</a>
+                <h3 th:text="#{footer.information}">Информация</h3>
+                <a href="#" th:text="#{footer.about}">За нас</a>
+                <a href="#" th:text="#{footer.delivery}">Доставка</a>
+                <a href="#" th:text="#{footer.returns}">Връщане и замяна</a>
+                <a href="#" th:text="#{footer.terms}">Общи условия</a>
             </div>
             <div class="col-6 col-lg-3">
-                <h3>Помощ</h3>
-                <a href="#">Често задавани въпроси</a>
-                <a href="#">Размери и съвместимост</a>
-                <a href="#">Плащане</a>
-                <a href="#">Контакти</a>
+                <h3 th:text="#{footer.help}">Помощ</h3>
+                <a href="#" th:text="#{footer.faq}">Често задавани въпроси</a>
+                <a href="#" th:text="#{footer.sizes}">Размери и съвместимост</a>
+                <a href="#" th:text="#{footer.payment}">Плащане</a>
+                <a href="#" th:text="#{footer.contacts}">Контакти</a>
             </div>
             <div class="col-lg-3">
-                <h3>Контакти</h3>
+                <h3 th:text="#{footer.contacts}">Контакти</h3>
                 <p><i class="bi bi-telephone me-2"></i> 0888 123 456</p>
                 <p><i class="bi bi-envelope me-2"></i> info@nirton.bg</p>
-                <p><i class="bi bi-geo-alt me-2"></i> гр. София, България</p>
+                <p><i class="bi bi-geo-alt me-2"></i> <span th:text="#{footer.location}">гр. София, България</span></p>
             </div>
         </div>
-        <div class="footer-bottom text-center">© 2026 NiRTON.bg - Всички права запазени.</div>
+        <div class="footer-bottom text-center" th:text="#{footer.copyright}">© 2026 NiRTON.bg - Всички права запазени.</div>
     </div>
 </footer>
 </body>

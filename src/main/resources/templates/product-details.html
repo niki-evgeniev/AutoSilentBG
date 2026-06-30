@@ -1,16 +1,16 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" lang="bg">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" th:content="${product.description()}">
-    <title th:text="|${product.name()} - Nirton.bg|">Детайли за продукт - Nirton.bg</title>
+    <title th:text="#{details.title(${product.name()})}">Детайли за продукт - Nirton.bg</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/shop.css" rel="stylesheet">
 </head>
-<body>
+<body th:data-cart-added="#{product.added}" th:data-currency="#{site.currency}">
 
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
@@ -20,8 +20,8 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Начало</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/products}">Продукти</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/products}" th:text="#{site.products}">Продукти</a></li>
                     <li class="breadcrumb-item active" aria-current="page" th:text="${product.name()}">Продукт</li>
                 </ol>
             </nav>
@@ -44,7 +44,7 @@
                                     th:each="imageUrl, imageStatus : ${product.imageUrls()}"
                                     th:classappend="${imageStatus.first ? ' active' : ''}"
                                     th:data-image-url="${imageUrl}"
-                                    th:aria-label="|Снимка ${imageStatus.count} на ${product.name()}|">
+                                    th:aria-label="#{details.image(${imageStatus.count}, ${product.name()})}">
                                 <img th:src="${imageUrl}" th:alt="|${product.name()} - снимка ${imageStatus.count}|">
                             </button>
                         </div>
@@ -57,14 +57,14 @@
                         <h1 th:text="${product.name()}">Име на продукта</h1>
 
                         <div class="product-details-meta">
-                            <span><i class="bi bi-upc-scan"></i> Код: <strong th:text="${product.sku()}">SKU</strong></span>
+                            <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong th:text="${product.sku()}">SKU</strong></span>
                             <span th:classappend="${product.stock() > 0 ? ' in-stock' : ' out-of-stock'}">
                                 <i th:class="${product.stock() > 0 ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'}"></i>
-                                <strong th:text="${product.stock() > 0 ? 'В наличност' : 'Изчерпан'}">В наличност</strong>
+                                <strong th:text="${product.stock() > 0 ? #messages.msg('details.inStock') : #messages.msg('details.soldOut')}">В наличност</strong>
                             </span>
                         </div>
 
-                        <div class="product-details-price" th:text="|${product.price()} лв.|">0.00 лв.</div>
+                        <div class="product-details-price" th:text="#{product.price(${product.price()})}">0.00 лв.</div>
 
                         <p class="product-details-description" th:text="${product.description()}">
                             Описание на продукта
@@ -72,27 +72,27 @@
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
                             <i class="bi bi-box2-heart"></i>
-                            <span>Налични <strong th:text="${product.stock()}">0</strong> броя</span>
+                            <span th:text="#{details.available(${product.stock()})}">Налични 0 броя</span>
                         </div>
 
                         <div class="product-purchase-actions">
                             <label class="quantity-control" th:if="${product.stock() > 0}">
-                                <span>Количество</span>
+                                <span th:text="#{details.quantity}">Количество</span>
                                 <input type="number" value="1" min="1" th:max="${product.stock()}">
                             </label>
                             <button class="btn btn-orange product-add-cart"
                                     th:disabled="${product.stock() == 0}">
                                 <i class="bi bi-cart-plus"></i>
-                                <span th:text="${product.stock() > 0 ? 'Добави в количката' : 'Продуктът е изчерпан'}">
+                                <span th:text="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('details.soldOutLong')}">
                                     Добави в количката
                                 </span>
                             </button>
                         </div>
 
                         <div class="product-details-assurances">
-                            <div><i class="bi bi-truck"></i><span><strong>Бърза доставка</strong>1–2 работни дни</span></div>
-                            <div><i class="bi bi-shield-check"></i><span><strong>Сигурна поръчка</strong>Защитени данни</span></div>
-                            <div><i class="bi bi-arrow-counterclockwise"></i><span><strong>Лесно връщане</strong>До 14 дни</span></div>
+                            <div><i class="bi bi-truck"></i><span><strong th:text="#{details.fastDelivery}">Бърза доставка</strong><span th:text="#{details.deliveryTime}">1–2 работни дни</span></span></div>
+                            <div><i class="bi bi-shield-check"></i><span><strong th:text="#{details.secureOrder}">Сигурна поръчка</strong><span th:text="#{details.protectedData}">Защитени данни</span></span></div>
+                            <div><i class="bi bi-arrow-counterclockwise"></i><span><strong th:text="#{details.easyReturns}">Лесно връщане</strong><span th:text="#{details.returnTime}">До 14 дни</span></span></div>
                         </div>
                     </article>
                 </div>
@@ -104,12 +104,12 @@
         <div class="container">
             <div class="product-information-card">
                 <div class="section-title text-start">
-                    <span>Повече информация</span>
-                    <h2>Описание на продукта</h2>
+                    <span th:text="#{details.moreInfo}">Повече информация</span>
+                    <h2 th:text="#{details.description}">Описание на продукта</h2>
                 </div>
                 <p th:text="${product.description()}">Описание на продукта</p>
                 <a class="btn btn-outline-dark custom-outline" th:href="@{/products}">
-                    <i class="bi bi-arrow-left"></i> Обратно към продуктите
+                    <i class="bi bi-arrow-left"></i> <span th:text="#{details.back}">Обратно към продуктите</span>
                 </a>
             </div>
         </div>
