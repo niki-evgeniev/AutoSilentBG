@@ -24,6 +24,14 @@ class InternationalizationConfigurationTest {
     }
 
     @Test
+    void usesBulgarianDefaultWhenBrowserLocaleIsNotBulgarianAndCookieIsMissing() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addPreferredLocale(Locale.ENGLISH);
+
+        assertThat(localeResolver.resolveLocale(request).getLanguage()).isEqualTo("bg");
+    }
+
+    @Test
     void storesAndRestoresSelectedLocaleFromCookie() {
         MockHttpServletRequest selectionRequest = new MockHttpServletRequest();
         MockHttpServletResponse selectionResponse = new MockHttpServletResponse();
