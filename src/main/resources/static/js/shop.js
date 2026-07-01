@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (canTilt) {
-        document.querySelectorAll('.tilt-card').forEach(function (card) {
+        document.querySelectorAll('.tilt-card, .header-3d .cart-btn').forEach(function (card) {
             card.addEventListener('mousemove', function (event) {
                 const rect = card.getBoundingClientRect();
                 const x = (event.clientX - rect.left) / rect.width - 0.5;

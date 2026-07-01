@@ -15,8 +15,8 @@
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main class="product-details-page">
-    <section class="product-details-hero">
+<main class="product-details-page page-3d">
+    <section class="product-details-hero page-3d-hero">
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
@@ -28,8 +28,8 @@
 
             <div class="row g-5 align-items-start">
                 <div class="col-lg-7">
-                    <div class="product-gallery">
-                        <div class="product-gallery-main">
+                    <div class="product-gallery tilt-card">
+                        <div class="product-gallery-main product-3d-stage">
                             <img id="productMainImage"
                                  th:if="${product.mainImageUrl() != null}"
                                  th:src="${product.mainImageUrl()}"
@@ -40,7 +40,7 @@
 
                         <div class="product-thumbnails" th:if="${product.imageUrls().size() > 1}">
                             <button type="button"
-                                    class="product-thumbnail"
+                                    class="product-thumbnail tilt-card"
                                     th:each="imageUrl, imageStatus : ${product.imageUrls()}"
                                     th:classappend="${imageStatus.first ? ' active' : ''}"
                                     th:data-image-url="${imageUrl}"
@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="col-lg-5">
-                    <article class="product-details-card">
+                    <article class="product-details-card tilt-card">
                         <span class="eyebrow" th:text="${product.category()}">Категория</span>
                         <h1 th:text="${product.name()}">Име на продукта</h1>
 
@@ -102,7 +102,7 @@
 
     <section class="product-information-section">
         <div class="container">
-            <div class="product-information-card">
+            <div class="product-information-card tilt-card">
                 <div class="section-title text-start">
                     <span th:text="#{details.moreInfo}">Повече информация</span>
                     <h2 th:text="#{details.description}">Описание на продукта</h2>

@@ -13,8 +13,8 @@
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main class="product-form-page">
-    <section class="product-form-hero">
+<main class="product-form-page page-3d">
+    <section class="product-form-hero page-3d-hero">
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
@@ -46,7 +46,7 @@
 
                 <div class="row g-4">
                     <div class="col-lg-7">
-                        <div class="product-editor-card">
+                        <div class="product-editor-card tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-box-seam"></i></div>
                                 <div><h2 th:text="#{add.basic}">Основна информация</h2><p th:text="#{add.basic.text}">Данните, които клиентите ще виждат.</p></div>
@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="product-editor-card mb-4">
+                        <div class="product-editor-card mb-4 tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-cash-coin"></i></div>
                                 <div><h2 th:text="#{add.priceStock}">Цена и наличност</h2><p th:text="#{add.priceStock.text}">Търговски данни за продукта.</p></div>
@@ -129,7 +129,7 @@
                             </div>
                         </div>
 
-                        <div class="product-editor-card">
+                        <div class="product-editor-card tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-images"></i></div>
                                 <div><h2 th:text="#{add.images}">Снимки</h2><p th:text="#{add.images.text}">JPG, PNG или WEBP, до 5 MB всяка.</p></div>
@@ -156,7 +156,7 @@
                     </div>
                 </div>
 
-                <div class="product-form-actions">
+                <div class="product-form-actions tilt-card">
                     <a th:href="@{/products}" class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
                         <i class="bi bi-plus-circle me-2"></i><span th:text="#{add.submit}">Добави продукта</span>

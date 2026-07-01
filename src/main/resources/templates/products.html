@@ -22,7 +22,7 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main>
-    <section class="shop-hero-small">
+    <section class="shop-hero-small page-3d-hero">
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
@@ -38,7 +38,7 @@
                     <p th:text="#{products.intro}">Филтрирай по категория, дебелина, материал, цена и наличност.</p>
                 </div>
                 <div class="col-lg-5">
-                    <div class="shop-search-box">
+                    <div class="shop-search-box tilt-card">
                         <i class="bi bi-search"></i>
                         <input type="search" th:placeholder="#{products.search.placeholder}">
                         <button th:text="#{site.search}">Търси</button>
@@ -59,7 +59,7 @@
 
             <div class="row g-4">
                 <aside class="col-lg-3 d-none d-lg-block">
-                    <form class="filter-sidebar">
+                    <form class="filter-sidebar tilt-card">
                         <div class="filter-head">
                             <h2><i class="bi bi-sliders"></i> <span th:text="#{products.filters}">Филтри</span></h2>
                             <button type="reset" th:text="#{products.clear}">Изчисти</button>
@@ -111,7 +111,7 @@
                 </aside>
 
                 <div class="col-lg-9">
-                    <div class="shop-toolbar">
+                    <div class="shop-toolbar tilt-card">
                         <div>
                             <span th:text="#{products.shown}">Показани са</span>
                             <strong th:text="#{products.count.many(${products.size()})}">
@@ -140,7 +140,7 @@
 
                     <div class="row g-4" th:if="${!products.isEmpty()}">
                         <div class="col-12 col-sm-6 col-xl-4" th:each="product : ${products}">
-                            <article class="product-card shop-product-card">
+                            <article class="product-card shop-product-card tilt-card">
                                 <button class="wishlist-btn" th:aria-label="#{products.favorite}">
                                     <i class="bi bi-heart"></i>
                                 </button>

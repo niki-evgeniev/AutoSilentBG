@@ -23,13 +23,13 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <!-- Register Section -->
-<main class="auth-page">
+<main class="auth-page page-3d">
     <div class="container">
         <div class="row align-items-center justify-content-center g-5">
 
             <!-- Register form -->
             <div class="col-lg-6 col-md-9">
-                <div class="auth-form-card register-card">
+                <div class="auth-form-card register-card auth-3d-card tilt-card">
                     <div class="auth-form-header">
                         <h2 th:text="#{register.form.title}">Създай профил</h2>
                         <p th:text="#{register.form.intro}">Регистрирай се, за да поръчваш по-бързо и удобно.</p>
@@ -167,7 +167,7 @@
 
             <!-- Right visual/text -->
             <div class="col-lg-5 d-none d-lg-block">
-                <div class="auth-info-card register-info-card">
+                <div class="auth-info-card register-info-card auth-3d-card tilt-card">
                     <span class="auth-label" th:text="#{register.label}">Nirton профил</span>
                     <h1 th:text="#{register.hero.title}">По-бързо пазаруване и повече удобство</h1>
                     <p th:text="#{register.hero.text}">Създай профил и управлявай поръчките си от едно място.</p>
