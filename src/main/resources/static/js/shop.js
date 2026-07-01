@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     window.addEventListener('scroll', function () {
+        if (!header) {
+            return;
+        }
+
         if (window.scrollY > 20) {
             header.classList.add('header-scrolled');
         } else {
@@ -38,6 +42,30 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1200);
         });
     });
+
+    const canTilt = window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (canTilt) {
+        document.querySelectorAll('.tilt-card').forEach(function (card) {
+            card.addEventListener('mousemove', function (event) {
+                const rect = card.getBoundingClientRect();
+                const x = (event.clientX - rect.left) / rect.width - 0.5;
+                const y = (event.clientY - rect.top) / rect.height - 0.5;
+                const lift = card.classList.contains('hero-slide-card') ? 18 : 8;
+                const rotateX = y * -8;
+                const rotateY = x * 10;
+
+                card.classList.add('is-tilting');
+                card.style.transform = 'translateY(-' + lift + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                card.classList.remove('is-tilting');
+                card.style.transform = '';
+            });
+        });
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function () {

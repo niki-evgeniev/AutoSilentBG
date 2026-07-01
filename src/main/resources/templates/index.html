@@ -36,11 +36,15 @@
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="hero-slider-wrap">
+                    <div class="hero-slider-wrap home-3d-scene">
+                        <div class="scene-orbit" aria-hidden="true"></div>
+                        <div class="scene-chip chip-fast" aria-hidden="true"><i class="bi bi-lightning-charge-fill"></i></div>
+                        <div class="scene-chip chip-secure" aria-hidden="true"><i class="bi bi-shield-lock-fill"></i></div>
+                        <div class="scene-chip chip-delivery" aria-hidden="true"><i class="bi bi-truck"></i></div>
                         <div class="swiper hero-swiper">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide">
-                                    <article class="hero-slide-card">
+                                    <article class="hero-slide-card tilt-card">
                                         <div class="slide-text">
                                             <span th:text="#{home.slide1.label}">Топ продукт</span>
                                             <h2 th:text="#{home.slide1.title}">Стойка за телефон</h2>
@@ -51,7 +55,7 @@
                                     </article>
                                 </div>
                                 <div class="swiper-slide">
-                                    <article class="hero-slide-card">
+                                    <article class="hero-slide-card tilt-card">
                                         <div class="slide-text">
                                             <span th:text="#{home.slide2.label}">Бързо зареждане</span>
                                             <h2 th:text="#{home.slide2.title}">Зарядно за кола QC 3.0</h2>
@@ -61,7 +65,7 @@
                                     </article>
                                 </div>
                                 <div class="swiper-slide">
-                                    <article class="hero-slide-card">
+                                    <article class="hero-slide-card tilt-card">
                                         <div class="slide-text">
                                             <span th:text="#{home.slide3.label}">Практично</span>
                                             <h2 th:text="#{home.slide3.title}">Стелки за автомобил</h2>
@@ -116,7 +120,7 @@
 
             <div class="row g-4">
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="category-card">
+                    <article class="category-card tilt-card">
                         <div class="category-img"><i class="bi bi-car-front"></i></div>
                         <h3 th:text="#{category.car}">Автоаксесоари</h3>
                         <p th:text="#{category.car.text}">Практични и качествени аксесоари за автомобила.</p>
@@ -124,7 +128,7 @@
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="category-card">
+                    <article class="category-card tilt-card">
                         <div class="category-img"><i class="bi bi-box-seam"></i></div>
                         <h3 th:text="#{category.3d}">3D продукти</h3>
                         <p th:text="#{category.3d.text}">Иновативни 3D принтирани продукти и аксесоари.</p>
@@ -132,7 +136,7 @@
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="category-card">
+                    <article class="category-card tilt-card">
                         <div class="category-img"><i class="bi bi-gift"></i></div>
                         <h3 th:text="#{category.gifts}">Подаръци</h3>
                         <p th:text="#{category.gifts.text}">Оригинални подаръци за всеки повод.</p>
@@ -140,7 +144,7 @@
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="category-card">
+                    <article class="category-card tilt-card">
                         <div class="category-img accent"><i class="bi bi-percent"></i></div>
                         <h3 th:text="#{category.promotions}">Промоции</h3>
                         <p th:text="#{category.promotions.text}">Виж всички продукти с намаление.</p>
@@ -160,7 +164,7 @@
 
             <div class="row g-4">
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card">
+                    <article class="product-card tilt-card">
                         <span class="sale-badge">-20%</span>
                         <div class="product-image"><img src="/images/hero-phone-holder.svg" alt="Стойка за телефон">
                         </div>
@@ -175,7 +179,7 @@
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card">
+                    <article class="product-card tilt-card">
                         <span class="sale-badge">-25%</span>
                         <div class="product-image"><img src="/images/hero-car-charger.svg" alt="Бързо зарядно"></div>
                         <div class="product-content">
@@ -189,7 +193,7 @@
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card">
+                    <article class="product-card tilt-card">
                         <span class="sale-badge">-25%</span>
                         <div class="product-image"><img src="/images/hero-car-mats.svg" alt="Стелки за кола"></div>
                         <div class="product-content">
@@ -203,7 +207,7 @@
                     </article>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card">
+                    <article class="product-card tilt-card">
                         <span class="sale-badge">-23%</span>
                         <div class="product-image"><i class="bi bi-bag"></i></div>
                         <div class="product-content">
