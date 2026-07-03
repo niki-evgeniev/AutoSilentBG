@@ -23,7 +23,8 @@ public class UserRegistrationDto {
     @Size(max = 254, message = "{validation.email.size}")
     private String email;
 
-    @Pattern(regexp = "^$|^(?=(?:.*\\d){7,})[+]?[0-9 ()-]{7,20}$", message = "{validation.phone.invalid}")
+    @Pattern(regexp = "^$|^(?=(?:.*\\d){7,})[+]?[0-9 ()-]{7,20}$",
+            message = "{validation.phone.invalid}")
     private String phoneNumber;
 
     @NotBlank(message = "{validation.password.required}")
