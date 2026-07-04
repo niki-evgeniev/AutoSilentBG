@@ -62,7 +62,8 @@
                         <h1 th:text="${product.name()}">Име на продукта</h1>
 
                         <div class="product-details-meta">
-                            <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong th:text="${product.sku()}">SKU</strong></span>
+                            <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong
+                                    th:text="${product.sku()}">SKU</strong></span>
                             <span th:classappend="${product.stock() > 0 ? ' in-stock' : ' out-of-stock'}">
                                 <i th:class="${product.stock() > 0 ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'}"></i>
                                 <strong th:text="${product.stock() > 0 ? #messages.msg('details.inStock') : #messages.msg('details.soldOut')}">В наличност</strong>
@@ -70,7 +71,8 @@
                         </div>
 
                         <div class="product-details-price"
-                             th:text="#{product.price(${product.price()})}">0.00 €</div>
+                             th:text="#{product.price(${product.price()})}">0.00 €
+                        </div>
 
                         <form class="quick-order-form"
                               th:if="${product.stock() > 0}"
@@ -115,7 +117,9 @@
                                        required>
                             </div>
 
-                            <button class="btn btn-orange w-100" type="submit" th:text="#{quickOrder.submit}">Поръчай бързо</button>
+                            <button class="btn btn-orange w-100" type="submit" th:text="#{quickOrder.submit}">Поръчай
+                                бързо
+                            </button>
                         </form>
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
@@ -138,9 +142,13 @@
                         </div>
 
                         <div class="product-details-assurances">
-                            <div><i class="bi bi-truck"></i><span><strong th:text="#{details.fastDelivery}">Бърза доставка</strong><span th:text="#{details.deliveryTime}">1–2 работни дни</span></span></div>
-                            <div><i class="bi bi-shield-check"></i><span><strong th:text="#{details.secureOrder}">Сигурна поръчка</strong><span th:text="#{details.protectedData}">Защитени данни</span></span></div>
-                            <div><i class="bi bi-arrow-counterclockwise"></i><span><strong th:text="#{details.easyReturns}">Лесно връщане</strong><span th:text="#{details.returnTime}">До 14 дни</span></span></div>
+                            <div><i class="bi bi-truck"></i><span><strong th:text="#{details.fastDelivery}">Бърза доставка</strong><span
+                                    th:text="#{details.deliveryTime}">1–2 работни дни</span></span></div>
+                            <div><i class="bi bi-shield-check"></i><span><strong th:text="#{details.secureOrder}">Сигурна поръчка</strong><span
+                                    th:text="#{details.protectedData}">Защитени данни</span></span></div>
+                            <div><i class="bi bi-arrow-counterclockwise"></i><span><strong
+                                    th:text="#{details.easyReturns}">Лесно връщане</strong><span
+                                    th:text="#{details.returnTime}">До 14 дни</span></span></div>
                         </div>
                     </article>
                 </div>

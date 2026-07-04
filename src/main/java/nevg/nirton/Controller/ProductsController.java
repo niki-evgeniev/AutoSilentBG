@@ -68,7 +68,8 @@ public class ProductsController {
                                    @AuthenticationPrincipal ShopUserDetails currentUser,
                                    RedirectAttributes redirectAttributes) {
         if (product.getMainImage() == null || product.getMainImage().isEmpty()) {
-            bindingResult.rejectValue("mainImage", "image.required", "Главната снимка е задължителна.");
+            bindingResult.rejectValue("mainImage", "image.required",
+                    "Главната снимка е задължителна.");
         }
         long additionalImageCount = product.getAdditionalImages().stream()
                 .filter(Objects::nonNull)

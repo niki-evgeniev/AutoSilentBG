@@ -16,4 +16,12 @@ class HomeControllerTest {
         assertThat(result.getViewName()).isEqualTo("index");
         assertThat(result.getModel()).isEmpty();
     }
+
+    @Test
+    void cartReturnsCartView() {
+        ModelAndView result = homeController.cart();
+
+        assertThat(result.getViewName()).isEqualTo("cart");
+        assertThat(result.getModel()).isEmpty();
+    }
 }
