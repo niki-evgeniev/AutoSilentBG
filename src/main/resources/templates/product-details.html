@@ -72,7 +72,10 @@
                         <div class="product-details-price"
                              th:text="#{product.price(${product.price()})}">0.00 €</div>
 
-                        <form class="quick-order-form" th:action="@{/orders/quick}" method="post">
+                        <form class="quick-order-form"
+                              th:if="${product.stock() > 0}"
+                              th:action="@{/orders/quick}"
+                              method="post">
                             <input type="hidden" name="productId" th:value="${product.id()}">
                             <input id="quickOrderQuantity" type="hidden" name="quantity" value="1">
                             <h2 class="h5 text-center" th:text="#{quickOrder.title}">Бърза поръчка</h2>

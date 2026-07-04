@@ -43,7 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const nameElement = card.querySelector('.product-name-link, h1, h3');
         const priceElement = card.querySelector('.price, .product-details-price');
-        const name = card.dataset.productName || (nameElement ? nameElement.textContent.trim() : 'Продукт');
+        const name = card.dataset.productName || (nameElement ? nameElement.textContent.trim() :
+            (document.body.dataset.productDefaultName || 'Product'));
         const rawPrice = card.dataset.productPrice || (priceElement ? priceElement.textContent : '0');
         const price = Number(String(rawPrice).replace(',', '.').match(/[0-9]+(?:\.[0-9]+)?/)?.[0] || 0);
         const imageElement = card.querySelector('.product-image img, .product-gallery-main img');
@@ -138,10 +139,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<a class="cart-item-image" href="' + escapeHtml(item.url) + '">' + image + '</a>' +
                 '<div class="cart-item-info"><a href="' + escapeHtml(item.url) + '"><h2>' + escapeHtml(item.name) + '</h2></a>' +
                 '<strong>' + formatPrice(item.price) + '</strong></div>' +
-                '<div class="cart-item-quantity"><span>' + escapeHtml(document.body.dataset.cartQuantity || 'Количество') + '</span>' +
+                '<div class="cart-item-quantity"><span>' + escapeHtml(document.body.dataset.cartQuantity || 'Quantity') + '</span>' +
                 '<div class="quantity-stepper"><input class="cart-quantity-input" type="number" min="1" value="' + item.quantity + '">' +
-                '<div class="quantity-step-arrows"><button type="button" data-quantity-action="plus" aria-label="Нагоре"><i class="bi bi-chevron-up"></i></button>' +
-                '<button type="button" data-quantity-action="minus" aria-label="Надолу"><i class="bi bi-chevron-down"></i></button></div></div></div>' +
+                '<div class="quantity-step-arrows"><button type="button" data-quantity-action="plus" aria-label="' + escapeHtml(document.body.dataset.cartIncrease || 'Increase') + '"><i class="bi bi-chevron-up"></i></button>' +
+                '<button type="button" data-quantity-action="minus" aria-label="' + escapeHtml(document.body.dataset.cartDecrease || 'Decrease') + '"><i class="bi bi-chevron-down"></i></button></div></div></div>' +
                 '<strong class="cart-item-total">' + formatPrice(item.price * item.quantity) + '</strong>' +
                 '<button class="cart-remove" type="button" aria-label="' + escapeHtml(document.body.dataset.cartRemove || 'Премахни') + '"><i class="bi bi-trash3"></i></button></article>';
         }).join('');
@@ -260,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                 });
                 const result = await response.json();
-                if (!response.ok) throw new Error(result.error || 'Order creation failed.');
+                if (!response.ok) throw new Error(result.error || document.body.dataset.orderFailed || 'Order creation failed.');
 
                 localStorage.removeItem(cartStorageKey);
                 window.location.href = result.redirectUrl;

@@ -2,6 +2,7 @@ package nevg.nirton.Controller;
 
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import nevg.nirton.Models.Dto.ProductCreateDto;
 import nevg.nirton.Models.Security.ShopUserDetails;
 import nevg.nirton.Service.Exception.InvalidProductImageException;
@@ -9,6 +10,7 @@ import nevg.nirton.Service.Exception.ProductAlreadyExistsException;
 import nevg.nirton.Service.Exception.ProductCreationException;
 import nevg.nirton.Service.ProductService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -39,7 +41,15 @@ public class ProductsController {
     }
 
     @GetMapping("/products/{id}")
-    public ModelAndView productDetails(@PathVariable Long id) {
+    public ModelAndView productDetailsPage(@PathVariable Long id, HttpServletRequest request) {
+        Object csrfAttribute = request.getAttribute(CsrfToken.class.getName());
+        if (csrfAttribute instanceof CsrfToken csrfToken) {
+            csrfToken.getToken();
+        }
+        return productDetails(id);
+    }
+
+    public ModelAndView productDetails(Long id) {
         ModelAndView modelAndView = new ModelAndView("product-details");
         modelAndView.addObject("product", productService.getActiveProduct(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,

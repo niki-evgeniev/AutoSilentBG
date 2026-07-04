@@ -9,7 +9,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/shop.css" rel="stylesheet">
 </head>
-<body th:data-currency="#{site.currency}" th:data-cart-quantity="#{cart.quantity}" th:data-cart-remove="#{cart.remove}" th:data-invalid-cart="#{cart.invalid}">
+<body th:data-currency="#{site.currency}" th:data-cart-quantity="#{cart.quantity}" th:data-cart-remove="#{cart.remove}"
+      th:data-cart-increase="#{cart.increase}" th:data-cart-decrease="#{cart.decrease}"
+      th:data-product-default-name="#{product.defaultName}" th:data-invalid-cart="#{cart.invalid}">
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
 

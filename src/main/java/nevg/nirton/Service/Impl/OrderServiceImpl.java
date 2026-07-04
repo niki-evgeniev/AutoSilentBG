@@ -16,6 +16,8 @@ import nevg.nirton.Repository.UserRepository;
 import nevg.nirton.Service.Exception.OrderCreationException;
 import nevg.nirton.Service.OrderService;
 import org.springframework.stereotype.Service;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
 
@@ -37,24 +39,27 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderItemRepository orderItemRepository,
                             OrderStatusHistoryRepository statusHistoryRepository,
                             ProductRepository productRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            MessageSource messageSource) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.messageSource = messageSource;
     }
 
     @Override
     @Transactional(readOnly = true)
     public CheckoutCustomerDto getCheckoutCustomer(String userEmail) {
         User user = userRepository.findByEmailIgnoreCase(userEmail)
-                .orElseThrow(() -> new OrderCreationException("Потребителят не е намерен."));
+                .orElseThrow(() -> new OrderCreationException(message("order.error.userNotFound")));
         return new CheckoutCustomerDto(
                 user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhoneNumber());
     }
@@ -65,17 +70,17 @@ public class OrderServiceImpl implements OrderService {
                                         String phone, String customerNote,
                                         List<CartItemOrderDto> items) {
         User user = userRepository.findByEmailIgnoreCase(userEmail)
-                .orElseThrow(() -> new OrderCreationException("Потребителят не е намерен."));
+                .orElseThrow(() -> new OrderCreationException(message("order.error.userNotFound")));
         if (items == null || items.isEmpty()) {
-            throw new OrderCreationException("Кошницата е празна.");
+            throw new OrderCreationException(message("order.error.emptyCart"));
         }
 
         OrderEntity order = newOrder();
         order.setUser(user);
-        order.setCustomerFirstName(required(firstName, "Името е задължително."));
-        order.setCustomerLastName(required(lastName, "Фамилията е задължителна."));
+        order.setCustomerFirstName(required(firstName, "order.error.firstNameRequired"));
+        order.setCustomerLastName(required(lastName, "order.error.lastNameRequired"));
         order.setCustomerEmail(user.getEmail());
-        order.setCustomerPhone(required(phone, "Телефонът е задължителен."));
+        order.setCustomerPhone(required(phone, "order.error.phoneRequired"));
         order.setCustomerNote(customerNote == null || customerNote.isBlank() ? null : customerNote.trim());
         return persistOrder(order, items);
     }
@@ -85,7 +90,7 @@ public class OrderServiceImpl implements OrderService {
     public String createQuickOrder(QuickOrderDto request) {
         String[] names = request.names().trim().split("\\s+", 2);
         if (names.length < 2) {
-            throw new OrderCreationException("Въведете две имена.");
+            throw new OrderCreationException(message("order.error.twoNamesRequired"));
         }
 
         OrderEntity order = newOrder();
@@ -123,12 +128,12 @@ public class OrderServiceImpl implements OrderService {
 
     private PreparedItem prepareItem(CartItemOrderDto request) {
         if (request == null || request.productId() == null || request.quantity() < 1) {
-            throw new OrderCreationException("Невалиден продукт или количество.");
+            throw new OrderCreationException(message("order.error.invalidItem"));
         }
         Product product = productRepository.findActiveByIdForUpdate(request.productId())
-                .orElseThrow(() -> new OrderCreationException("Продуктът вече не е наличен."));
+                .orElseThrow(() -> new OrderCreationException(message("order.error.productUnavailable")));
         if (product.getStock() < request.quantity()) {
-            throw new OrderCreationException("Недостатъчна наличност за „" + product.getNameProduct() + "“.");
+            throw new OrderCreationException(message("order.error.insufficientStock", product.getNameProduct()));
         }
         return new PreparedItem(product, request.quantity());
     }
@@ -137,13 +142,13 @@ public class OrderServiceImpl implements OrderService {
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         for (CartItemOrderDto request : requests) {
             if (request == null || request.productId() == null || request.quantity() < 1) {
-                throw new OrderCreationException("Невалиден продукт или количество.");
+                throw new OrderCreationException(message("order.error.invalidItem"));
             }
             quantities.merge(request.productId(), request.quantity(), (current, added) -> {
                 try {
                     return Math.addExact(current, added);
                 } catch (ArithmeticException exception) {
-                    throw new OrderCreationException("Количеството е прекалено голямо.");
+                    throw new OrderCreationException(message("order.error.quantityTooLarge"));
                 }
             });
         }
@@ -201,9 +206,13 @@ public class OrderServiceImpl implements OrderService {
                 + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    private String required(String value, String message) {
-        if (value == null || value.isBlank()) throw new OrderCreationException(message);
+    private String required(String value, String messageKey) {
+        if (value == null || value.isBlank()) throw new OrderCreationException(message(messageKey));
         return value.trim();
+    }
+
+    private String message(String code, Object... arguments) {
+        return messageSource.getMessage(code, arguments, LocaleContextHolder.getLocale());
     }
 
     private record PreparedItem(Product product, int quantity) {
