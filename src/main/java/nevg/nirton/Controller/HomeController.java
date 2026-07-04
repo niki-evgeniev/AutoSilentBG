@@ -11,4 +11,9 @@ public class HomeController {
     public ModelAndView index() {
         return new ModelAndView("index");
     }
+
+    @GetMapping("/cart")
+    public ModelAndView cart() {
+        return new ModelAndView("cart");
+    }
 }

@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.server.ResponseStatusException;
@@ -60,6 +62,16 @@ class ProductsControllerTest {
     }
 
     @Test
+    void productsReturnsEmptyCatalogInModel() {
+        when(productService.getActiveProducts()).thenReturn(List.of());
+
+        ModelAndView result = productsController.products();
+
+        assertThat(result.getViewName()).isEqualTo("products");
+        assertThat(result.getModel().get("products")).isEqualTo(List.of());
+    }
+
+    @Test
     void productDetailsReturnsRequestedProduct() {
         ProductDetailsDto product = new ProductDetailsDto(
                 7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
@@ -71,6 +83,49 @@ class ProductsControllerTest {
 
         assertThat(result.getViewName()).isEqualTo("product-details");
         assertThat(result.getModel().get("product")).isSameAs(product);
+    }
+
+    @Test
+    void productDetailsPageInitializesCsrfTokenBeforeRenderingQuickOrderForm() {
+        ProductDetailsDto product = new ProductDetailsDto(
+                7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
+                "Description", 2, List.of("/image.png")
+        );
+        when(productService.getActiveProduct(7L)).thenReturn(Optional.of(product));
+        CsrfToken csrfToken = org.mockito.Mockito.mock(CsrfToken.class);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+
+        ModelAndView result = productsController.productDetailsPage(7L, request);
+
+        verify(csrfToken).getToken();
+        assertThat(result.getViewName()).isEqualTo("product-details");
+        assertThat(result.getModel().get("product")).isSameAs(product);
+    }
+
+    @Test
+    void productDetailsPageWorksWhenCsrfAttributeIsNotPresent() {
+        ProductDetailsDto product = new ProductDetailsDto(
+                8L, "Product", "SKU-2", "Category", new BigDecimal("12.00"),
+                "Description", 1, List.of()
+        );
+        when(productService.getActiveProduct(8L)).thenReturn(Optional.of(product));
+
+        ModelAndView result = productsController.productDetailsPage(8L, new MockHttpServletRequest());
+
+        assertThat(result.getViewName()).isEqualTo("product-details");
+        assertThat(result.getModel().get("product")).isSameAs(product);
+    }
+
+    @Test
+    void productDetailsPageReturnsNotFoundForMissingProduct() {
+        when(productService.getActiveProduct(404L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productsController.productDetailsPage(
+                404L, new MockHttpServletRequest()))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
     }
 
     @Test

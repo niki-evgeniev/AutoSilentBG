@@ -52,23 +52,75 @@
                 </div>
 
                 <div class="col-lg-5">
-                    <article class="product-details-card tilt-card">
+                    <article class="product-details-card tilt-card"
+                             th:data-product-id="${product.id()}"
+                             th:data-product-name="${product.name()}"
+                             th:data-product-price="${product.price()}"
+                             th:data-product-image="${product.mainImageUrl()}"
+                             th:data-product-url="@{/products/{id}(id=${product.id()})}">
                         <span class="eyebrow" th:text="${product.category()}">Категория</span>
                         <h1 th:text="${product.name()}">Име на продукта</h1>
 
                         <div class="product-details-meta">
-                            <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong th:text="${product.sku()}">SKU</strong></span>
+                            <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong
+                                    th:text="${product.sku()}">SKU</strong></span>
                             <span th:classappend="${product.stock() > 0 ? ' in-stock' : ' out-of-stock'}">
                                 <i th:class="${product.stock() > 0 ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'}"></i>
                                 <strong th:text="${product.stock() > 0 ? #messages.msg('details.inStock') : #messages.msg('details.soldOut')}">В наличност</strong>
                             </span>
                         </div>
 
-                        <div class="product-details-price" th:text="#{product.price(${product.price()})}">0.00 лв.</div>
+                        <div class="product-details-price"
+                             th:text="#{product.price(${product.price()})}">0.00 €
+                        </div>
 
-                        <p class="product-details-description" th:text="${product.description()}">
-                            Описание на продукта
-                        </p>
+                        <form class="quick-order-form"
+                              th:if="${product.stock() > 0}"
+                              th:action="@{/orders/quick}"
+                              method="post">
+                            <input type="hidden" name="productId" th:value="${product.id()}">
+                            <input id="quickOrderQuantity" type="hidden" name="quantity" value="1">
+                            <h2 class="h5 text-center" th:text="#{quickOrder.title}">Бърза поръчка</h2>
+
+                            <div class="alert alert-danger" th:if="${orderError}" th:text="${orderError}"></div>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label "
+                                       for="quickOrderNames" th:text="#{quickOrder.names}">Две имена</label>
+                                <input class="form-control"
+                                       id="quickOrderNames"
+                                       name="names"
+                                       type="text"
+                                       autocomplete="name"
+                                       required>
+                            </div>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label"
+                                       for="quickOrderEmail" th:text="#{quickOrder.email}">Имейл</label>
+                                <input class="form-control"
+                                       id="quickOrderEmail"
+                                       name="email"
+                                       type="email"
+                                       autocomplete="email"
+                                       required>
+                            </div>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label"
+                                       for="quickOrderPhone" th:text="#{quickOrder.phone}">Телефон</label>
+                                <input class="form-control"
+                                       id="quickOrderPhone"
+                                       name="phone"
+                                       type="tel"
+                                       autocomplete="tel"
+                                       required>
+                            </div>
+
+                            <button class="btn btn-orange w-100" type="submit" th:text="#{quickOrder.submit}">Поръчай
+                                бързо
+                            </button>
+                        </form>
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
                             <i class="bi bi-box2-heart"></i>
@@ -78,7 +130,7 @@
                         <div class="product-purchase-actions">
                             <label class="quantity-control" th:if="${product.stock() > 0}">
                                 <span th:text="#{details.quantity}">Количество</span>
-                                <input type="number" value="1" min="1" th:max="${product.stock()}">
+                                <input id="productQuantity" type="number" value="1" min="1" th:max="${product.stock()}">
                             </label>
                             <button class="btn btn-orange product-add-cart"
                                     th:disabled="${product.stock() == 0}">
@@ -90,9 +142,13 @@
                         </div>
 
                         <div class="product-details-assurances">
-                            <div><i class="bi bi-truck"></i><span><strong th:text="#{details.fastDelivery}">Бърза доставка</strong><span th:text="#{details.deliveryTime}">1–2 работни дни</span></span></div>
-                            <div><i class="bi bi-shield-check"></i><span><strong th:text="#{details.secureOrder}">Сигурна поръчка</strong><span th:text="#{details.protectedData}">Защитени данни</span></span></div>
-                            <div><i class="bi bi-arrow-counterclockwise"></i><span><strong th:text="#{details.easyReturns}">Лесно връщане</strong><span th:text="#{details.returnTime}">До 14 дни</span></span></div>
+                            <div><i class="bi bi-truck"></i><span><strong th:text="#{details.fastDelivery}">Бърза доставка</strong><span
+                                    th:text="#{details.deliveryTime}">1–2 работни дни</span></span></div>
+                            <div><i class="bi bi-shield-check"></i><span><strong th:text="#{details.secureOrder}">Сигурна поръчка</strong><span
+                                    th:text="#{details.protectedData}">Защитени данни</span></span></div>
+                            <div><i class="bi bi-arrow-counterclockwise"></i><span><strong
+                                    th:text="#{details.easyReturns}">Лесно връщане</strong><span
+                                    th:text="#{details.returnTime}">До 14 дни</span></span></div>
                         </div>
                     </article>
                 </div>

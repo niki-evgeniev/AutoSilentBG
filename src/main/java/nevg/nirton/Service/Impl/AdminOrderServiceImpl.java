@@ -1,0 +1,116 @@
+package nevg.nirton.Service.Impl;
+
+import nevg.nirton.Models.Dto.*;
+import nevg.nirton.Models.Entity.OrderEntity;
+import nevg.nirton.Models.Entity.OrderStatusHistoryEntity;
+import nevg.nirton.Models.Entity.User;
+import nevg.nirton.Models.Enums.OrderStatus;
+import nevg.nirton.Models.Enums.PaymentStatus;
+import nevg.nirton.Repository.OrderItemRepository;
+import nevg.nirton.Repository.OrderRepository;
+import nevg.nirton.Repository.OrderStatusHistoryRepository;
+import nevg.nirton.Repository.UserRepository;
+import nevg.nirton.Service.AdminOrderService;
+import org.springframework.http.HttpStatus;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+@Service
+public class AdminOrderServiceImpl implements AdminOrderService {
+
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderStatusHistoryRepository historyRepository;
+    private final UserRepository userRepository;
+    private final MessageSource messageSource;
+
+    public AdminOrderServiceImpl(OrderRepository orderRepository,
+                                 OrderItemRepository orderItemRepository,
+                                 OrderStatusHistoryRepository historyRepository,
+                                 UserRepository userRepository,
+                                 MessageSource messageSource) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.historyRepository = historyRepository;
+        this.userRepository = userRepository;
+        this.messageSource = messageSource;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdminOrderSummaryDto> getAllOrders() {
+        return orderRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(order -> new AdminOrderSummaryDto(
+                        order.getId(),
+                        order.getOrderNumber(),
+                        order.getCustomerFirstName() + " " + order.getCustomerLastName(),
+                        order.getCustomerPhone(),
+                        order.getOrderStatus(),
+                        order.getTotalPrice(),
+                        order.getCreatedAt(),
+                        order.isGuestOrder()))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminOrderDetailDto getOrder(Long orderId) {
+        OrderEntity order = findOrder(orderId);
+        List<AdminOrderItemDto> items = orderItemRepository.findByOrderId(orderId).stream()
+                .map(item -> new AdminOrderItemDto(
+                        item.getProductName(), item.getProductSku(), item.getQuantity(),
+                        item.getUnitPrice(), item.getTotalPrice(), item.getProductImageUrl()))
+                .toList();
+        List<AdminOrderHistoryDto> history = historyRepository
+                .findByOrderIdOrderByChangedAtDesc(orderId).stream()
+                .map(entry -> new AdminOrderHistoryDto(
+                        entry.getOldStatus(), entry.getNewStatus(),
+                        entry.getChangedByUser() == null ? null : entry.getChangedByUser().getEmail(),
+                        entry.getNote(), entry.getChangedAt()))
+                .toList();
+
+        return new AdminOrderDetailDto(
+                order.getId(), order.getOrderNumber(),
+                order.getCustomerFirstName(), order.getCustomerLastName(),
+                order.getCustomerEmail(), order.getCustomerPhone(), order.isGuestOrder(),
+                order.getDeliveryType(), order.getPaymentMethod(), order.getPaymentStatus(),
+                order.getOrderStatus(), order.getSubtotalPrice(), order.getDeliveryPrice(),
+                order.getDiscountPrice(), order.getTotalPrice(), order.getCustomerNote(),
+                order.getAdminNote(), order.getCreatedAt(), items, history);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long orderId, OrderStatus newStatus, String note, String changedByEmail) {
+        OrderEntity order = findOrder(orderId);
+        if (order.getOrderStatus() == newStatus) return;
+
+        User changedBy = userRepository.findByEmailIgnoreCase(changedByEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+        OrderStatus oldStatus = order.getOrderStatus();
+        order.setOrderStatus(newStatus);
+        if (newStatus == OrderStatus.DELIVERED) order.setPaymentStatus(PaymentStatus.PAID);
+        if (newStatus == OrderStatus.RETURNED) order.setPaymentStatus(PaymentStatus.REFUNDED);
+        if (note != null && !note.isBlank()) order.setAdminNote(note.trim());
+        orderRepository.save(order);
+
+        OrderStatusHistoryEntity history = new OrderStatusHistoryEntity();
+        history.setOrder(order);
+        history.setOldStatus(oldStatus);
+        history.setNewStatus(newStatus);
+        history.setChangedByUser(changedBy);
+        history.setNote(note == null || note.isBlank() ? null : note.trim());
+        historyRepository.save(history);
+    }
+
+    private OrderEntity findOrder(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        messageSource.getMessage("admin.order.notFound", null, LocaleContextHolder.getLocale())));
+    }
+}

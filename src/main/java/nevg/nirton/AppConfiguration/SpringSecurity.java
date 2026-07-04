@@ -34,8 +34,9 @@ public class SpringSecurity {
                         .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt").permitAll()
+                        .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/products/add").authenticated()
-                        .requestMatchers("/", "/user/sign_in",
+                        .requestMatchers("/", "/cart", "/user/sign_in", "/orders/quick", "/orders/success/*",
                                 "/api/***", "/user/sign_up",
                                 "/users/login-error", "/users/logout",
                                 "/products", "/products/*").permitAll()
