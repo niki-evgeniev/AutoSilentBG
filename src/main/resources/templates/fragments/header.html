@@ -33,7 +33,11 @@
                     </div>
                     <button class="icon-btn header-action-3d tilt-card" th:aria-label="#{site.search}"><i class="bi bi-search"></i></button>
                     <button class="icon-btn header-action-3d tilt-card" th:aria-label="#{site.profile}"><i class="bi bi-person"></i></button>
-                    <button class="cart-btn"><i class="bi bi-cart3 me-2"></i> <span th:text="#{site.cartTotal}">0.00 лв.</span></button>
+                    <a class="cart-btn" th:href="@{/cart}" aria-label="Кошница">
+                        <i class="bi bi-cart3 me-2"></i>
+                        <span class="cart-count">0</span>
+                        <span class="cart-total" th:text="#{site.cartTotal}">0.00 лв.</span>
+                    </a>
                 </div>
             </div>
         </div>

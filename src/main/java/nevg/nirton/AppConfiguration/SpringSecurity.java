@@ -35,7 +35,7 @@ public class SpringSecurity {
                         .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt").permitAll()
                         .requestMatchers("/products/add").authenticated()
-                        .requestMatchers("/", "/user/sign_in",
+                        .requestMatchers("/", "/cart", "/user/sign_in",
                                 "/api/***", "/user/sign_up",
                                 "/users/login-error", "/users/logout",
                                 "/products", "/products/*").permitAll()
