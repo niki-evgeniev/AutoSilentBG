@@ -76,8 +76,8 @@
                         <div class="filter-group">
                             <h3 th:text="#{products.price}">Цена</h3>
                             <div class="price-values">
-                                <span th:text="#{product.price(0)}">0 лв.</span>
-                                <strong id="priceValueDesktop" th:text="#{product.price(80)}">80 лв.</strong>
+                                <span th:text="#{product.price(0)}">0 €</span>
+                                <strong id="priceValueDesktop" th:text="#{product.price(80)}">80 €</strong>
                             </div>
                             <input class="form-range price-range" type="range" min="0" max="200" value="80"
                                    data-price-output="priceValueDesktop">
@@ -134,7 +134,7 @@
 
                     <div class="active-filter-tags">
                         <span>Автоаксесоари <i class="bi bi-x"></i></span>
-                        <span>До 80 лв. <i class="bi bi-x"></i></span>
+                        <span>До 80 € <i class="bi bi-x"></i></span>
                         <span>В наличност <i class="bi bi-x"></i></span>
                     </div>
 
@@ -170,7 +170,7 @@
                                        th:text="${product.description()}">
                                         Описание на продукта
                                     </p>
-                                    <div class="price" th:text="#{product.price(${product.price()})}">0.00 лв.</div>
+                                    <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
                                     <div class="product-card-actions">
                                         <a class="btn btn-outline-dark custom-outline"
                                            th:href="@{/products/{id}(id=${product.id()})}">
@@ -212,7 +212,7 @@
             </div>
             <div class="filter-group">
                 <h3 th:text="#{products.price}">Цена</h3>
-                <div class="price-values"><span th:text="#{product.price(0)}">0 лв.</span><strong id="priceValueMobile" th:text="#{product.price(80)}">80 лв.</strong></div>
+                <div class="price-values"><span th:text="#{product.price(0)}">0 €</span><strong id="priceValueMobile" th:text="#{product.price(80)}">80 €</strong></div>
                 <input class="form-range price-range" type="range" min="0" max="200" value="80"
                        data-price-output="priceValueMobile">
             </div>

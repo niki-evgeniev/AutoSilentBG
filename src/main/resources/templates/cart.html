@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/shop.css" rel="stylesheet">
 </head>
-<body th:data-currency="#{site.currency}" th:data-cart-quantity="#{cart.quantity}" th:data-cart-remove="#{cart.remove}">
+<body th:data-currency="#{site.currency}" th:data-cart-quantity="#{cart.quantity}" th:data-cart-remove="#{cart.remove}" th:data-invalid-cart="#{cart.invalid}">
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
 
@@ -41,8 +41,16 @@
             <aside id="cartSummary" class="cart-summary-card">
                 <h2 th:text="#{cart.summary}">Общо</h2>
                 <div><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
-                <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 лв.</strong></div>
-                <button class="btn btn-orange w-100" type="button" th:text="#{cart.checkout}">Продължи към поръчка</button>
+                <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 €</strong></div>
+                <a sec:authorize="isAuthenticated()" class="btn btn-orange w-100"
+                   th:href="@{/orders/checkout}" th:text="#{cart.checkout}">Продължи към поръчка</a>
+                <button sec:authorize="!isAuthenticated()" class="btn btn-secondary w-100" type="button" disabled
+                        th:text="#{cart.checkout}">Продължи към поръчка</button>
+                <p sec:authorize="!isAuthenticated()" class="cart-auth-hint">
+                    <a th:href="@{/user/sign_in}" th:text="#{site.login}">Вход</a>
+                    <span th:text="#{site.or}">или</span>
+                    <a th:href="@{/user/sign_up}" th:text="#{site.register}">Регистрация</a>
+                </p>
             </aside>
         </div>
     </section>

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function currency() {
-        return document.body.dataset.currency || 'лв.';
+        return document.body.dataset.currency || '€';
     }
 
     function formatPrice(value) {
@@ -138,7 +138,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<a class="cart-item-image" href="' + escapeHtml(item.url) + '">' + image + '</a>' +
                 '<div class="cart-item-info"><a href="' + escapeHtml(item.url) + '"><h2>' + escapeHtml(item.name) + '</h2></a>' +
                 '<strong>' + formatPrice(item.price) + '</strong></div>' +
-                '<label class="cart-item-quantity"><span>' + escapeHtml(document.body.dataset.cartQuantity || 'Количество') + '</span><input type="number" min="1" value="' + item.quantity + '"></label>' +
+                '<div class="cart-item-quantity"><span>' + escapeHtml(document.body.dataset.cartQuantity || 'Количество') + '</span>' +
+                '<div class="quantity-stepper"><input class="cart-quantity-input" type="number" min="1" value="' + item.quantity + '">' +
+                '<div class="quantity-step-arrows"><button type="button" data-quantity-action="plus" aria-label="Нагоре"><i class="bi bi-chevron-up"></i></button>' +
+                '<button type="button" data-quantity-action="minus" aria-label="Надолу"><i class="bi bi-chevron-down"></i></button></div></div></div>' +
                 '<strong class="cart-item-total">' + formatPrice(item.price * item.quantity) + '</strong>' +
                 '<button class="cart-remove" type="button" aria-label="' + escapeHtml(document.body.dataset.cartRemove || 'Премахни') + '"><i class="bi bi-trash3"></i></button></article>';
         }).join('');
@@ -152,12 +155,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         container.querySelectorAll('.cart-item').forEach(function (row) {
             const id = row.dataset.cartId;
-            row.querySelector('input').addEventListener('change', function (event) {
+            const quantityInput = row.querySelector('.cart-quantity-input');
+
+            function changeQuantity(quantity) {
                 const updated = readCart();
                 const item = updated.find(function (entry) { return entry.id === id; });
-                if (item) item.quantity = Math.max(1, Number(event.target.value) || 1);
+                if (item) item.quantity = Math.max(1, Number(quantity) || 1);
                 saveCart(updated);
                 renderCart();
+            }
+
+            quantityInput.addEventListener('change', function (event) {
+                changeQuantity(event.target.value);
+            });
+            row.querySelectorAll('[data-quantity-action]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const adjustment = button.dataset.quantityAction === 'plus' ? 1 : -1;
+                    changeQuantity(Number(quantityInput.value) + adjustment);
+                });
             });
             row.querySelector('.cart-remove').addEventListener('click', function () {
                 saveCart(readCart().filter(function (item) { return item.id !== id; }));
@@ -168,6 +183,101 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateCartHeader(readCart());
     renderCart();
+
+    const quickOrderForm = document.querySelector('.quick-order-form');
+    if (quickOrderForm) {
+        quickOrderForm.addEventListener('submit', function () {
+            const productQuantity = document.getElementById('productQuantity');
+            const quickOrderQuantity = document.getElementById('quickOrderQuantity');
+            if (productQuantity && quickOrderQuantity) {
+                quickOrderQuantity.value = productQuantity.value;
+            }
+        });
+    }
+
+    const checkoutButton = document.getElementById('cartCheckoutButton');
+    if (checkoutButton) {
+        checkoutButton.addEventListener('click', async function () {
+            const cart = readCart();
+            const firstName = document.getElementById('checkoutFirstName');
+            const lastName = document.getElementById('checkoutLastName');
+            const phone = document.getElementById('checkoutPhone');
+            const customerNote = document.getElementById('customerNote');
+            const errorBox = document.getElementById('checkoutError');
+            const items = cart.map(function (item) {
+                return { productId: Number(item.id), quantity: item.quantity };
+            });
+
+            errorBox.hidden = true;
+            [firstName, lastName, phone].forEach(function (field) {
+                if (field) {
+                    field.setCustomValidity('');
+                    field.classList.remove('is-invalid');
+                }
+            });
+            if (!firstName.value.trim()) {
+                firstName.setCustomValidity(document.body.dataset.firstNameRequired);
+            }
+            if (!lastName.value.trim()) {
+                lastName.setCustomValidity(document.body.dataset.lastNameRequired);
+            }
+            if (!phone.value.trim()) {
+                phone.setCustomValidity(document.body.dataset.phoneRequired);
+            } else if (!phone.checkValidity()) {
+                phone.setCustomValidity(document.body.dataset.phoneInvalid);
+            }
+            const invalidField = [firstName, lastName, phone].find(function (field) {
+                return !field.checkValidity();
+            });
+            if (invalidField) {
+                invalidField.classList.add('is-invalid');
+                invalidField.reportValidity();
+                invalidField.focus();
+                return;
+            }
+            if (items.some(function (item) { return !Number.isInteger(item.productId); })) {
+                errorBox.textContent = document.body.dataset.invalidCart || 'The cart contains an invalid product.';
+                errorBox.hidden = false;
+                return;
+            }
+
+            checkoutButton.disabled = true;
+            try {
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+                const response = await fetch('/orders/cart', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        items: items,
+                        firstName: firstName.value.trim(),
+                        lastName: lastName.value.trim(),
+                        phone: phone.value.trim(),
+                        customerNote: customerNote ? customerNote.value.trim() : ''
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Order creation failed.');
+
+                localStorage.removeItem(cartStorageKey);
+                window.location.href = result.redirectUrl;
+            } catch (error) {
+                errorBox.textContent = error.message;
+                errorBox.hidden = false;
+                checkoutButton.disabled = false;
+            }
+        });
+
+        document.querySelectorAll('.checkout-required').forEach(function (field) {
+            field.addEventListener('input', function () {
+                field.setCustomValidity('');
+                field.classList.remove('is-invalid');
+            });
+        });
+    }
 
     const canTilt = window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
         !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -203,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updatePrice() {
             if (output) {
-                output.textContent = range.value + ' ' + (document.body.dataset.currency || 'BGN');
+                output.textContent = range.value + ' ' + (document.body.dataset.currency || '€');
             }
         }
 

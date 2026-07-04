@@ -70,10 +70,14 @@
                         </div>
 
                         <div class="product-details-price"
-                             th:text="#{product.price(${product.price()})}">0.00 лв.</div>
+                             th:text="#{product.price(${product.price()})}">0.00 €</div>
 
-                        <form class="quick-order-form">
+                        <form class="quick-order-form" th:action="@{/orders/quick}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id()}">
+                            <input id="quickOrderQuantity" type="hidden" name="quantity" value="1">
                             <h2 class="h5 text-center" th:text="#{quickOrder.title}">Бърза поръчка</h2>
+
+                            <div class="alert alert-danger" th:if="${orderError}" th:text="${orderError}"></div>
 
                             <div class="mb-3 text-center">
                                 <label class="form-label "
@@ -119,7 +123,7 @@
                         <div class="product-purchase-actions">
                             <label class="quantity-control" th:if="${product.stock() > 0}">
                                 <span th:text="#{details.quantity}">Количество</span>
-                                <input type="number" value="1" min="1" th:max="${product.stock()}">
+                                <input id="productQuantity" type="number" value="1" min="1" th:max="${product.stock()}">
                             </label>
                             <button class="btn btn-orange product-add-cart"
                                     th:disabled="${product.stock() == 0}">

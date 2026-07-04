@@ -787,6 +787,8 @@ a { text-decoration: none; }
 .footer h3 { color: #fff; font-size: 17px; font-weight: 900; margin-bottom: 16px; }
 .footer a { color: #d1d5db; display: block; margin-bottom: 9px; }
 .footer a:hover { color: var(--color-orange); }
+.footer .socials { display: flex; align-items: center; gap: 12px; }
+.footer .socials a { display: inline-flex; margin-bottom: 0; }
 .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 34px; padding-top: 18px; font-size: 13px; }
 
 @media (max-width: 991px) {
@@ -1818,20 +1820,32 @@ a { text-decoration: none; }
 .cart-summary-card h2 { margin-bottom: 24px; font-size: 24px; font-weight: 900; }
 .cart-summary-card > div { display: flex; justify-content: space-between; gap: 15px; padding: 12px 0; }
 .cart-summary-total { margin: 10px 0 20px; border-top: 1px solid #e5e7eb; font-size: 19px; }
-.cart-item { display: grid; grid-template-columns: 110px minmax(0, 1fr) 100px 110px 42px; gap: 20px; align-items: center; padding: 18px 0; border-bottom: 1px solid #ececec; }
+.cart-item { display: grid; grid-template-columns: 110px minmax(0, 1fr) 82px 110px 42px; gap: 20px; align-items: center; padding: 18px 0; border-bottom: 1px solid #ececec; }
 .cart-item:last-child { border-bottom: 0; }
 .cart-item-image { display: flex; width: 110px; height: 90px; align-items: center; justify-content: center; overflow: hidden; border-radius: 14px; background: #f4f4f4; }
 .cart-item-image img { width: 100%; height: 100%; object-fit: contain; }
 .cart-item-image i { color: var(--color-orange); font-size: 38px; }
 .cart-item-info h2 { margin: 0 0 8px; color: var(--color-dark); font-size: 18px; font-weight: 800; }
 .cart-item-quantity span { display: block; margin-bottom: 5px; color: var(--color-muted); font-size: 11px; }
-.cart-item-quantity input { width: 82px; height: 42px; padding: 0 10px; border: 1px solid #dcdfe4; border-radius: 10px; }
+.quantity-stepper { display: inline-grid; grid-template-columns: 52px 28px; align-items: stretch; overflow: hidden; border: 1px solid #dcdfe4; border-radius: 10px; background: #fff; }
+.quantity-step-arrows { display: grid; grid-template-rows: 1fr 1fr; border-left: 1px solid #dcdfe4; }
+.quantity-stepper button { display: flex; height: 20px; align-items: center; justify-content: center; padding: 0; border: 0; background: #f3f4f6; color: var(--color-dark); font-size: 11px; font-weight: 800; }
+.quantity-stepper button + button { border-top: 1px solid #dcdfe4; }
+.quantity-stepper button:hover { background: #fff0e5; color: var(--color-orange); }
+.quantity-stepper input { width: 52px; height: 40px; padding: 0 3px; border: 0; text-align: center; font-weight: 800; }
+.quantity-stepper input:focus { outline: 2px solid rgba(255,106,0,.3); outline-offset: -2px; }
 .cart-item-total { color: var(--color-orange); }
 .cart-remove { width: 42px; height: 42px; border: 0; border-radius: 50%; background: #fff1f1; color: #c52b2b; }
 .cart-empty { padding: 55px 20px; text-align: center; }
 .cart-empty i { color: var(--color-orange); font-size: 65px; }
 .cart-empty h2 { margin-top: 14px; font-weight: 900; }
 .cart-count { display: inline-flex; min-width: 21px; height: 21px; align-items: center; justify-content: center; margin-right: 7px; border-radius: 20px; background: var(--color-orange); color: #fff; font-size: 11px; font-weight: 900; }
+.cart-auth-hint { margin: 12px 0 0; color: var(--color-muted); text-align: center; font-size: 13px; }
+.cart-auth-hint a { color: var(--color-orange); font-weight: 800; }
+.checkout-card > div.checkout-customer { display: flex; flex-direction: column; justify-content: flex-start; margin-bottom: 18px; padding: 13px 15px; border-radius: 12px; background: #f5f6f7; }
+.checkout-customer small { color: var(--color-muted); }
+.checkout-payment-note { display: flex; align-items: center; justify-content: flex-start !important; gap: 9px; margin-bottom: 8px; color: #16803c; font-size: 14px; }
+.checkout-payment-note i { font-size: 20px; }
 @media (max-width: 991px) {
     .cart-layout { grid-template-columns: 1fr; }
     .cart-summary-card { position: static; }
