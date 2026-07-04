@@ -138,9 +138,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<a class="cart-item-image" href="' + escapeHtml(item.url) + '">' + image + '</a>' +
                 '<div class="cart-item-info"><a href="' + escapeHtml(item.url) + '"><h2>' + escapeHtml(item.name) + '</h2></a>' +
                 '<strong>' + formatPrice(item.price) + '</strong></div>' +
-                '<label class="cart-item-quantity"><span>Количество</span><input type="number" min="1" value="' + item.quantity + '"></label>' +
+                '<label class="cart-item-quantity"><span>' + escapeHtml(document.body.dataset.cartQuantity || 'Количество') + '</span><input type="number" min="1" value="' + item.quantity + '"></label>' +
                 '<strong class="cart-item-total">' + formatPrice(item.price * item.quantity) + '</strong>' +
-                '<button class="cart-remove" type="button" aria-label="Премахни"><i class="bi bi-trash3"></i></button></article>';
+                '<button class="cart-remove" type="button" aria-label="' + escapeHtml(document.body.dataset.cartRemove || 'Премахни') + '"><i class="bi bi-trash3"></i></button></article>';
         }).join('');
 
         empty.hidden = cart.length > 0;

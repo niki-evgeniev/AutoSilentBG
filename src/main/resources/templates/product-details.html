@@ -73,11 +73,11 @@
                              th:text="#{product.price(${product.price()})}">0.00 лв.</div>
 
                         <form class="quick-order-form">
-                            <h2 class="h5 text-center">Бърза поръчка</h2>
+                            <h2 class="h5 text-center" th:text="#{quickOrder.title}">Бърза поръчка</h2>
 
                             <div class="mb-3 text-center">
                                 <label class="form-label "
-                                       for="quickOrderNames">Две имена</label>
+                                       for="quickOrderNames" th:text="#{quickOrder.names}">Две имена</label>
                                 <input class="form-control"
                                        id="quickOrderNames"
                                        name="names"
@@ -88,7 +88,7 @@
 
                             <div class="mb-3 text-center">
                                 <label class="form-label"
-                                       for="quickOrderEmail">Имейл</label>
+                                       for="quickOrderEmail" th:text="#{quickOrder.email}">Имейл</label>
                                 <input class="form-control"
                                        id="quickOrderEmail"
                                        name="email"
@@ -99,7 +99,7 @@
 
                             <div class="mb-3 text-center">
                                 <label class="form-label"
-                                       for="quickOrderPhone">Телефон</label>
+                                       for="quickOrderPhone" th:text="#{quickOrder.phone}">Телефон</label>
                                 <input class="form-control"
                                        id="quickOrderPhone"
                                        name="phone"
@@ -108,7 +108,7 @@
                                        required>
                             </div>
 
-                            <button class="btn btn-orange w-100" type="submit">Поръчай бързо</button>
+                            <button class="btn btn-orange w-100" type="submit" th:text="#{quickOrder.submit}">Поръчай бързо</button>
                         </form>
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
