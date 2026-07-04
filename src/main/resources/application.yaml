@@ -50,8 +50,6 @@ spring:
           auth: true
           starttls:
             enable: true
-nirton:
-  remember.me.key: 1234
   #Cloudinary Properties
   #cloudinary:
   #api-key:
@@ -68,8 +66,8 @@ nirton:
       cache:
         period: 0
 
-carpmap:
-  remember.me.key: ${REMEMBER_ME_KEY}
+nirton:
+  remember.me.key: 1234
 logging:
   level:
     #    org.hibernate.SQL: DEBUG
