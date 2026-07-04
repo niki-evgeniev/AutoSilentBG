@@ -140,7 +140,12 @@
 
                     <div class="row g-4" th:if="${!products.isEmpty()}">
                         <div class="col-12 col-sm-6 col-xl-4" th:each="product : ${products}">
-                            <article class="product-card shop-product-card tilt-card">
+                            <article class="product-card shop-product-card tilt-card"
+                                     th:data-product-id="${product.id()}"
+                                     th:data-product-name="${product.name()}"
+                                     th:data-product-price="${product.price()}"
+                                     th:data-product-image="${product.mainImageUrl()}"
+                                     th:data-product-url="@{/products/{id}(id=${product.id()})}">
                                 <button class="wishlist-btn" th:aria-label="#{products.favorite}">
                                     <i class="bi bi-heart"></i>
                                 </button>
@@ -156,12 +161,13 @@
                                         <span th:text="${product.category()}">Категория</span>
                                         <span th:text="${product.sku()}">Код</span>
                                     </div>
-                                    <h3>
+                                    <h3 class="text-center">
                                         <a class="product-name-link"
                                            th:href="@{/products/{id}(id=${product.id()})}"
                                            th:text="${product.name()}">Име на продукта</a>
                                     </h3>
-                                    <p class="product-card-description" th:text="${product.description()}">
+                                    <p class="product-card-description"
+                                       th:text="${product.description()}">
                                         Описание на продукта
                                     </p>
                                     <div class="price" th:text="#{product.price(${product.price()})}">0.00 лв.</div>

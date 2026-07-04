@@ -52,7 +52,12 @@
                 </div>
 
                 <div class="col-lg-5">
-                    <article class="product-details-card tilt-card">
+                    <article class="product-details-card tilt-card"
+                             th:data-product-id="${product.id()}"
+                             th:data-product-name="${product.name()}"
+                             th:data-product-price="${product.price()}"
+                             th:data-product-image="${product.mainImageUrl()}"
+                             th:data-product-url="@{/products/{id}(id=${product.id()})}">
                         <span class="eyebrow" th:text="${product.category()}">Категория</span>
                         <h1 th:text="${product.name()}">Име на продукта</h1>
 
@@ -64,11 +69,47 @@
                             </span>
                         </div>
 
-                        <div class="product-details-price" th:text="#{product.price(${product.price()})}">0.00 лв.</div>
+                        <div class="product-details-price"
+                             th:text="#{product.price(${product.price()})}">0.00 лв.</div>
 
-                        <p class="product-details-description" th:text="${product.description()}">
-                            Описание на продукта
-                        </p>
+                        <form class="quick-order-form">
+                            <h2 class="h5 text-center">Бърза поръчка</h2>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label "
+                                       for="quickOrderNames">Две имена</label>
+                                <input class="form-control"
+                                       id="quickOrderNames"
+                                       name="names"
+                                       type="text"
+                                       autocomplete="name"
+                                       required>
+                            </div>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label"
+                                       for="quickOrderEmail">Имейл</label>
+                                <input class="form-control"
+                                       id="quickOrderEmail"
+                                       name="email"
+                                       type="email"
+                                       autocomplete="email"
+                                       required>
+                            </div>
+
+                            <div class="mb-3 text-center">
+                                <label class="form-label"
+                                       for="quickOrderPhone">Телефон</label>
+                                <input class="form-control"
+                                       id="quickOrderPhone"
+                                       name="phone"
+                                       type="tel"
+                                       autocomplete="tel"
+                                       required>
+                            </div>
+
+                            <button class="btn btn-orange w-100" type="submit">Поръчай бързо</button>
+                        </form>
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
                             <i class="bi bi-box2-heart"></i>
