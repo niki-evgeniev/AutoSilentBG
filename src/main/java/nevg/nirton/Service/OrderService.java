@@ -14,5 +14,9 @@ public interface OrderService {
                                  String phone, String customerNote,
                                  List<CartItemOrderDto> items);
 
+    String createGuestOrder(String email, String firstName, String lastName,
+                            String phone, String customerNote,
+                            List<CartItemOrderDto> items);
+
     String createQuickOrder(QuickOrderDto request);
 }

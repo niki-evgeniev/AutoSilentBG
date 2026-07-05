@@ -31,7 +31,7 @@
                 <span th:text="#{site.greeting}">Здравей,
                 </span> <span sec:authentication="principal.firstName"></span>
             </span>
-            <a sec:authorize="isAuthenticated()"
+            <a sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')"
                th:href="@{/products/add}">
                 <i class="bi bi-plus-circle me-1"></i>
                 <span th:text="#{site.addProduct}">Добави продукт</span>

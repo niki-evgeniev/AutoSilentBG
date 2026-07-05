@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +18,7 @@
 <main class="product-details-page page-3d">
     <section class="product-details-hero page-3d-hero">
         <div class="container">
+            <div th:if="${productUpdated}" class="alert alert-success" th:text="#{edit.success}">Продуктът е обновен успешно.</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
@@ -60,6 +61,11 @@
                              th:data-product-url="@{/products/{id}(id=${product.id()})}">
                         <span class="eyebrow" th:text="${product.category()}">Категория</span>
                         <h1 th:text="${product.name()}">Име на продукта</h1>
+                        <a sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')"
+                           class="btn btn-outline-dark custom-outline mb-3"
+                           th:href="@{/products/{id}/edit(id=${product.id()})}">
+                            <i class="bi bi-pencil-square me-2"></i><span th:text="#{details.edit}">Редактирай</span>
+                        </a>
 
                         <div class="product-details-meta">
                             <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong
@@ -74,53 +80,53 @@
                              th:text="#{product.price(${product.price()})}">0.00 €
                         </div>
 
-                        <form class="quick-order-form"
-                              th:if="${product.stock() > 0}"
-                              th:action="@{/orders/quick}"
-                              method="post">
-                            <input type="hidden" name="productId" th:value="${product.id()}">
-                            <input id="quickOrderQuantity" type="hidden" name="quantity" value="1">
-                            <h2 class="h5 text-center" th:text="#{quickOrder.title}">Бърза поръчка</h2>
+<!--                        <form class="quick-order-form"-->
+<!--                              th:if="${product.stock() > 0}"-->
+<!--                              th:action="@{/orders/quick}"-->
+<!--                              method="post">-->
+<!--                            <input type="hidden" name="productId" th:value="${product.id()}">-->
+<!--                            <input id="quickOrderQuantity" type="hidden" name="quantity" value="1">-->
+<!--                            <h2 class="h5 text-center" th:text="#{quickOrder.title}">Бърза поръчка</h2>-->
 
-                            <div class="alert alert-danger" th:if="${orderError}" th:text="${orderError}"></div>
+<!--                            <div class="alert alert-danger" th:if="${orderError}" th:text="${orderError}"></div>-->
 
-                            <div class="mb-3 text-center">
-                                <label class="form-label "
-                                       for="quickOrderNames" th:text="#{quickOrder.names}">Две имена</label>
-                                <input class="form-control"
-                                       id="quickOrderNames"
-                                       name="names"
-                                       type="text"
-                                       autocomplete="name"
-                                       required>
-                            </div>
+<!--                            <div class="mb-3 text-center">-->
+<!--                                <label class="form-label "-->
+<!--                                       for="quickOrderNames" th:text="#{quickOrder.names}">Две имена</label>-->
+<!--                                <input class="form-control"-->
+<!--                                       id="quickOrderNames"-->
+<!--                                       name="names"-->
+<!--                                       type="text"-->
+<!--                                       autocomplete="name"-->
+<!--                                       required>-->
+<!--                            </div>-->
 
-                            <div class="mb-3 text-center">
-                                <label class="form-label"
-                                       for="quickOrderEmail" th:text="#{quickOrder.email}">Имейл</label>
-                                <input class="form-control"
-                                       id="quickOrderEmail"
-                                       name="email"
-                                       type="email"
-                                       autocomplete="email"
-                                       required>
-                            </div>
+<!--                            <div class="mb-3 text-center">-->
+<!--                                <label class="form-label"-->
+<!--                                       for="quickOrderEmail" th:text="#{quickOrder.email}">Имейл</label>-->
+<!--                                <input class="form-control"-->
+<!--                                       id="quickOrderEmail"-->
+<!--                                       name="email"-->
+<!--                                       type="email"-->
+<!--                                       autocomplete="email"-->
+<!--                                       required>-->
+<!--                            </div>-->
 
-                            <div class="mb-3 text-center">
-                                <label class="form-label"
-                                       for="quickOrderPhone" th:text="#{quickOrder.phone}">Телефон</label>
-                                <input class="form-control"
-                                       id="quickOrderPhone"
-                                       name="phone"
-                                       type="tel"
-                                       autocomplete="tel"
-                                       required>
-                            </div>
+<!--                            <div class="mb-3 text-center">-->
+<!--                                <label class="form-label"-->
+<!--                                       for="quickOrderPhone" th:text="#{quickOrder.phone}">Телефон</label>-->
+<!--                                <input class="form-control"-->
+<!--                                       id="quickOrderPhone"-->
+<!--                                       name="phone"-->
+<!--                                       type="tel"-->
+<!--                                       autocomplete="tel"-->
+<!--                                       required>-->
+<!--                            </div>-->
 
-                            <button class="btn btn-orange w-100" type="submit" th:text="#{quickOrder.submit}">Поръчай
-                                бързо
-                            </button>
-                        </form>
+<!--                            <button class="btn btn-orange w-100" type="submit" th:text="#{quickOrder.submit}">Поръчай-->
+<!--                                бързо-->
+<!--                            </button>-->
+<!--                        </form>-->
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
                             <i class="bi bi-box2-heart"></i>

@@ -24,6 +24,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = "pictures")
     Optional<Product> findByIdAndActiveTrue(Long id);
 
+    @EntityGraph(attributePaths = "pictures")
+    Optional<Product> findWithPicturesById(Long id);
+
+    boolean existsByNameProductIgnoreCaseAndIdNot(String nameProduct, Long id);
+
+    boolean existsBySkuIgnoreCaseAndIdNot(String sku, Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select distinct p from Product p left join fetch p.pictures where p.id = :id and p.active = true")
     Optional<Product> findActiveByIdForUpdate(@Param("id") Long id);

@@ -41,6 +41,9 @@ public class ProductCreateDto {
     private boolean active = true;
     private MultipartFile mainImage;
     private List<MultipartFile> additionalImages = new ArrayList<>();
+    private List<Long> removedImageIds = new ArrayList<>();
+    private Long existingMainImageId;
+    private List<ProductImageEditDto> existingImages = new ArrayList<>();
 
     public String getNameProduct() {
         return nameProduct;
@@ -112,5 +115,29 @@ public class ProductCreateDto {
 
     public void setAdditionalImages(List<MultipartFile> additionalImages) {
         this.additionalImages = additionalImages == null ? new ArrayList<>() : additionalImages;
+    }
+
+    public List<Long> getRemovedImageIds() {
+        return removedImageIds;
+    }
+
+    public void setRemovedImageIds(List<Long> removedImageIds) {
+        this.removedImageIds = removedImageIds == null ? new ArrayList<>() : removedImageIds;
+    }
+
+    public Long getExistingMainImageId() {
+        return existingMainImageId;
+    }
+
+    public void setExistingMainImageId(Long existingMainImageId) {
+        this.existingMainImageId = existingMainImageId;
+    }
+
+    public List<ProductImageEditDto> getExistingImages() {
+        return existingImages;
+    }
+
+    public void setExistingImages(List<ProductImageEditDto> existingImages) {
+        this.existingImages = existingImages == null ? new ArrayList<>() : existingImages;
     }
 }

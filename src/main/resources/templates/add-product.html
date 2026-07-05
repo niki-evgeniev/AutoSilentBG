@@ -24,7 +24,7 @@
                 </ol>
             </nav>
             <span class="eyebrow" th:text="#{add.catalog}">Управление на каталога</span>
-            <h1 th:text="#{add.heading}">Добави нов продукт</h1>
+            <h1 th:text="${editMode} ? #{edit.heading} : #{add.heading}">Добави нов продукт</h1>
             <p th:text="#{add.intro}">Попълни информацията и добави качествени снимки на продукта.</p>
         </div>
     </section>
@@ -35,7 +35,7 @@
                 <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{add.success}"></span>
             </div>
 
-            <form th:action="@{/products/add}" th:object="${product}" method="post"
+            <form th:action="${editMode} ? @{/products/{id}/edit(id=${productId})} : @{/products/add}" th:object="${product}" method="post"
                   enctype="multipart/form-data" class="product-editor" novalidate>
                 <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
                     <i class="bi bi-exclamation-circle-fill me-2"></i>
@@ -135,12 +135,26 @@
                                 <div><h2 th:text="#{add.images}">Снимки</h2><p th:text="#{add.images.text}">JPG, PNG или WEBP, до 5 MB всяка.</p></div>
                             </div>
 
+                            <div th:if="${editMode and !product.existingImages.isEmpty()}" class="existing-product-images mb-4">
+                                <div class="existing-product-image" th:each="image : ${product.existingImages}">
+                                    <img th:src="${image.url()}" th:alt="#{edit.existingImage}">
+                                    <label>
+                                        <input type="radio" th:field="*{existingMainImageId}" th:value="${image.id()}">
+                                        <span th:text="#{edit.makeMain}">Главна</span>
+                                    </label>
+                                    <label class="text-danger">
+                                        <input type="checkbox" th:field="*{removedImageIds}" th:value="${image.id()}">
+                                        <span th:text="#{edit.removeImage}">Премахни</span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <label for="mainImage" class="product-upload-box">
                                 <i class="bi bi-cloud-arrow-up"></i>
-                                <strong th:text="#{add.mainImage}">Главна снимка</strong>
-                                <span th:text="#{add.mainImage.text}">Задължителна, точно 1 снимка</span>
+                                <strong th:text="${editMode} ? #{edit.newMainImage} : #{add.mainImage}">Главна снимка</strong>
+                                <span th:text="${editMode} ? #{edit.newMainImage.text} : #{add.mainImage.text}">Задължителна, точно 1 снимка</span>
                                 <input id="mainImage" th:field="*{mainImage}" type="file"
-                                       accept="image/jpeg,image/png,image/webp" required>
+                                       accept="image/jpeg,image/png,image/webp" th:required="${!editMode}">
                             </label>
                             <div class="invalid-feedback d-block" th:errors="*{mainImage}"></div>
 
@@ -157,9 +171,9 @@
                 </div>
 
                 <div class="product-form-actions tilt-card">
-                    <a th:href="@{/products}" class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
+                    <a th:href="${editMode} ? @{/products/{id}(id=${productId})} : @{/products}" class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
-                        <i class="bi bi-plus-circle me-2"></i><span th:text="#{add.submit}">Добави продукта</span>
+                        <i class="bi me-2" th:classappend="${editMode} ? 'bi-check-circle' : 'bi-plus-circle'"></i><span th:text="${editMode} ? #{edit.submit} : #{add.submit}">Добави продукта</span>
                     </button>
                 </div>
             </form>

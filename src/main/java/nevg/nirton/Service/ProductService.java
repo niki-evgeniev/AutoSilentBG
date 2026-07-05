@@ -10,6 +10,10 @@ import java.util.Optional;
 public interface ProductService {
     void create(ProductCreateDto product, String ownerEmail);
 
+    ProductCreateDto getForEdit(Long id);
+
+    void update(Long id, ProductCreateDto product);
+
     List<ProductViewDto> getActiveProducts();
 
     Optional<ProductDetailsDto> getActiveProduct(Long id);

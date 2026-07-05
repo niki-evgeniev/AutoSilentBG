@@ -10,6 +10,7 @@ import nevg.nirton.Service.Exception.ProductAlreadyExistsException;
 import nevg.nirton.Service.Exception.ProductCreationException;
 import nevg.nirton.Service.ProductService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -58,11 +59,13 @@ public class ProductsController {
     }
 
     @GetMapping("/products/add")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ModelAndView addProduct() {
         return productForm(new ProductCreateDto());
     }
 
     @PostMapping("/products/add")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public ModelAndView addProduct(@Valid @ModelAttribute("product") ProductCreateDto product,
                                    BindingResult bindingResult,
                                    @AuthenticationPrincipal ShopUserDetails currentUser,
@@ -101,9 +104,60 @@ public class ProductsController {
         return new ModelAndView("redirect:/products/add");
     }
 
+    @GetMapping("/products/{id}/edit")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public ModelAndView editProduct(@PathVariable Long id) {
+        return editProductForm(id, productService.getForEdit(id));
+    }
+
+    @PostMapping("/products/{id}/edit")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    public ModelAndView editProduct(@PathVariable Long id,
+                                    @Valid @ModelAttribute("product") ProductCreateDto product,
+                                    BindingResult bindingResult,
+                                    RedirectAttributes redirectAttributes) {
+        long uploadedImageCount = product.getAdditionalImages().stream()
+                .filter(Objects::nonNull).filter(image -> !image.isEmpty()).count();
+        if (uploadedImageCount > 4) {
+            bindingResult.rejectValue("additionalImages", "images.limit",
+                    "Можете да добавите най-много 4 допълнителни снимки наведнъж.");
+        }
+        if (bindingResult.hasErrors()) return editProductForm(id, product);
+
+        try {
+            productService.update(id, product);
+        } catch (ProductAlreadyExistsException exception) {
+            bindingResult.rejectValue(exception.getField(), "product.exists", exception.getMessage());
+            return editProductForm(id, product);
+        } catch (InvalidProductImageException exception) {
+            bindingResult.reject("images.invalid", exception.getMessage());
+            return editProductForm(id, product);
+        } catch (ProductCreationException exception) {
+            bindingResult.reject("product.persistence", exception.getMessage());
+            return editProductForm(id, product);
+        }
+
+        redirectAttributes.addFlashAttribute("productUpdated", true);
+        return new ModelAndView(product.isActive() ? "redirect:/products/" + id : "redirect:/products");
+    }
+
     private ModelAndView productForm(ProductCreateDto product) {
         ModelAndView modelAndView = new ModelAndView("add-product");
         modelAndView.addObject("product", product);
+        modelAndView.addObject("editMode", false);
+        return modelAndView;
+    }
+
+    private ModelAndView editProductForm(Long id, ProductCreateDto product) {
+        ProductCreateDto stored = productService.getForEdit(id);
+        product.setExistingImages(stored.getExistingImages());
+        if (product.getExistingMainImageId() == null) {
+            product.setExistingMainImageId(stored.getExistingMainImageId());
+        }
+        ModelAndView modelAndView = new ModelAndView("add-product");
+        modelAndView.addObject("product", product);
+        modelAndView.addObject("editMode", true);
+        modelAndView.addObject("productId", id);
         return modelAndView;
     }
 }

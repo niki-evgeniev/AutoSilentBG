@@ -64,6 +64,11 @@ public class Product extends BaseEntity {
         pictures.add(picture);
     }
 
+    public void removePicture(Picture picture) {
+        pictures.remove(picture);
+        picture.setProduct(null);
+    }
+
     public void changeMainPicture(Picture newMainPicture) {
         if (!pictures.contains(newMainPicture)) {
             throw new IllegalArgumentException("Снимката не принадлежи на този продукт.");
