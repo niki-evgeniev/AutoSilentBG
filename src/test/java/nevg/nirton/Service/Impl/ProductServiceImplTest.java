@@ -6,6 +6,7 @@ import nevg.nirton.Models.Dto.ProductViewDto;
 import nevg.nirton.Models.Entity.Picture;
 import nevg.nirton.Models.Entity.Product;
 import nevg.nirton.Models.Entity.User;
+import nevg.nirton.Repository.CategoryRepository;
 import nevg.nirton.Repository.ProductRepository;
 import nevg.nirton.Repository.UserRepository;
 import nevg.nirton.Service.Exception.InvalidProductImageException;
@@ -53,6 +54,8 @@ class ProductServiceImplTest {
     private ProductRepository productRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
     @TempDir
     private Path imagesDirectory;
 
@@ -60,7 +63,7 @@ class ProductServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        productService = new ProductServiceImpl(productRepository, userRepository);
+        productService = new ProductServiceImpl(productRepository, userRepository, categoryRepository);
         ReflectionTestUtils.setField(productService, "imagesDirectory", imagesDirectory);
     }
 

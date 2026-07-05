@@ -50,6 +50,12 @@
                             <span th:text="#{admin.orders}">Поръчки</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" th:href="@{/admin/ip-addresses}">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            <span th:text="#{admin.ipAddresses}">Адреси</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <form sec:authorize="isAuthenticated()"

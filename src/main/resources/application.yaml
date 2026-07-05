@@ -68,6 +68,14 @@ spring:
 
 nirton:
   remember.me.key: 1234
+  security:
+    # Enable only when the app is reachable exclusively through Cloudflare or another trusted proxy.
+    trust-forwarded-headers: false
+    rate-limit:
+      enabled: true
+      max-requests: 120
+      window: 1m
+      ban-duration: 15m
 logging:
   level:
     #    org.hibernate.SQL: DEBUG
