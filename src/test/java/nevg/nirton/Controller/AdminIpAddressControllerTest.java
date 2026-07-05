@@ -33,11 +33,11 @@ class AdminIpAddressControllerTest {
     }
 
     @Test
-    void controllerIsRestrictedToAdminAndModerator() {
+    void controllerIsRestrictedToAdmin() {
         PreAuthorize authorization = AdminIpAddressController.class.getAnnotation(PreAuthorize.class);
 
         assertThat(authorization).isNotNull();
-        assertThat(authorization.value()).isEqualTo("hasAnyRole('ADMIN', 'MODERATOR')");
+        assertThat(authorization.value()).isEqualTo("hasRole('ADMIN')");
     }
 
     @Test
