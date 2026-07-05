@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public final class ShopUserDetails extends org.springframework.security.core.userdetails.User {
 
-    private final String firstName;
+    private String firstName;
 
     public ShopUserDetails(String email,
                            String password,
@@ -18,5 +18,9 @@ public final class ShopUserDetails extends org.springframework.security.core.use
 
     public String getFirstName() {
         return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 }

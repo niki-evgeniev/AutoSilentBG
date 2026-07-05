@@ -39,11 +39,13 @@
                     <p th:text="#{products.intro}">Филтрирай по категория, дебелина, материал, цена и наличност.</p>
                 </div>
                 <div class="col-lg-5">
-                    <div class="shop-search-box tilt-card">
+                    <form class="shop-search-box tilt-card" th:action="@{/products}" method="get" role="search">
                         <i class="bi bi-search"></i>
-                        <input type="search" th:placeholder="#{products.search.placeholder}">
-                        <button th:text="#{site.search}">Търси</button>
-                    </div>
+                        <label class="visually-hidden" for="productsSearch" th:text="#{site.search}">Търси</label>
+                        <input id="productsSearch" name="search" type="search" maxlength="150"
+                               th:value="${search}" th:placeholder="#{products.search.placeholder}">
+                        <button type="submit" th:text="#{site.search}">Търси</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -189,7 +191,7 @@
                     </div>
 
                     <div class="alert alert-light text-center py-5" th:if="${products.isEmpty()}">
-                        <span th:text="#{products.empty}">В момента няма активни продукти.</span>
+                        <span th:text="${search.isBlank()} ? #{products.empty} : #{products.search.empty(${search})}">В момента няма активни продукти.</span>
                     </div>
                 </div>
             </div>

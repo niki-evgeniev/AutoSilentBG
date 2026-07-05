@@ -18,5 +18,7 @@ public interface ProductService {
 
     List<ProductViewDto> getActiveProducts();
 
+    List<ProductViewDto> searchActiveProducts(String search);
+
     Optional<ProductDetailsDto> getActiveProduct(Long id);
 }

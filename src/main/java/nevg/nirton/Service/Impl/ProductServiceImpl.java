@@ -300,6 +300,15 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductViewDto> searchActiveProducts(String search) {
+        if (search == null || search.isBlank()) return getActiveProducts();
+        return productRepository.searchActive(search.trim()).stream()
+                .map(this::toViewDto)
+                .toList();
+    }
+
     private void validateUniqueFields(ProductCreateDto request, Long productId) {
         if (productRepository.existsByNameProductIgnoreCaseAndIdNot(request.getNameProduct().trim(), productId)) {
             throw new ProductAlreadyExistsException("nameProduct", "Вече съществува продукт с това име.");

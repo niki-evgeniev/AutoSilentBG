@@ -903,6 +903,16 @@ a { text-decoration: none; }
     box-shadow: 0 12px 22px rgba(25, 25, 25, 0.16);
 }
 
+.header-search { display: flex; align-items: center; overflow: hidden; border: 1px solid rgba(17, 24, 39, .12); border-radius: 24px; background: #fff; }
+.header-search input { width: 0; min-width: 0; padding: 0; border: 0; outline: 0; transition: width .25s ease, padding .25s ease; }
+.header-search:hover input, .header-search:focus-within input { width: 190px; padding-left: 14px; }
+.header-search .icon-btn { flex: 0 0 auto; border: 0; box-shadow: none; }
+
+@media (max-width: 991.98px) {
+    .header-search { flex: 1 1 100%; }
+    .header-search input, .header-search:hover input, .header-search:focus-within input { width: 100%; padding-left: 14px; }
+}
+
 .products-page-section {
     background: #fff;
     padding: 54px 0 76px;

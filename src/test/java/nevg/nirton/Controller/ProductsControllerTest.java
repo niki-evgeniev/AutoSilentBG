@@ -53,9 +53,9 @@ class ProductsControllerTest {
                 1L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
                 "Description", 2, "/image.png"
         ));
-        when(productService.getActiveProducts()).thenReturn(products);
+        when(productService.searchActiveProducts(null)).thenReturn(products);
 
-        ModelAndView result = productsController.products();
+        ModelAndView result = productsController.products(null);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isSameAs(products);
@@ -63,12 +63,22 @@ class ProductsControllerTest {
 
     @Test
     void productsReturnsEmptyCatalogInModel() {
-        when(productService.getActiveProducts()).thenReturn(List.of());
+        when(productService.searchActiveProducts(null)).thenReturn(List.of());
 
-        ModelAndView result = productsController.products();
+        ModelAndView result = productsController.products(null);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(List.of());
+    }
+
+    @Test
+    void productsSearchesAndPreservesTrimmedSearchTerm() {
+        when(productService.searchActiveProducts("  lamp  ")).thenReturn(List.of());
+
+        ModelAndView result = productsController.products("  lamp  ");
+
+        assertThat(result.getModel().get("search")).isEqualTo("lamp");
+        verify(productService).searchActiveProducts("  lamp  ");
     }
 
     @Test

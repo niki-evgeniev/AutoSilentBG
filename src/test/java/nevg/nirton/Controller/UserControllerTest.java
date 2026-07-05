@@ -1,8 +1,11 @@
 package nevg.nirton.Controller;
 
 import nevg.nirton.Models.Dto.UserRegistrationDto;
+import nevg.nirton.Models.Dto.UserProfileDto;
+import nevg.nirton.Models.Security.ShopUserDetails;
 import nevg.nirton.Service.Exception.EmailAlreadyExistsException;
 import nevg.nirton.Service.UserRegistrationService;
+import nevg.nirton.Service.UserProfileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,18 +20,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
     @Mock
     private UserRegistrationService registrationService;
+    @Mock
+    private UserProfileService profileService;
 
     private UserController userController;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(registrationService);
+        userController = new UserController(registrationService, profileService);
     }
 
     @Test
@@ -90,6 +98,32 @@ class UserControllerTest {
         assertThat(redirectAttributes.getFlashAttributes()).containsKey("registrationSuccess");
     }
 
+    @Test
+    void profileReturnsCurrentUsersData() {
+        UserProfileDto profile = new UserProfileDto();
+        when(profileService.getProfile("user@example.com")).thenReturn(profile);
+
+        ModelAndView result = userController.profile(currentUser());
+
+        assertThat(result.getViewName()).isEqualTo("profile");
+        assertThat(result.getModel().get("profile")).isSameAs(profile);
+    }
+
+    @Test
+    void updateProfileSavesAndRedirects() {
+        UserProfileDto profile = new UserProfileDto();
+        profile.setFirstName("Ivan");
+        profile.setLastName("Ivanov");
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        ModelAndView result = userController.updateProfile(profile,
+                new BeanPropertyBindingResult(profile, "profile"), currentUser(), redirectAttributes);
+
+        verify(profileService).updateProfile("user@example.com", profile);
+        assertThat(result.getViewName()).isEqualTo("redirect:/user/profile");
+        assertThat(redirectAttributes.getFlashAttributes()).containsKey("profileUpdated");
+    }
+
     private UserRegistrationDto registration(String password, String confirmPassword) {
         UserRegistrationDto registration = new UserRegistrationDto();
         registration.setPassword(password);
@@ -99,5 +133,9 @@ class UserControllerTest {
 
     private BindingResult bindingResult(UserRegistrationDto registration) {
         return new BeanPropertyBindingResult(registration, "registration");
+    }
+
+    private ShopUserDetails currentUser() {
+        return new ShopUserDetails("user@example.com", "password", "Ivan", List.of());
     }
 }

@@ -222,6 +222,27 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void searchActiveProductsTrimsQueryAndMapsResults() {
+        Product product = productWithPictures();
+        when(productRepository.searchActive("phone")).thenReturn(List.of(product));
+
+        List<ProductViewDto> result = productService.searchActiveProducts("  phone  ");
+
+        verify(productRepository).searchActive("phone");
+        assertThat(result).extracting(ProductViewDto::id).containsExactly(7L);
+    }
+
+    @Test
+    void blankSearchReturnsAllActiveProducts() {
+        when(productRepository.findAllByActiveTrueOrderByAddDateDesc()).thenReturn(List.of());
+
+        assertThat(productService.searchActiveProducts("   ")).isEmpty();
+
+        verify(productRepository).findAllByActiveTrueOrderByAddDateDesc();
+        verify(productRepository, never()).searchActive(any());
+    }
+
+    @Test
     void getActiveProductMapsAllImageUrls() {
         Product product = productWithPictures();
         when(productRepository.findByIdAndActiveTrue(7L)).thenReturn(Optional.of(product));

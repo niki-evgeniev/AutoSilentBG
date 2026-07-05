@@ -3,8 +3,12 @@ package nevg.nirton.Controller;
 
 import jakarta.validation.Valid;
 import nevg.nirton.Models.Dto.UserRegistrationDto;
+import nevg.nirton.Models.Dto.UserProfileDto;
+import nevg.nirton.Models.Security.ShopUserDetails;
 import nevg.nirton.Service.Exception.EmailAlreadyExistsException;
 import nevg.nirton.Service.UserRegistrationService;
+import nevg.nirton.Service.UserProfileService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +23,11 @@ import java.util.Objects;
 public class UserController {
 
     private final UserRegistrationService userRegistrationService;
+    private final UserProfileService userProfileService;
 
-    public UserController(UserRegistrationService userRegistrationService) {
+    public UserController(UserRegistrationService userRegistrationService, UserProfileService userProfileService) {
         this.userRegistrationService = userRegistrationService;
+        this.userProfileService = userProfileService;
     }
 
     @GetMapping("/user/sign_in")
@@ -57,9 +63,35 @@ public class UserController {
         return new ModelAndView("redirect:/user/sign_in");
     }
 
+    @GetMapping("/user/profile")
+    public ModelAndView profile(@AuthenticationPrincipal ShopUserDetails currentUser) {
+        return profileView(userProfileService.getProfile(currentUser.getUsername()));
+    }
+
+    @PostMapping("/user/profile")
+    public ModelAndView updateProfile(@Valid @ModelAttribute("profile") UserProfileDto profile,
+                                      BindingResult bindingResult,
+                                      @AuthenticationPrincipal ShopUserDetails currentUser,
+                                      RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            profile.setEmail(currentUser.getUsername());
+            return profileView(profile);
+        }
+        userProfileService.updateProfile(currentUser.getUsername(), profile);
+        currentUser.setFirstName(profile.getFirstName().trim());
+        redirectAttributes.addFlashAttribute("profileUpdated", true);
+        return new ModelAndView("redirect:/user/profile");
+    }
+
     private ModelAndView registrationView(UserRegistrationDto registration) {
         ModelAndView modelAndView = new ModelAndView("register");
         modelAndView.addObject("registration", registration);
+        return modelAndView;
+    }
+
+    private ModelAndView profileView(UserProfileDto profile) {
+        ModelAndView modelAndView = new ModelAndView("profile");
+        modelAndView.addObject("profile", profile);
         return modelAndView;
     }
 }

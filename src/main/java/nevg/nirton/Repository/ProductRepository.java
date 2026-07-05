@@ -22,6 +22,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByActiveTrueOrderByAddDateDesc();
 
     @EntityGraph(attributePaths = "pictures")
+    @Query("""
+            select p from Product p
+            where p.active = true and (
+                lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                lower(p.sku) like lower(concat('%', :search, '%')) or
+                lower(p.category) like lower(concat('%', :search, '%')) or
+                lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
+            )
+            order by p.addDate desc
+            """)
+    List<Product> searchActive(@Param("search") String search);
+
+    @EntityGraph(attributePaths = "pictures")
     Optional<Product> findByIdAndActiveTrue(Long id);
 
     @EntityGraph(attributePaths = "pictures")
