@@ -14,6 +14,8 @@ public interface ProductService {
 
     void update(Long id, ProductCreateDto product);
 
+    void delete(Long id);
+
     List<ProductViewDto> getActiveProducts();
 
     Optional<ProductDetailsDto> getActiveProduct(Long id);

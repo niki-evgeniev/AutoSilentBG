@@ -24,6 +24,7 @@
 <main>
     <section class="shop-hero-small page-3d-hero">
         <div class="container">
+            <div th:if="${productDeleted}" class="alert alert-success" th:text="#{edit.deleted}">Продуктът е изтрит успешно.</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>

@@ -251,6 +251,17 @@ class ProductsControllerTest {
         assertThat(redirectAttributes.getFlashAttributes()).containsKey("productSuccess");
     }
 
+    @Test
+    void deleteProductDeactivatesProductAndRedirectsToCatalog() {
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        ModelAndView result = productsController.deleteProduct(7L, redirectAttributes);
+
+        verify(productService).delete(7L);
+        assertThat(result.getViewName()).isEqualTo("redirect:/products");
+        assertThat(redirectAttributes.getFlashAttributes()).containsKey("productDeleted");
+    }
+
     private ProductCreateDto validProduct() {
         ProductCreateDto product = new ProductCreateDto();
         product.setMainImage(image());

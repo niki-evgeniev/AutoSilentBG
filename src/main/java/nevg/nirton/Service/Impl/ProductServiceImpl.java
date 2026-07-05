@@ -221,6 +221,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
+    public void delete(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductCreationException("Продуктът не е намерен.", null));
+        product.setActive(false);
+        productRepository.save(product);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<ProductViewDto> getActiveProducts() {
         return productRepository.findAllByActiveTrueOrderByAddDateDesc().stream()

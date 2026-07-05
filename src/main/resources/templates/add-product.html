@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -171,6 +171,13 @@
                 </div>
 
                 <div class="product-form-actions tilt-card">
+                    <button th:if="${editMode}" sec:authorize="hasRole('ADMIN')" type="submit"
+                            class="btn btn-danger me-auto" formnovalidate
+                            th:formaction="@{/products/{id}/delete(id=${productId})}"
+                            onclick="return confirm(this.dataset.confirmMessage)"
+                            th:data-confirm-message="#{edit.deleteConfirm}">
+                        <i class="bi bi-trash3 me-2"></i><span th:text="#{edit.delete}">Изтрий</span>
+                    </button>
                     <a th:href="${editMode} ? @{/products/{id}(id=${productId})} : @{/products}" class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
                         <i class="bi me-2" th:classappend="${editMode} ? 'bi-check-circle' : 'bi-plus-circle'"></i><span th:text="${editMode} ? #{edit.submit} : #{add.submit}">Добави продукта</span>

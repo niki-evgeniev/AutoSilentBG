@@ -141,6 +141,14 @@ public class ProductsController {
         return new ModelAndView(product.isActive() ? "redirect:/products/" + id : "redirect:/products");
     }
 
+    @PostMapping("/products/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ModelAndView deleteProduct(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.delete(id);
+        redirectAttributes.addFlashAttribute("productDeleted", true);
+        return new ModelAndView("redirect:/products");
+    }
+
     private ModelAndView productForm(ProductCreateDto product) {
         ModelAndView modelAndView = new ModelAndView("add-product");
         modelAndView.addObject("product", product);
