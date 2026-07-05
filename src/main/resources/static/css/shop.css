@@ -184,8 +184,13 @@ a { text-decoration: none; }
 }
 
 .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
     width: 42px;
     height: 42px;
+    padding: 0;
     border: 1px solid rgba(25, 25, 25, 0.07);
     background: rgba(255, 255, 255, 0.72);
     border-radius: 13px;
@@ -194,6 +199,11 @@ a { text-decoration: none; }
     box-shadow: 0 12px 24px rgba(25, 25, 25, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.94);
     transition: transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     transform-style: preserve-3d;
+}
+
+.icon-btn > i {
+    display: block;
+    line-height: 1;
 }
 
 .icon-btn:hover {

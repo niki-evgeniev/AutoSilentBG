@@ -21,4 +21,6 @@ public interface ProductService {
     List<ProductViewDto> searchActiveProducts(String search);
 
     Optional<ProductDetailsDto> getActiveProduct(Long id);
+
+    void addVibrofltr();
 }

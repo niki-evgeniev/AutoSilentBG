@@ -4,9 +4,12 @@ import nevg.nirton.Models.Dto.ProductCreateDto;
 import nevg.nirton.Models.Dto.ProductDetailsDto;
 import nevg.nirton.Models.Dto.ProductImageEditDto;
 import nevg.nirton.Models.Dto.ProductViewDto;
+import nevg.nirton.Models.Entity.Category;
 import nevg.nirton.Models.Entity.Picture;
 import nevg.nirton.Models.Entity.Product;
 import nevg.nirton.Models.Entity.User;
+import nevg.nirton.Models.Enums.CategoryType;
+import nevg.nirton.Repository.CategoryRepository;
 import nevg.nirton.Repository.ProductRepository;
 import nevg.nirton.Repository.UserRepository;
 import nevg.nirton.Service.Exception.InvalidProductImageException;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,11 +46,13 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final Path imagesDirectory;
 
-    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
         this.imagesDirectory = Path.of("ProductImages").toAbsolutePath().normalize();
     }
 
@@ -208,13 +214,19 @@ public class ProductServiceImpl implements ProductService {
         } catch (IOException exception) {
             deleteFiles(storedFiles, productDirectory);
             if (directoryMoved) {
-                try { Files.move(productDirectory, oldDirectory); } catch (IOException ignored) { }
+                try {
+                    Files.move(productDirectory, oldDirectory);
+                } catch (IOException ignored) {
+                }
             }
             throw new InvalidProductImageException("Снимките не можаха да бъдат обновени. Опитайте отново.");
         } catch (RuntimeException exception) {
             deleteFiles(storedFiles, productDirectory);
             if (directoryMoved) {
-                try { Files.move(productDirectory, oldDirectory); } catch (IOException ignored) { }
+                try {
+                    Files.move(productDirectory, oldDirectory);
+                } catch (IOException ignored) {
+                }
             }
             throw exception;
         }
@@ -242,6 +254,117 @@ public class ProductServiceImpl implements ProductService {
     public Optional<ProductDetailsDto> getActiveProduct(Long id) {
         return productRepository.findByIdAndActiveTrue(id)
                 .map(this::toDetailsDto);
+    }
+
+    @Override
+    public void addVibrofltr() {
+        if (productRepository.count() == 0) {
+                if (productRepository.count() == 0) {
+
+                    Category category = new Category();
+                    category.setCategory(CategoryType.Звукоизолация.name());
+                    categoryRepository.save(category);
+
+                    User user = userRepository.findById(1L)
+                            .orElseThrow(() -> new RuntimeException("User not found with id 1"));
+
+                    Product product = new Product();
+                    product.setNameProduct("Vibrofiltr 1.5");
+                    product.setSku("01");
+                    product.setCategory("Звукоизолация");
+                    product.setPrice(BigDecimal.valueOf(7.70));
+                    product.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                            "\n" +
+                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                            "\n" +
+                            "\n" +
+                            "\n" +
+                            "дебелина: 1.5 mm (± 0,1 mm)               \n" +
+                            "\n" +
+                            "размер на лист: - 0.5 m х 0.7 m / 0,35 m2\n" +
+                            "\n" +
+                            "коефициент на механични загуби при 200 Hz: 0,38\n" +
+                            "\n" +
+                            "количество в опаковка - кашон: 25 бр. / 8,75 m2   \n" +
+                            "\n" +
+                            "тегло на 1 m², не по-малко: 3,0 кг");
+                    product.setStock(100);
+                    product.setUser(user);
+                    productRepository.save(product);
+
+                    Product product2 = new Product();
+                    product2.setNameProduct("Vibrofiltr 2.0");
+                    product2.setSku("02");
+                    product2.setCategory("Звукоизолация");
+                    product2.setPrice(BigDecimal.valueOf(4.10));
+                    product2.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                            "\n" +
+                            "\n" +
+                            "\n" +
+                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                            "\n" +
+                            "дебелина: 2,0 mm (± 0,1 mm)               \n" +
+                            "\n" +
+                            "размер на лист: - 0.5 m х 0.35 m / 0,35 m2\n" +
+                            "\n" +
+                            "коефициент на механични загуби при 200 Hz: 0,38\n" +
+                            "\n" +
+                            "количество в опаковка - кашон: 20 броя листове / 3.5 m2   \n" +
+                            "\n" +
+                            "тегло на 1 m², не по-малко: 3,0 кг");
+                    product2.setStock(100);
+                    product2.setUser(user);
+                    productRepository.save(product2);
+
+                    Product product3 = new Product();
+                    product3.setNameProduct("Vibrofiltr 3.0");
+                    product3.setSku("03");
+                    product3.setCategory("Звукоизолация");
+                    product3.setPrice(BigDecimal.valueOf(6.70));
+                    product3.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                            "\n" +
+                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                            "\n" +
+                            "\n" +
+                            "\n" +
+                            "дебелина: 3,0 mm (± 0,1 mm)               \n" +
+                            "\n" +
+                            "размер на лист: - 0.35 m х 0,5 m / 0,175 m2\n" +
+                            "\n" +
+                            "коефициент на механични загуби при 200 Hz: 0,50\n" +
+                            "\n" +
+                            "количество в опаковка - кашон: 15 броя листове / 2.625 m2   \n" +
+                            "\n" +
+                            "тегло на 1 m², не по-малко: 4,5 кг");
+                    product3.setStock(100);
+                    product3.setUser(user);
+                    productRepository.save(product3);
+
+                    Product product4 = new Product();
+                    product4.setNameProduct("Vibrofiltr 4.0");
+                    product4.setSku("04");
+                    product4.setCategory("Звукоизолация");
+                    product4.setPrice(BigDecimal.valueOf(8.70));
+                    product4.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                            "\n" +
+                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                            "\n" +
+                            "\n" +
+                            "\n" +
+                            "дебелина: 4,0 mm (± 0,1 mm)               \n" +
+                            "\n" +
+                            "размер на лист: - 0.35 m х 0,5 m / 0,175 m2\n" +
+                            "\n" +
+                            "коефициент на механични загуби при 200 Hz: 0,60\n" +
+                            "\n" +
+                            "количество в опаковка - кашон: 10 броя листове / 1.75 m2   \n" +
+                            "\n" +
+                            "тегло на 1 m², не по-малко: 6,4 кг");
+                    product4.setStock(100);
+                    product4.setUser(user);
+                    productRepository.save(product4);
+                }
+        }
     }
 
     private ProductViewDto toViewDto(Product product) {
