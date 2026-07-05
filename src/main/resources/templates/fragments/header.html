@@ -19,17 +19,38 @@
 
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
-                    <li class="nav-item"><a class="nav-link active" th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/products}" th:text="#{site.categories}">Категории</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/#promo}" th:text="#{site.promotions}">Промоции</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/#products}" th:text="#{site.newProducts}">Нови продукти</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#footer" th:text="#{site.contacts}">Контакти</a></li>
+                    <li class="nav-item"><a
+                            class="nav-link"
+                            data-nav="home"
+                            th:href="@{/}"
+                            th:text="#{site.home}">Начало</a></li>
+                    <li class="nav-item"><a
+                            class="nav-link"
+                            data-nav="products"
+                            th:href="@{/products}"
+                            th:text="#{site.categories}">Продукти</a></li>
+                    <li class="nav-item"><a
+                            class="nav-link"
+                            data-nav="promo"
+                            th:href="@{/#promo}"
+                            th:text="#{site.promotions}">Промоции</a></li>
+                    <li class="nav-item"><a
+                            class="nav-link"
+                            data-nav="new-products"
+                            th:href="@{/#products}"
+                            th:text="#{site.newProducts}">Нови продукти</a></li>
+                    <li class="nav-item"><a
+                            class="nav-link"
+                            data-nav="contacts" href="#footer"
+                            th:text="#{site.contacts}">Контакти</a></li>
                 </ul>
 
                 <div class="header-actions d-flex align-items-center gap-3">
                     <div class="language-switch" th:aria-label="#{site.language}">
-                        <a href="?lang=bg" th:classappend="${#locale.language == 'bg'} ? 'active'" th:text="#{site.bulgarian}">БГ</a>
-                        <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'active'" th:text="#{site.english}">EN</a>
+                        <a href="?lang=bg" th:classappend="${#locale.language == 'bg'} ? 'active'"
+                           th:text="#{site.bulgarian}">БГ</a>
+                        <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'active'"
+                           th:text="#{site.english}">EN</a>
                     </div>
                     <form class="header-search" th:action="@{/products}" method="get" role="search">
                         <label class="visually-hidden" for="headerSearch" th:text="#{site.search}">Търси</label>

@@ -3,6 +3,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const cartButtons = document.querySelectorAll('.add-cart, .product-add-cart');
     const cartStorageKey = 'nirton-cart';
 
+    function updateActiveNavigation() {
+        const navLinks = document.querySelectorAll('.navbar-nav .nav-link[data-nav]');
+        const hashNavigation = {
+            '#promo': 'promo',
+            '#products': 'new-products',
+            '#footer': 'contacts'
+        };
+        const activeNavigation = hashNavigation[window.location.hash] ||
+            (window.location.pathname.startsWith('/products') ? 'products' :
+                (window.location.pathname === '/' ? 'home' : null));
+
+        navLinks.forEach(function (link) {
+            const isActive = link.dataset.nav === activeNavigation;
+            link.classList.toggle('active', isActive);
+            if (isActive) link.setAttribute('aria-current', 'page');
+            else link.removeAttribute('aria-current');
+        });
+    }
+
+    updateActiveNavigation();
+    window.addEventListener('hashchange', updateActiveNavigation);
+
     function readCart() {
         try {
             const cart = JSON.parse(localStorage.getItem(cartStorageKey) || '[]');

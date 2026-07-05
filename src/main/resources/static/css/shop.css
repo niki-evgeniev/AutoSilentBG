@@ -55,6 +55,8 @@ a { text-decoration: none; }
 }
 
 .top-bar {
+    position: relative;
+    z-index: 1040;
     background: var(--color-dark);
     color: #fff;
     font-size: 13px;
@@ -71,6 +73,29 @@ a { text-decoration: none; }
     font: inherit;
     opacity: 0.92;
     cursor: pointer;
+}
+
+.top-settings-dropdown .dropdown-menu {
+    z-index: 1050;
+    min-width: 190px;
+    margin-top: 8px;
+    padding: 7px;
+    border: 1px solid rgba(25, 25, 25, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+}
+
+.top-links .top-settings-dropdown .dropdown-item {
+    padding: 9px 11px;
+    border-radius: 8px;
+    color: var(--color-dark);
+    opacity: 1;
+}
+
+.top-links .top-settings-dropdown .dropdown-item:hover,
+.top-links .top-settings-dropdown .dropdown-item:focus {
+    color: var(--color-orange);
+    background: rgba(255, 106, 0, 0.08);
 }
 
 .main-header {
@@ -369,10 +394,8 @@ a { text-decoration: none; }
     right: 8%;
     top: 50%;
     transform: translateY(-50%);
-    background:
-        radial-gradient(circle, rgba(255, 255, 255, 0.88) 0 34%, transparent 35%),
-        radial-gradient(circle, rgba(255, 106, 0, 0.18), transparent 64%);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.58), 0 34px 90px rgba(25, 25, 25, 0.12);
+    background: radial-gradient(circle, rgba(255, 106, 0, 0.18), transparent 64%);
+    box-shadow: 0 34px 90px rgba(25, 25, 25, 0.12);
     transform: translateY(-50%) rotateX(68deg) rotateZ(-16deg);
 }
 
@@ -391,7 +414,7 @@ a { text-decoration: none; }
     border: 1px solid rgba(255, 106, 0, 0.22);
     border-radius: 50%;
     transform: translateY(-50%) rotateX(68deg) rotateZ(-18deg);
-    box-shadow: 0 0 0 22px rgba(255, 255, 255, 0.22), 0 0 0 46px rgba(25, 25, 25, 0.035);
+    box-shadow: 0 0 0 46px rgba(25, 25, 25, 0.035);
     animation: orbitSpin 18s linear infinite;
 }
 
