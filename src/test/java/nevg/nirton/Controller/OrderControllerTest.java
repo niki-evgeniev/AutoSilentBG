@@ -45,18 +45,16 @@ class OrderControllerTest {
     }
 
     @Test
-    void cartOrderRequiresAuthenticatedUser() {
-        when(messageSource.getMessage("order.error.loginRequired", null, Locale.ENGLISH))
-                .thenReturn("Sign in first");
+    void cartOrderCreatesGuestOrderWithoutAuthenticatedUser() {
+        CartOrderDto request = cartOrder();
+        when(orderService.createGuestOrder(
+                "ivan@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items()))
+                .thenReturn("NRT-GUEST");
 
-        var response = controller.createCartOrder(cartOrder(), null, Locale.ENGLISH);
+        var response = controller.createCartOrder(request, null, Locale.ENGLISH);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(response.getBody()).containsEntry("error", "Sign in first");
-        verify(orderService, never()).createRegisteredOrder(
-                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
-                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).containsEntry("orderNumber", "NRT-GUEST");
     }
 
     @Test
@@ -97,6 +95,17 @@ class OrderControllerTest {
 
         assertThat(result.getViewName()).isEqualTo("checkout");
         assertThat(result.getModel().get("customer")).isSameAs(customer);
+        assertThat(result.getModel().get("guestCheckout")).isEqualTo(false);
+    }
+
+    @Test
+    void checkoutSupportsGuestCustomer() {
+        ModelAndView result = controller.checkout(null);
+
+        CheckoutCustomerDto customer = (CheckoutCustomerDto) result.getModel().get("customer");
+        assertThat(result.getViewName()).isEqualTo("checkout");
+        assertThat(customer.email()).isEmpty();
+        assertThat(result.getModel().get("guestCheckout")).isEqualTo(true);
     }
 
     @Test
@@ -155,7 +164,7 @@ class OrderControllerTest {
     private CartOrderDto cartOrder() {
         return new CartOrderDto(
                 List.of(new CartItemOrderDto(7L, 2)),
-                "Ivan", "Ivanov", "0888123456", "Call first");
+                "Ivan", "Ivanov", "ivan@example.com", "0888123456", "Call first");
     }
 
     private QuickOrderDto quickOrder() {

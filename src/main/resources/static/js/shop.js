@@ -202,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const cart = readCart();
             const firstName = document.getElementById('checkoutFirstName');
             const lastName = document.getElementById('checkoutLastName');
+            const email = document.getElementById('checkoutEmail');
             const phone = document.getElementById('checkoutPhone');
             const customerNote = document.getElementById('customerNote');
             const errorBox = document.getElementById('checkoutError');
@@ -210,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             errorBox.hidden = true;
-            [firstName, lastName, phone].forEach(function (field) {
+            [firstName, lastName, email, phone].forEach(function (field) {
                 if (field) {
                     field.setCustomValidity('');
                     field.classList.remove('is-invalid');
@@ -222,13 +223,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!lastName.value.trim()) {
                 lastName.setCustomValidity(document.body.dataset.lastNameRequired);
             }
+            if (email && !email.value.trim()) {
+                email.setCustomValidity(document.body.dataset.emailRequired);
+            } else if (email && !email.checkValidity()) {
+                email.setCustomValidity(document.body.dataset.emailInvalid);
+            }
             if (!phone.value.trim()) {
                 phone.setCustomValidity(document.body.dataset.phoneRequired);
             } else if (!phone.checkValidity()) {
                 phone.setCustomValidity(document.body.dataset.phoneInvalid);
             }
-            const invalidField = [firstName, lastName, phone].find(function (field) {
-                return !field.checkValidity();
+            const invalidField = [firstName, lastName, email, phone].find(function (field) {
+                return field && !field.checkValidity();
             });
             if (invalidField) {
                 invalidField.classList.add('is-invalid');
@@ -256,6 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         items: items,
                         firstName: firstName.value.trim(),
                         lastName: lastName.value.trim(),
+                        email: email ? email.value.trim() : null,
                         phone: phone.value.trim(),
                         customerNote: customerNote ? customerNote.value.trim() : ''
                     })

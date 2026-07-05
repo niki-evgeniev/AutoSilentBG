@@ -46,13 +46,13 @@
                 <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 €</strong></div>
                 <a sec:authorize="isAuthenticated()" class="btn btn-orange w-100"
                    th:href="@{/orders/checkout}" th:text="#{cart.checkout}">Продължи към поръчка</a>
-                <button sec:authorize="!isAuthenticated()" class="btn btn-secondary w-100" type="button" disabled
-                        th:text="#{cart.checkout}">Продължи към поръчка</button>
                 <p sec:authorize="!isAuthenticated()" class="cart-auth-hint">
                     <a th:href="@{/user/sign_in}" th:text="#{site.login}">Вход</a>
                     <span th:text="#{site.or}">или</span>
                     <a th:href="@{/user/sign_up}" th:text="#{site.register}">Регистрация</a>
                 </p>
+                <a sec:authorize="!isAuthenticated()" class="cart-guest-checkout"
+                   th:href="@{/orders/checkout}" th:text="#{cart.guestCheckout}">Поръчай като гост</a>
             </aside>
         </div>
     </section>

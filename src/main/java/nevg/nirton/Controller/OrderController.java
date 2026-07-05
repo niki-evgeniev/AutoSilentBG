@@ -2,6 +2,7 @@ package nevg.nirton.Controller;
 
 import jakarta.validation.Valid;
 import nevg.nirton.Models.Dto.CartOrderDto;
+import nevg.nirton.Models.Dto.CheckoutCustomerDto;
 import nevg.nirton.Models.Dto.QuickOrderDto;
 import nevg.nirton.Models.Security.ShopUserDetails;
 import nevg.nirton.Service.Exception.OrderCreationException;
@@ -36,14 +37,12 @@ public class OrderController {
             @Valid @RequestBody CartOrderDto request,
             @AuthenticationPrincipal ShopUserDetails currentUser,
             Locale locale) {
-        if (currentUser == null) {
-            return ResponseEntity.status(401)
-                    .body(Map.of("error", messageSource.getMessage("order.error.loginRequired", null, locale)));
-        }
         try {
-            String orderNumber = orderService.createRegisteredOrder(
-                    currentUser.getUsername(), request.firstName(), request.lastName(),
-                    request.phone(), request.customerNote(), request.items());
+            String orderNumber = currentUser == null
+                    ? orderService.createGuestOrder(request.email(), request.firstName(), request.lastName(),
+                    request.phone(), request.customerNote(), request.items())
+                    : orderService.createRegisteredOrder(currentUser.getUsername(), request.firstName(),
+                    request.lastName(), request.phone(), request.customerNote(), request.items());
             return ResponseEntity.ok(Map.of(
                     "orderNumber", orderNumber,
                     "redirectUrl", "/orders/success/" + orderNumber));
@@ -55,7 +54,11 @@ public class OrderController {
     @GetMapping("/checkout")
     public ModelAndView checkout(@AuthenticationPrincipal ShopUserDetails currentUser) {
         ModelAndView modelAndView = new ModelAndView("checkout");
-        modelAndView.addObject("customer", orderService.getCheckoutCustomer(currentUser.getUsername()));
+        CheckoutCustomerDto customer = currentUser == null
+                ? new CheckoutCustomerDto("", "", "", "")
+                : orderService.getCheckoutCustomer(currentUser.getUsername());
+        modelAndView.addObject("customer", customer);
+        modelAndView.addObject("guestCheckout", currentUser == null);
         return modelAndView;
     }
 

@@ -17,6 +17,8 @@
       th:data-product-default-name="#{product.defaultName}" th:data-order-failed="#{order.failed}"
       th:data-first-name-required="#{checkout.firstNameRequired}"
       th:data-last-name-required="#{checkout.lastNameRequired}"
+      th:data-email-required="#{checkout.emailRequired}"
+      th:data-email-invalid="#{checkout.emailInvalid}"
       th:data-phone-required="#{checkout.phoneRequired}"
       th:data-phone-invalid="#{checkout.phoneInvalid}">
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
@@ -48,7 +50,12 @@
             <aside id="cartSummary" class="cart-summary-card checkout-card">
                 <h2 th:text="#{checkout.details}">Данни за поръчката</h2>
                 <div class="checkout-customer">
-                    <small th:text="${customer.email()}"></small>
+                    <small th:if="${!guestCheckout}" th:text="${customer.email()}"></small>
+                    <div th:if="${guestCheckout}">
+                        <label class="form-label" for="checkoutEmail" th:text="#{form.email}">Email</label>
+                        <input class="form-control checkout-required" id="checkoutEmail" type="email"
+                               autocomplete="email" maxlength="255" required>
+                    </div>
                 </div>
                 <div class="row g-2">
                     <div class="col-sm-6">

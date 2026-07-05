@@ -87,6 +87,24 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    public String createGuestOrder(String email, String firstName, String lastName,
+                                   String phone, String customerNote,
+                                   List<CartItemOrderDto> items) {
+        if (items == null || items.isEmpty()) {
+            throw new OrderCreationException(message("order.error.emptyCart"));
+        }
+
+        OrderEntity order = newOrder();
+        order.setCustomerFirstName(required(firstName, "order.error.firstNameRequired"));
+        order.setCustomerLastName(required(lastName, "order.error.lastNameRequired"));
+        order.setCustomerEmail(required(email, "order.error.emailRequired"));
+        order.setCustomerPhone(required(phone, "order.error.phoneRequired"));
+        order.setCustomerNote(customerNote == null || customerNote.isBlank() ? null : customerNote.trim());
+        return persistOrder(order, items);
+    }
+
+    @Override
+    @Transactional
     public String createQuickOrder(QuickOrderDto request) {
         String[] names = request.names().trim().split("\\s+", 2);
         if (names.length < 2) {
