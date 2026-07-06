@@ -35,6 +35,7 @@ public class SpringSecurity {
                         .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt").permitAll()
                         .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "MODERATOR")
+                        .requestMatchers("/admin/inquiries/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/ip-addresses/**").hasRole("ADMIN")
                         .requestMatchers("/favorites/**").authenticated()
                         .requestMatchers("/products/add", "/products/*/edit", "/products/*/seo").hasAnyRole("ADMIN", "MODERATOR")

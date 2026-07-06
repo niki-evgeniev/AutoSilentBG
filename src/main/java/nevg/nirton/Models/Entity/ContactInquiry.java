@@ -35,4 +35,7 @@ public class ContactInquiry extends BaseEntity {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "is_read", nullable = false)
+    private boolean read;
 }
