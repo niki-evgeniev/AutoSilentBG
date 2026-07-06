@@ -2,7 +2,8 @@ package nevg.nirton.Models.Entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,10 +25,11 @@ public class Seo extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "imageUrl" , columnDefinition = "TEXT")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
-    @ManyToOne
+    @OneToOne(optional = false)
+    @JoinColumn(name = "product_id", nullable = false, unique = true)
     private Product product;
 
 }

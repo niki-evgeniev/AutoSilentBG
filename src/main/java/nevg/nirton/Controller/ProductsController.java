@@ -9,6 +9,7 @@ import nevg.nirton.Service.Exception.InvalidProductImageException;
 import nevg.nirton.Service.Exception.ProductAlreadyExistsException;
 import nevg.nirton.Service.Exception.ProductCreationException;
 import nevg.nirton.Service.ProductService;
+import nevg.nirton.Service.SeoService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -30,9 +31,11 @@ import java.util.Objects;
 public class ProductsController {
 
     private final ProductService productService;
+    private final SeoService seoService;
 
-    public ProductsController(ProductService productService) {
+    public ProductsController(ProductService productService, SeoService seoService) {
         this.productService = productService;
+        this.seoService = seoService;
     }
 
     @GetMapping("/products")
@@ -57,6 +60,7 @@ public class ProductsController {
         modelAndView.addObject("product", productService.getActiveProduct(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Продуктът не е намерен.")));
+        seoService.getForProduct(id).ifPresent(seo -> modelAndView.addObject("seo", seo));
         return modelAndView;
     }
 

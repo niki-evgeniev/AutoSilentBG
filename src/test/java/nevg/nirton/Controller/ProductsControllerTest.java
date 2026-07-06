@@ -8,6 +8,7 @@ import nevg.nirton.Service.Exception.InvalidProductImageException;
 import nevg.nirton.Service.Exception.ProductAlreadyExistsException;
 import nevg.nirton.Service.Exception.ProductCreationException;
 import nevg.nirton.Service.ProductService;
+import nevg.nirton.Service.SeoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,12 +40,14 @@ class ProductsControllerTest {
 
     @Mock
     private ProductService productService;
+    @Mock
+    private SeoService seoService;
 
     private ProductsController productsController;
 
     @BeforeEach
     void setUp() {
-        productsController = new ProductsController(productService);
+        productsController = new ProductsController(productService, seoService);
     }
 
     @Test
