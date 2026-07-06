@@ -79,6 +79,18 @@
                             <i class="bi bi-search me-2"></i><span>SEO</span>
                         </a>
 
+                        <form sec:authorize="isAuthenticated()" class="d-inline-block mb-3" method="post"
+                              th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
+                            <input type="hidden" name="source" value="details">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i th:class="${favoriteProductIds.contains(product.id()) ? 'bi bi-heart-fill me-2' : 'bi bi-heart me-2'}"></i>
+                                <span th:text="${favoriteProductIds.contains(product.id()) ? #messages.msg('favorites.remove') : #messages.msg('favorites.add')}">Любими</span>
+                            </button>
+                        </form>
+                        <a sec:authorize="isAnonymous()" class="btn btn-outline-danger mb-3" th:href="@{/user/sign_in}">
+                            <i class="bi bi-heart me-2"></i><span th:text="#{favorites.add}">Добави в любими</span>
+                        </a>
+
                         <div class="product-details-meta">
                             <span><i class="bi bi-upc-scan"></i> <span th:text="#{details.code}">Код:</span> <strong
                                     th:text="${product.sku()}">SKU</strong></span>

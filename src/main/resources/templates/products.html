@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
@@ -149,9 +149,15 @@
                                      th:data-product-price="${product.price()}"
                                      th:data-product-image="${product.mainImageUrl()}"
                                      th:data-product-url="@{/products/{id}(id=${product.id()})}">
-                                <button class="wishlist-btn" th:aria-label="#{products.favorite}">
-                                    <i class="bi bi-heart"></i>
-                                </button>
+                                <form sec:authorize="isAuthenticated()" method="post"
+                                      th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
+                                    <input type="hidden" name="source" value="products">
+                                    <button type="submit" class="wishlist-btn" th:aria-label="#{products.favorite}">
+                                        <i th:class="${favoriteProductIds.contains(product.id()) ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'}"></i>
+                                    </button>
+                                </form>
+                                <a sec:authorize="isAnonymous()" class="wishlist-btn" th:href="@{/user/sign_in}"
+                                   th:aria-label="#{favorites.loginRequired}"><i class="bi bi-heart"></i></a>
                                 <div class="product-image">
                                     <img th:if="${product.mainImageUrl() != null}"
                                          th:src="${product.mainImageUrl()}"
