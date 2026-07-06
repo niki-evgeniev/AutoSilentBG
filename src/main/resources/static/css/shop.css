@@ -65,6 +65,16 @@ a { text-decoration: none; }
 
 .top-links { display: flex; align-items: center; gap: 22px; }
 .top-links a { color: #fff; opacity: 0.92; }
+
+@media (max-width: 778px) {
+    .top-bar-secondary {
+        display: none !important;
+    }
+
+    .top-bar .container {
+        justify-content: flex-end !important;
+    }
+}
 .top-link-button {
     padding: 0;
     border: 0;

@@ -30,8 +30,8 @@
 
     <section class="product-form-section">
         <div class="container">
-            <div class="row g-4 align-items-stretch">
-                <div class="col-lg-7">
+            <div class="row g-4">
+                <div class="col-12">
                     <form class="product-editor h-100" method="post" th:action="@{/contact}" th:object="${inquiry}" novalidate>
                         <div class="product-editor-card tilt-card h-100">
                             <div class="editor-card-heading">
@@ -78,17 +78,24 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-lg-5">
-                    <div class="product-editor-card tilt-card h-100">
+                <div class="col-12">
+                    <div class="product-editor-card tilt-card">
                         <div class="editor-card-heading">
                             <div class="editor-card-icon"><i class="bi bi-info-circle"></i></div>
                             <div><h2 th:text="#{contact.about.heading}">За нас</h2></div>
                         </div>
-                        <p th:text="#{contact.about.text}">Информация за NiRTON.</p>
-                        <hr>
-                        <p><i class="bi bi-telephone me-2"></i><a href="tel:+359888123456">0888 123 456</a></p>
-                        <p><i class="bi bi-envelope me-2"></i><a href="mailto:info@nirton.bg">info@nirton.bg</a></p>
-                        <p><i class="bi bi-geo-alt me-2"></i><span th:text="#{contact.address}">гр. Горна Оряховица, България</span></p>
+                        <div class="row g-4 align-items-center">
+                            <div class="col-lg-7">
+                                <p class="fs-5 mb-lg-0" th:text="#{contact.about.text}">Информация за NiRTON.</p>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="border-start border-2 ps-lg-4">
+                                    <p><i class="bi bi-telephone me-2"></i><a href="tel:+359888123456">0888 123 456</a></p>
+                                    <p><i class="bi bi-envelope me-2"></i><a href="mailto:info@nirton.bg">info@nirton.bg</a></p>
+                                    <p class="mb-0"><i class="bi bi-geo-alt me-2"></i><span th:text="#{contact.address}">гр. Горна Оряховица, България</span></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
