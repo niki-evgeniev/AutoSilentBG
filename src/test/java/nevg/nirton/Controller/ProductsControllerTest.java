@@ -3,6 +3,8 @@ package nevg.nirton.Controller;
 import nevg.nirton.Models.Dto.ProductCreateDto;
 import nevg.nirton.Models.Dto.ProductDetailsDto;
 import nevg.nirton.Models.Dto.ProductViewDto;
+import nevg.nirton.Models.Dto.ProductImageEditDto;
+import nevg.nirton.Models.Dto.SeoDto;
 import nevg.nirton.Models.Security.ShopUserDetails;
 import nevg.nirton.Service.Exception.InvalidProductImageException;
 import nevg.nirton.Service.Exception.ProductAlreadyExistsException;
@@ -96,6 +98,22 @@ class ProductsControllerTest {
 
         assertThat(result.getViewName()).isEqualTo("product-details");
         assertThat(result.getModel().get("product")).isSameAs(product);
+    }
+
+    @Test
+    void productDetailsAddsSeoWhenConfigured() {
+        ProductDetailsDto product = new ProductDetailsDto(
+                7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
+                "Description", 2, List.of("/image.png")
+        );
+        SeoDto seo = new SeoDto();
+        seo.setTitle("Search title");
+        when(productService.getActiveProduct(7L)).thenReturn(Optional.of(product));
+        when(seoService.getForProduct(7L)).thenReturn(Optional.of(seo));
+
+        ModelAndView result = productsController.productDetails(7L);
+
+        assertThat(result.getModel().get("seo")).isSameAs(seo);
     }
 
     @Test
@@ -275,9 +293,87 @@ class ProductsControllerTest {
         assertThat(redirectAttributes.getFlashAttributes()).containsKey("productDeleted");
     }
 
+    @Test
+    void editProductReturnsPopulatedEditForm() {
+        ProductCreateDto stored = editableProduct(true);
+        stored.setExistingMainImageId(11L);
+        stored.setExistingImages(List.of(new ProductImageEditDto(11L, "/main.jpg", true)));
+        when(productService.getForEdit(9L)).thenReturn(stored);
+
+        ModelAndView result = productsController.editProduct(9L);
+
+        assertThat(result.getViewName()).isEqualTo("add-product");
+        assertThat(result.getModel().get("product")).isSameAs(stored);
+        assertThat(result.getModel().get("editMode")).isEqualTo(true);
+        assertThat(result.getModel().get("productId")).isEqualTo(9L);
+    }
+
+    @Test
+    void editProductRejectsMoreThanFourUploadedImages() {
+        ProductCreateDto submitted = editableProduct(true);
+        submitted.setAdditionalImages(List.of(image(), image(), image(), image(), image()));
+        ProductCreateDto stored = editableProduct(true);
+        when(productService.getForEdit(9L)).thenReturn(stored);
+        BindingResult binding = bindingResult(submitted);
+
+        ModelAndView result = productsController.editProduct(
+                9L, submitted, binding, new RedirectAttributesModelMap());
+
+        assertThat(result.getViewName()).isEqualTo("add-product");
+        assertThat(binding.getFieldError("additionalImages")).isNotNull();
+        verify(productService, never()).update(9L, submitted);
+    }
+
+    @Test
+    void editProductUpdatesActiveProductAndRedirectsToDetails() {
+        ProductCreateDto submitted = editableProduct(true);
+        RedirectAttributesModelMap redirect = new RedirectAttributesModelMap();
+
+        ModelAndView result = productsController.editProduct(
+                9L, submitted, bindingResult(submitted), redirect);
+
+        verify(productService).update(9L, submitted);
+        assertThat(result.getViewName()).isEqualTo("redirect:/products/9");
+        assertThat(redirect.getFlashAttributes().get("productUpdated")).isEqualTo(true);
+    }
+
+    @Test
+    void editProductUpdatesInactiveProductAndRedirectsToCatalog() {
+        ProductCreateDto submitted = editableProduct(false);
+
+        ModelAndView result = productsController.editProduct(
+                9L, submitted, bindingResult(submitted), new RedirectAttributesModelMap());
+
+        verify(productService).update(9L, submitted);
+        assertThat(result.getViewName()).isEqualTo("redirect:/products");
+    }
+
+    @Test
+    void editProductMapsDuplicateToFieldError() {
+        ProductCreateDto submitted = editableProduct(true);
+        BindingResult binding = bindingResult(submitted);
+        ProductCreateDto stored = editableProduct(true);
+        when(productService.getForEdit(9L)).thenReturn(stored);
+        doThrow(new ProductAlreadyExistsException("sku", "Duplicate SKU"))
+                .when(productService).update(9L, submitted);
+
+        ModelAndView result = productsController.editProduct(
+                9L, submitted, binding, new RedirectAttributesModelMap());
+
+        assertThat(result.getViewName()).isEqualTo("add-product");
+        assertThat(binding.getFieldError("sku")).isNotNull()
+                .satisfies(error -> assertThat(error.getDefaultMessage()).isEqualTo("Duplicate SKU"));
+    }
+
     private ProductCreateDto validProduct() {
         ProductCreateDto product = new ProductCreateDto();
         product.setMainImage(image());
+        return product;
+    }
+
+    private ProductCreateDto editableProduct(boolean active) {
+        ProductCreateDto product = new ProductCreateDto();
+        product.setActive(active);
         return product;
     }
 

@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +39,15 @@ class ContactControllerTest {
     }
 
     @Test
+    void successReturnsDedicatedSuccessTemplate() {
+        ModelAndView result = controller.success();
+
+        assertThat(result.getViewName()).isEqualTo("contact-success");
+        assertThat(result.getModel()).isEmpty();
+        verifyNoInteractions(contactInquiryService, clientIpResolver);
+    }
+
+    @Test
     void submitStoresInquiryWithResolvedClientAddress() {
         ContactInquiryDto inquiry = inquiry();
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -59,8 +69,10 @@ class ContactControllerTest {
                 new MockHttpServletRequest());
 
         assertThat(result.getViewName()).isEqualTo("contact");
+        assertThat(result.getModel().get("inquiry")).isSameAs(inquiry);
         verify(contactInquiryService, never()).create(org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.anyString());
+        verifyNoInteractions(clientIpResolver);
     }
 
     private ContactInquiryDto inquiry() {
