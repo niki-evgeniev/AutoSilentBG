@@ -1,0 +1,112 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" th:content="#{contact.meta}">
+    <title th:text="#{contact.pageTitle}">Контакти - NiRTON.bg</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/shop.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/top-bar :: topBar}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="product-form-page page-3d">
+    <section class="product-form-hero page-3d-hero">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb custom-breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{contact.heading}">Контакти</li>
+                </ol>
+            </nav>
+            <span class="eyebrow" th:text="#{contact.eyebrow}">Свържете се с нас</span>
+            <h1 th:text="#{contact.heading}">Контакти</h1>
+            <p th:text="#{contact.intro}">Изпратете ни запитване.</p>
+        </div>
+    </section>
+
+    <section class="product-form-section">
+        <div class="container">
+            <div class="row g-4 align-items-stretch">
+                <div class="col-lg-7">
+                    <form class="product-editor h-100" method="post" th:action="@{/contact}" th:object="${inquiry}" novalidate>
+                        <div class="product-editor-card tilt-card h-100">
+                            <div class="editor-card-heading">
+                                <div class="editor-card-icon"><i class="bi bi-chat-dots"></i></div>
+                                <div><h2 th:text="#{contact.form.heading}">Изпратете запитване</h2><p th:text="#{contact.form.intro}">Ще разгледаме съобщението ви.</p></div>
+                            </div>
+                            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" th:text="#{form.correctErrors}"></div>
+                            <div class="form-group-custom">
+                                <label for="contactName" th:text="#{contact.name}">Име</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-person"></i>
+                                    <input id="contactName" class="form-control" th:errorclass="is-invalid"
+                                           th:field="*{name}" maxlength="100" autocomplete="name">
+                                </div>
+                                <div class="invalid-feedback d-block" th:errors="*{name}"></div>
+                            </div>
+                            <div class="form-group-custom">
+                                <label for="contactEmail" th:text="#{contact.email}">Email адрес</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-envelope"></i>
+                                    <input id="contactEmail" type="email" class="form-control" th:errorclass="is-invalid"
+                                           th:field="*{email}" maxlength="254" autocomplete="email">
+                                </div>
+                                <div class="invalid-feedback d-block" th:errors="*{email}"></div>
+                            </div>
+                            <div class="form-group-custom">
+                                <label for="contactSubject" th:text="#{contact.subject}">Тема</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-tag"></i>
+                                    <input id="contactSubject" class="form-control" th:errorclass="is-invalid"
+                                           th:field="*{subject}" maxlength="150">
+                                </div>
+                                <div class="invalid-feedback d-block" th:errors="*{subject}"></div>
+                            </div>
+                            <div class="form-group-custom">
+                                <label for="contactMessage" th:text="#{contact.message}">Съобщение</label>
+                                <textarea id="contactMessage" class="form-control product-description" th:errorclass="is-invalid"
+                                          th:field="*{message}" maxlength="5000" rows="8"></textarea>
+                                <div class="invalid-feedback d-block" th:errors="*{message}"></div>
+                            </div>
+                            <button class="btn btn-orange" type="submit">
+                                <i class="bi bi-send me-2"></i><span th:text="#{contact.send}">Изпрати</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-5">
+                    <div class="product-editor-card tilt-card h-100">
+                        <div class="editor-card-heading">
+                            <div class="editor-card-icon"><i class="bi bi-info-circle"></i></div>
+                            <div><h2 th:text="#{contact.about.heading}">За нас</h2></div>
+                        </div>
+                        <p th:text="#{contact.about.text}">Информация за NiRTON.</p>
+                        <hr>
+                        <p><i class="bi bi-telephone me-2"></i><a href="tel:+359888123456">0888 123 456</a></p>
+                        <p><i class="bi bi-envelope me-2"></i><a href="mailto:info@nirton.bg">info@nirton.bg</a></p>
+                        <p><i class="bi bi-geo-alt me-2"></i><span th:text="#{contact.address}">гр. Горна Оряховица, България</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-editor-card tilt-card mt-4">
+                <h2 class="h4 mb-3" th:text="#{contact.map.heading}">Как да ни намерите</h2>
+                <iframe class="rounded w-100"
+                        style="height: 450px;"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31796.64728304209!2d25.693556298630067!3d43.11752549887163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40aae7c31d8a36bb%3A0xfda82f47d32497d2!2sGorna%20Oryahovitsa%2C%20Bulgaria!5e0!3m2!1sen!2sbg!4v1694259649153!5m2!1sen!2sbg"
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        th:title="#{contact.map.title}"></iframe>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/shop.js"></script>
+</body>
+</html>
