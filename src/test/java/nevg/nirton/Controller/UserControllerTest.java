@@ -124,6 +124,21 @@ class UserControllerTest {
         assertThat(redirectAttributes.getFlashAttributes()).containsKey("profileUpdated");
     }
 
+    @Test
+    void accountReturnsDashboard() {
+        assertThat(userController.account().getViewName()).isEqualTo("account-dashboard");
+    }
+
+    @Test
+    void userOrdersReturnsOrdersView() {
+        assertThat(userController.userOrders().getViewName()).isEqualTo("user-orders");
+    }
+
+    @Test
+    void userAddressesReturnsAddressesView() {
+        assertThat(userController.userAddresses().getViewName()).isEqualTo("user-addresses");
+    }
+
     private UserRegistrationDto registration(String password, String confirmPassword) {
         UserRegistrationDto registration = new UserRegistrationDto();
         registration.setPassword(password);

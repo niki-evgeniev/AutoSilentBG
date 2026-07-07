@@ -68,6 +68,21 @@ public class UserController {
         return profileView(userProfileService.getProfile(currentUser.getUsername()));
     }
 
+    @GetMapping("/user/account")
+    public ModelAndView account() {
+        return new ModelAndView("account-dashboard");
+    }
+
+    @GetMapping("/user/orders")
+    public ModelAndView userOrders() {
+        return new ModelAndView("user-orders");
+    }
+
+    @GetMapping("/user/addresses")
+    public ModelAndView userAddresses() {
+        return new ModelAndView("user-addresses");
+    }
+
     @PostMapping("/user/profile")
     public ModelAndView updateProfile(@Valid @ModelAttribute("profile") UserProfileDto profile,
                                       BindingResult bindingResult,

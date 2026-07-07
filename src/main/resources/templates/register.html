@@ -140,14 +140,16 @@
                             </div>
                         </div>
 
-                        <div class="form-check terms-check">
-                            <input id="termsAccepted" th:field="*{termsAccepted}" class="form-check-input"
-                                   th:errorclass="is-invalid" type="checkbox">
-                            <label class="form-check-label" for="termsAccepted">
-                                <span th:text="#{register.terms.prefix}">Съгласен съм с</span>
-                                <a href="#" th:text="#{register.terms}">общите условия</a>
-                                <span th:text="#{register.privacy.prefix}">и</span>
-                                <a href="#" th:text="#{register.privacy}">политиката за поверителност</a>.
+                        <div class="terms-check">
+                            <label class="form-check-label terms-label" for="termsAccepted">
+                                <input id="termsAccepted" th:field="*{termsAccepted}" class="form-check-input"
+                                       th:errorclass="is-invalid" type="checkbox">
+                                <span class="terms-label-text">
+                                    <span th:text="#{register.terms.prefix}">Съгласен съм с</span>
+                                    <a href="#" th:text="#{register.terms}">общите условия</a>
+                                    <span th:text="#{register.privacy.prefix}">и</span>
+                                    <a href="#" th:text="#{register.privacy}">политиката за поверителност</a>.
+                                </span>
                             </label>
                             <div class="invalid-feedback d-block" th:errors="*{termsAccepted}"></div>
                         </div>
