@@ -16,6 +16,12 @@
                     <a href="#"><i class="bi bi-facebook"></i></a>
                     <a href="#"><i class="bi bi-instagram"></i></a>
                     <a href="#"><i class="bi bi-youtube"></i></a>
+                    <div class="language-switch footer-language-switch" th:aria-label="#{site.language}">
+                        <a href="?lang=bg" th:classappend="${#locale.language == 'bg'} ? 'active'"
+                           th:text="#{site.bulgarian}">БГ</a>
+                        <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'active'"
+                           th:text="#{site.english}">EN</a>
+                    </div>
                 </div>
             </div>
             <div class="col-6 col-lg-3">
