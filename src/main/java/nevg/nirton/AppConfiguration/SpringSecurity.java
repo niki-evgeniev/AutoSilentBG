@@ -37,6 +37,7 @@ public class SpringSecurity {
                         .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/inquiries/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/ip-addresses/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/favorites/**").authenticated()
                         .requestMatchers("/products/add", "/products/*/edit", "/products/*/seo").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/products/*/delete").hasRole("ADMIN")

@@ -32,6 +32,7 @@ public class ShopUserService implements UserDetailsService {
                 user.getEmail(),
                 user.getPassword(),
                 user.getFirstName(),
+                !user.isBlocked(),
                 user.getRoles().stream().map(ShopUserService::map).toList()
         );
     }

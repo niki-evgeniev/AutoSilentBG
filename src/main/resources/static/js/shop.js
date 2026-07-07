@@ -172,9 +172,16 @@ document.addEventListener('DOMContentLoaded', function () {
         empty.hidden = cart.length > 0;
         summary.hidden = cart.length === 0;
         const count = cart.reduce(function (sum, item) { return sum + item.quantity; }, 0);
-        const total = cart.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+        const subtotal = cart.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+        const discountPercent = Math.min(100, Math.max(0, Number(document.body.dataset.discountPercent) || 0));
+        const discountAmount = subtotal * discountPercent / 100;
+        const total = subtotal - discountAmount;
         document.getElementById('cartSummaryCount').textContent = count;
         document.getElementById('cartSummaryTotal').textContent = formatPrice(total);
+        const discountPercentElement = document.getElementById('checkoutDiscountPercent');
+        const discountAmountElement = document.getElementById('checkoutDiscountAmount');
+        if (discountPercentElement) discountPercentElement.textContent = discountPercent + '%';
+        if (discountAmountElement) discountAmountElement.textContent = '-' + formatPrice(discountAmount);
 
         container.querySelectorAll('.cart-item').forEach(function (row) {
             const id = row.dataset.cartId;

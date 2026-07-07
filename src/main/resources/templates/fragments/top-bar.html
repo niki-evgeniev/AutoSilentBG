@@ -57,6 +57,12 @@
                         </a>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')">
+                        <a class="dropdown-item" th:href="@{/admin/users}">
+                            <i class="bi bi-people me-2"></i>
+                            <span th:text="#{admin.users}">Профили</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
                         <a class="dropdown-item" th:href="@{/admin/ip-addresses}">
                             <i class="bi bi-shield-lock me-2"></i>
                             <span th:text="#{admin.ipAddresses}">Адреси</span>

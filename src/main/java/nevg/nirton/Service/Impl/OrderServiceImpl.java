@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
@@ -61,7 +62,8 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByEmailIgnoreCase(userEmail)
                 .orElseThrow(() -> new OrderCreationException(message("order.error.userNotFound")));
         return new CheckoutCustomerDto(
-                user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhoneNumber());
+                user.getFirstName(), user.getLastName(), user.getEmail(), user.getPhoneNumber(),
+                user.getDiscountPercent() == null ? BigDecimal.ZERO : user.getDiscountPercent());
     }
 
     @Override
@@ -82,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerEmail(user.getEmail());
         order.setCustomerPhone(required(phone, "order.error.phoneRequired"));
         order.setCustomerNote(customerNote == null || customerNote.isBlank() ? null : customerNote.trim());
-        return persistOrder(order, items);
+        return persistOrder(order, items, user.getDiscountPercent());
     }
 
     @Override
@@ -100,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerEmail(required(email, "order.error.emailRequired"));
         order.setCustomerPhone(required(phone, "order.error.phoneRequired"));
         order.setCustomerNote(customerNote == null || customerNote.isBlank() ? null : customerNote.trim());
-        return persistOrder(order, items);
+        return persistOrder(order, items, BigDecimal.ZERO);
     }
 
     @Override
@@ -116,16 +118,20 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerLastName(names[1]);
         order.setCustomerEmail(request.email().trim());
         order.setCustomerPhone(request.phone().trim());
-        return persistOrder(order, List.of(new CartItemOrderDto(request.productId(), request.quantity())));
+        return persistOrder(order, List.of(new CartItemOrderDto(request.productId(), request.quantity())), BigDecimal.ZERO);
     }
 
-    private String persistOrder(OrderEntity order, List<CartItemOrderDto> requests) {
+    private String persistOrder(OrderEntity order, List<CartItemOrderDto> requests, BigDecimal discountPercent) {
         List<PreparedItem> preparedItems = normalize(requests).stream().map(this::prepareItem).toList();
         BigDecimal subtotal = preparedItems.stream()
                 .map(item -> item.product().getPrice().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        BigDecimal percent = discountPercent == null ? BigDecimal.ZERO : discountPercent;
+        BigDecimal discount = subtotal.multiply(percent)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         order.setSubtotalPrice(subtotal);
+        order.setDiscountPrice(discount);
         order.setTotalPrice(subtotal.add(order.getDeliveryPrice()).subtract(order.getDiscountPrice()));
         orderRepository.save(order);
 

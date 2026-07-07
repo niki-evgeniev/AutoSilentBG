@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(1);
+        assertThat(result.migrationsExecuted).isEqualTo(2);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -44,6 +44,7 @@ class InitialSchemaMigrationTest {
                     "ip_address", "created_at", "is_read"
             );
             assertThat(columns(connection, "seo_product")).contains("image_url", "product_id");
+            assertThat(columns(connection, "users")).contains("discount_percent", "is_blocked");
             assertThat(uniqueIndexes(connection, "favorites")).anySatisfy(columns ->
                     assertThat(columns).containsExactlyInAnyOrder("user_id", "product_id"));
             assertThat(uniqueIndexes(connection, "seo_product")).anySatisfy(columns ->

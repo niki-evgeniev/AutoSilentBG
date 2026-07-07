@@ -16,6 +16,15 @@ public final class ShopUserDetails extends org.springframework.security.core.use
         this.firstName = firstName;
     }
 
+    public ShopUserDetails(String email,
+                           String password,
+                           String firstName,
+                           boolean accountNonLocked,
+                           Collection<? extends GrantedAuthority> authorities) {
+        super(email, password, true, true, true, accountNonLocked, authorities);
+        this.firstName = firstName;
+    }
+
     public String getFirstName() {
         return firstName;
     }

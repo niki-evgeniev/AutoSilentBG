@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,12 @@ public class User extends BaseEntity {
 //    @Access(AccessType.FIELD)
     private boolean activate = false;
 
+    @Column(name = "discount_percent", nullable = false, precision = 5, scale = 2)
+    private BigDecimal discountPercent = BigDecimal.ZERO;
+
+    @Column(name = "is_blocked", nullable = false)
+    private boolean blocked;
+
     @Column(name = "token_created", columnDefinition = "DATETIME(0)")
     private LocalDateTime tokenCreated;
 
@@ -69,6 +76,11 @@ public class User extends BaseEntity {
     public void setActivate(boolean activate) {
         this.activate = activate;
     }
+
+    public BigDecimal getDiscountPercent() { return discountPercent; }
+    public void setDiscountPercent(BigDecimal discountPercent) { this.discountPercent = discountPercent; }
+    public boolean isBlocked() { return blocked; }
+    public void setBlocked(boolean blocked) { this.blocked = blocked; }
 
     public LocalDateTime getEditDate() {
         return editDate;

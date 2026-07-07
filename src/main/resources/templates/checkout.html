@@ -20,7 +20,8 @@
       th:data-email-required="#{checkout.emailRequired}"
       th:data-email-invalid="#{checkout.emailInvalid}"
       th:data-phone-required="#{checkout.phoneRequired}"
-      th:data-phone-invalid="#{checkout.phoneInvalid}">
+      th:data-phone-invalid="#{checkout.phoneInvalid}"
+      th:data-discount-percent="${customer.discountPercent()}">
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
 
@@ -78,6 +79,10 @@
                 <div class="checkout-payment-note"><i class="bi bi-cash-coin"></i><span th:text="#{checkout.cashOnly}">Плащане с наложен платеж</span></div>
                 <div><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
                 <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 €</strong></div>
+                <div class="checkout-discount-row">
+                    <span><span th:text="#{checkout.discount}">Отстъпки</span> <strong id="checkoutDiscountPercent">0%</strong></span>
+                    <strong id="checkoutDiscountAmount">-0.00 €</strong>
+                </div>
                 <div id="checkoutError" class="alert alert-danger" hidden></div>
                 <button id="cartCheckoutButton" class="btn btn-orange w-100" type="button"
                         th:text="#{checkout.confirm}">Потвърди поръчката</button>

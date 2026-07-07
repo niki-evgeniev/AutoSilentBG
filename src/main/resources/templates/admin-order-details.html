@@ -41,6 +41,10 @@
                     <div class="admin-order-totals">
                         <div><span th:text="#{admin.order.subtotal}">Междинна сума</span><strong th:text="#{product.price(${order.subtotalPrice()})}"></strong></div>
                         <div><span th:text="#{admin.order.delivery}">Доставка</span><strong th:text="#{product.price(${order.deliveryPrice()})}"></strong></div>
+                        <div class="text-success" th:if="${order.discountPrice() != null and order.discountPrice().signum() > 0}">
+                            <span><span th:text="#{admin.order.discount}">Отстъпка</span> (<span th:text="|${order.discountPercent()}%|">0%</span>)</span>
+                            <strong th:text="|−${#messages.msg('product.price', order.discountPrice())}|"></strong>
+                        </div>
                         <div class="total"><span th:text="#{cart.total}">Общо</span><strong th:text="#{product.price(${order.totalPrice()})}"></strong></div>
                     </div>
                 </section>

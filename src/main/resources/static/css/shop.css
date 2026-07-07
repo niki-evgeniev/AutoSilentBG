@@ -1590,6 +1590,10 @@ a { text-decoration: none; }
     line-height: 1.45;
 }
 
+.checkout-discount-row {
+    color: #198754;
+}
+
 .btn-auth-primary {
     width: 100%;
     height: 56px;

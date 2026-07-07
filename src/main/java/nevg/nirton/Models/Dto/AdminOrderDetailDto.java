@@ -6,6 +6,7 @@ import nevg.nirton.Models.Enums.PaymentMethod;
 import nevg.nirton.Models.Enums.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,4 +32,13 @@ public record AdminOrderDetailDto(
         List<AdminOrderItemDto> items,
         List<AdminOrderHistoryDto> history
 ) {
+    public BigDecimal discountPercent() {
+        if (discountPrice == null || discountPrice.signum() <= 0
+                || subtotalPrice == null || subtotalPrice.signum() <= 0) {
+            return BigDecimal.ZERO;
+        }
+        return discountPrice.multiply(BigDecimal.valueOf(100))
+                .divide(subtotalPrice, 2, RoundingMode.HALF_UP)
+                .stripTrailingZeros();
+    }
 }

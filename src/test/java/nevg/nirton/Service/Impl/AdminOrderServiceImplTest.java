@@ -156,6 +156,18 @@ class AdminOrderServiceImplTest {
                 .hasMessageContaining("Order not found");
     }
 
+    @Test
+    void orderDetailsCalculatesHistoricalDiscountPercent() {
+        var dto = new nevg.nirton.Models.Dto.AdminOrderDetailDto(
+                1L, "NRT-1", "Ivan", "Ivanov", "ivan@example.com", "0888123456", false,
+                DeliveryType.STORE_PICKUP, PaymentMethod.CASH_ON_DELIVERY, PaymentStatus.PENDING,
+                OrderStatus.NEW, new BigDecimal("100.00"), BigDecimal.ZERO,
+                new BigDecimal("20.00"), new BigDecimal("80.00"), null, null,
+                LocalDateTime.now(), List.of(), List.of());
+
+        assertThat(dto.discountPercent()).isEqualByComparingTo("20");
+    }
+
     private OrderEntity order() {
         OrderEntity order = new OrderEntity();
         order.setId(10L);

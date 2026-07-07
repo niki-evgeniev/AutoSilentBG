@@ -81,6 +81,17 @@ class ShopUserServiceTest {
                 .hasMessage("User missing@example.com not found");
     }
 
+    @Test
+    void blockedUserIsMappedAsLockedAccount() {
+        User user = user("blocked@example.com", "password", "Blocked", role(RoleType.USER));
+        user.setBlocked(true);
+        when(userRepository.findByEmailIgnoreCase("blocked@example.com")).thenReturn(Optional.of(user));
+
+        UserDetails result = shopUserService.loadUserByUsername("blocked@example.com");
+
+        assertThat(result.isAccountNonLocked()).isFalse();
+    }
+
     private User user(String email, String password, String firstName, UserRole... roles) {
         User user = new User();
         user.setEmail(email);

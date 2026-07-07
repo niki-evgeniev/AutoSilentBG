@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductService {
+
     void create(ProductCreateDto product, String ownerEmail);
 
     ProductCreateDto getForEdit(Long id);
