@@ -156,6 +156,11 @@ a { text-decoration: none; }
     background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(246, 248, 250, 0.74)),
         radial-gradient(circle at 82% 0%, rgba(255, 106, 0, 0.12), transparent 34%);
+    flex-wrap: wrap;
+}
+
+.header-3d-nav > .container {
+    flex-wrap: wrap;
 }
 
 .logo,
@@ -832,6 +837,18 @@ a { text-decoration: none; }
 .footer a:hover { color: var(--color-orange); }
 .footer .socials { display: flex; align-items: center; gap: 12px; }
 .footer .socials a { display: inline-flex; margin-bottom: 0; }
+.footer .footer-language-switch {
+    margin-left: 4px;
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+.footer .footer-language-switch a {
+    color: #d1d5db;
+}
+.footer .footer-language-switch a.active {
+    color: #fff;
+}
 .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 34px; padding-top: 18px; font-size: 13px; }
 
 @media (max-width: 991px) {
@@ -951,9 +968,57 @@ a { text-decoration: none; }
 .header-search:hover input, .header-search:focus-within input { width: 190px; padding-left: 14px; }
 .header-search .icon-btn { flex: 0 0 auto; border: 0; box-shadow: none; }
 
+.header-commerce-row {
+    display: flex;
+    align-items: center;
+    flex: 0 0 100%;
+    width: 100%;
+    gap: 14px;
+    padding: 10px 0 12px;
+    border-top: 1px solid rgba(25, 25, 25, 0.07);
+}
+
+.header-search-persistent {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.header-search-persistent input,
+.header-search-persistent:hover input,
+.header-search-persistent:focus-within input {
+    width: 100%;
+    min-width: 0;
+    padding-left: 14px;
+}
+
+.header-cart-persistent {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
 @media (max-width: 991.98px) {
     .header-search { flex: 1 1 100%; }
     .header-search input, .header-search:hover input, .header-search:focus-within input { width: 100%; padding-left: 14px; }
+
+    .header-commerce-row {
+        order: 3;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 575px) {
+    .header-commerce-row {
+        padding-bottom: 10px;
+    }
+
+    .header-cart-persistent {
+        min-height: 42px;
+        padding: 9px 12px;
+    }
+
+    .header-cart-persistent .cart-total {
+        font-size: 13px;
+    }
 }
 
 .products-page-section {

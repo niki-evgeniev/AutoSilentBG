@@ -52,14 +52,6 @@
                         <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'active'"
                            th:text="#{site.english}">EN</a>
                     </div>
-                    <form class="header-search" th:action="@{/products}" method="get" role="search">
-                        <label class="visually-hidden" for="headerSearch" th:text="#{site.search}">Търси</label>
-                        <input id="headerSearch" name="search" type="search" maxlength="150"
-                               th:value="${search}" th:placeholder="#{products.search.placeholder}">
-                        <button class="icon-btn header-action-3d" type="submit" th:aria-label="#{site.search}">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </form>
                     <a sec:authorize="isAuthenticated()" class="icon-btn header-action-3d tilt-card"
                        th:href="@{/user/account}" th:aria-label="#{site.profile}"><i class="bi bi-person-check"></i></a>
                     <a sec:authorize="isAnonymous()" class="icon-btn header-action-3d tilt-card"
@@ -71,12 +63,23 @@
                               class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                               th:text="${favoriteProductIds.size()}">0</span>
                     </a>
-                    <a class="cart-btn" th:href="@{/cart}" th:aria-label="#{cart.title}">
-                        <i class="bi bi-cart3 me-2"></i>
-                        <span class="cart-count">0</span>
-                        <span class="cart-total" th:text="#{site.cartTotal}">0.00 €</span>
-                    </a>
                 </div>
+            </div>
+
+            <div class="header-commerce-row">
+                <form class="header-search header-search-persistent" th:action="@{/products}" method="get" role="search">
+                    <label class="visually-hidden" for="headerSearch" th:text="#{site.search}">Търси</label>
+                    <input id="headerSearch" name="search" type="search" maxlength="150"
+                           th:value="${search}" th:placeholder="#{products.search.placeholder}">
+                    <button class="icon-btn header-action-3d" type="submit" th:aria-label="#{site.search}">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+                <a class="cart-btn header-cart-persistent" th:href="@{/cart}" th:aria-label="#{cart.title}">
+                    <i class="bi bi-cart3 me-2"></i>
+                    <span class="cart-count">0</span>
+                    <span class="cart-total" th:text="#{site.cartTotal}">0.00 €</span>
+                </a>
             </div>
         </div>
     </nav>
