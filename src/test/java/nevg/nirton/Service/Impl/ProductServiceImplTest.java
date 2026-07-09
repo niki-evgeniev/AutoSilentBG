@@ -269,6 +269,77 @@ class ProductServiceImplTest {
         assertThat(productService.getActiveProduct(404L)).isEmpty();
     }
 
+    @Test
+    void getForEditMapsProductFieldsAndExistingImages() {
+        Product product = productWithPictures();
+        product.getPictures().get(0).setId(11L);
+        product.getPictures().get(1).setId(12L);
+        when(productRepository.findWithPicturesById(7L)).thenReturn(Optional.of(product));
+
+        ProductCreateDto result = productService.getForEdit(7L);
+
+        assertThat(result.getNameProduct()).isEqualTo("Phone Case");
+        assertThat(result.getSku()).isEqualTo("CASE-1");
+        assertThat(result.getCategory()).isEqualTo("Accessories");
+        assertThat(result.getPrice()).isEqualByComparingTo("12.50");
+        assertThat(result.getDescription()).isEqualTo("Protective case");
+        assertThat(result.getStock()).isEqualTo(8);
+        assertThat(result.getExistingMainImageId()).isEqualTo(11L);
+        assertThat(result.getExistingImages()).hasSize(2);
+        assertThat(result.getExistingImages().get(0).url())
+                .isEqualTo("/ProductImages/Phone-Case/main%20image%23.png");
+        assertThat(result.getExistingImages().get(0).mainImage()).isTrue();
+        assertThat(result.getExistingImages().get(1).url())
+                .isEqualTo("/ProductImages/Phone-Case/side.png");
+    }
+
+    @Test
+    void getForEditThrowsWhenProductDoesNotExist() {
+        when(productRepository.findWithPicturesById(404L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.getForEdit(404L))
+                .isInstanceOf(ProductCreationException.class);
+    }
+
+    @Test
+    void updateRejectsRemovingEveryImage() {
+        Product product = productWithPictures();
+        product.getPictures().get(0).setId(11L);
+        product.getPictures().get(1).setId(12L);
+        ProductCreateDto request = validRequest();
+        request.setMainImage(null);
+        request.setAdditionalImages(List.of());
+        request.setRemovedImageIds(List.of(11L, 12L));
+        when(productRepository.findWithPicturesById(7L)).thenReturn(Optional.of(product));
+
+        assertThatThrownBy(() -> productService.update(7L, request))
+                .isInstanceOf(InvalidProductImageException.class);
+
+        verify(productRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void deleteMarksProductInactive() {
+        Product product = new Product();
+        product.setActive(true);
+        when(productRepository.findById(7L)).thenReturn(Optional.of(product));
+
+        productService.delete(7L);
+
+        assertThat(product.isActive()).isFalse();
+        verify(productRepository).save(product);
+    }
+
+    @Test
+    void deleteThrowsWhenProductDoesNotExist() {
+        when(productRepository.findById(404L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.delete(404L))
+                .isInstanceOf(ProductCreationException.class);
+
+        verify(productRepository, never()).save(any());
+    }
+
     private ProductCreateDto validRequest() {
         ProductCreateDto request = new ProductCreateDto();
         request.setNameProduct("  Product One  ");

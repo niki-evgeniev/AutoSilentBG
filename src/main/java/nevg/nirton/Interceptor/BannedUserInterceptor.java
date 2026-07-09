@@ -50,7 +50,8 @@ public class BannedUserInterceptor implements HandlerInterceptor {
         try {
             if (!bannedUserService.recordVisitAndCheckIfBanned(ipAddress, username)) return true;
         } catch (RuntimeException exception) {
-            LOGGER.warn("IP ban check failed for {}. Allowing the request to preserve availability.", ipAddress, exception);
+            LOGGER.warn("IP ban check failed for {}. Allowing the request to preserve availability.",
+                    ipAddress, exception);
             return true;
         }
 

@@ -13,8 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -43,6 +47,27 @@ class FavoriteControllerTest {
 
         assertThat(authorization).isNotNull();
         assertThat(authorization.value()).isEqualTo("isAuthenticated()");
+    }
+
+    @Test
+    void favoritesEndpointIsMappedToFavoritesPage() throws NoSuchMethodException {
+        Method method = FavoriteController.class.getMethod("favorites", ShopUserDetails.class);
+        GetMapping mapping = method.getAnnotation(GetMapping.class);
+
+        assertThat(mapping).isNotNull();
+        assertThat(mapping.value()).containsExactly("/favorites");
+    }
+
+    @Test
+    void toggleEndpointUsesFavoritesAsDefaultSource() throws NoSuchMethodException {
+        Method method = FavoriteController.class.getMethod("toggle", Long.class, String.class, ShopUserDetails.class);
+        PostMapping mapping = method.getAnnotation(PostMapping.class);
+        RequestParam source = method.getParameters()[1].getAnnotation(RequestParam.class);
+
+        assertThat(mapping).isNotNull();
+        assertThat(mapping.value()).containsExactly("/favorites/{productId}/toggle");
+        assertThat(source).isNotNull();
+        assertThat(source.defaultValue()).isEqualTo("favorites");
     }
 
     @Test
