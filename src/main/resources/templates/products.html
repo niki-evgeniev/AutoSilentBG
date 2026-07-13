@@ -117,7 +117,7 @@
                     <div class="shop-toolbar tilt-card">
                         <div>
                             <span th:text="#{products.shown}">Показани са</span>
-                            <strong th:text="#{products.count.many(${products.size()})}">
+                            <strong th:text="#{products.count.many(${productPage.totalElements})}">
                                 0 продукта
                             </strong>
                         </div>
@@ -199,6 +199,25 @@
                     <div class="alert alert-light text-center py-5" th:if="${products.isEmpty()}">
                         <span th:text="${search.isBlank()} ? #{products.empty} : #{products.search.empty(${search})}">В момента няма активни продукти.</span>
                     </div>
+
+                    <nav class="shop-pagination" th:if="${productPage.totalPages > 1}"
+                         th:aria-label="#{products.pagination}">
+                        <a th:href="@{/products(search=${search}, page=${productPage.number - 1})}"
+                           th:classappend="${productPage.first} ? ' disabled'"
+                           th:aria-label="#{products.previous}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                        <a th:each="pageNumber : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                           th:href="@{/products(search=${search}, page=${pageNumber})}"
+                           th:classappend="${pageNumber == productPage.number} ? ' active'"
+                           th:text="${pageNumber + 1}"
+                           th:aria-label="#{products.page(${pageNumber + 1})}">1</a>
+                        <a th:href="@{/products(search=${search}, page=${productPage.number + 1})}"
+                           th:classappend="${productPage.last} ? ' disabled'"
+                           th:aria-label="#{products.next}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </nav>
                 </div>
             </div>
         </div>

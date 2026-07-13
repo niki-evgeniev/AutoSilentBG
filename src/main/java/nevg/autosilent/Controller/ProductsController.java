@@ -10,6 +10,9 @@ import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.ProductService;
 import nevg.autosilent.Service.SeoService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -39,9 +42,13 @@ public class ProductsController {
     }
 
     @GetMapping("/products")
-    public ModelAndView products(@RequestParam(name = "search", required = false) String search) {
+    public ModelAndView products(@RequestParam(name = "search", required = false) String search,
+                                 @PageableDefault(size = 9, sort = "addDate",
+                                         direction = Sort.Direction.DESC) Pageable pageable) {
         ModelAndView modelAndView = new ModelAndView("products");
-        modelAndView.addObject("products", productService.searchActiveProducts(search));
+        var productPage = productService.searchActiveProducts(search, pageable);
+        modelAndView.addObject("productPage", productPage);
+        modelAndView.addObject("products", productPage.getContent());
         modelAndView.addObject("search", search == null ? "" : search.trim());
         return modelAndView;
     }

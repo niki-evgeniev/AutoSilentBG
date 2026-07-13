@@ -17,6 +17,10 @@ import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.ProductService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +47,7 @@ import java.util.HashSet;
 public class ProductServiceImpl implements ProductService {
 
     private static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024;
+    private static final int PRODUCTS_PAGE_SIZE = 9;
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
@@ -430,6 +435,20 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.searchActive(search.trim()).stream()
                 .map(this::toViewDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductViewDto> searchActiveProducts(String search, Pageable pageable) {
+        int pageNumber = pageable == null ? 0 : Math.max(pageable.getPageNumber(), 0);
+        Sort sort = pageable == null || pageable.getSort().isUnsorted()
+                ? Sort.by(Sort.Direction.DESC, "addDate")
+                : pageable.getSort();
+        PageRequest pageRequest = PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE, sort);
+        if (search == null || search.isBlank()) {
+            return productRepository.findAllByActiveTrue(pageRequest).map(this::toViewDto);
+        }
+        return productRepository.searchActive(search.trim(), pageRequest).map(this::toViewDto);
     }
 
     private void validateUniqueFields(ProductCreateDto request, Long productId) {

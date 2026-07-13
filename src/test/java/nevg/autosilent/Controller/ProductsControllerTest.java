@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -58,19 +60,22 @@ class ProductsControllerTest {
                 1L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
                 "Description", 2, "/image.png"
         ));
-        when(productService.searchActiveProducts(null)).thenReturn(products);
+        PageRequest pageable = PageRequest.of(0, 9);
+        when(productService.searchActiveProducts(null, pageable)).thenReturn(new PageImpl<>(products));
 
-        ModelAndView result = productsController.products(null);
+        ModelAndView result = productsController.products(null, pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
-        assertThat(result.getModel().get("products")).isSameAs(products);
+        assertThat(result.getModel().get("products")).isEqualTo(products);
+        assertThat(result.getModel().get("productPage")).isNotNull();
     }
 
     @Test
     void productsReturnsEmptyCatalogInModel() {
-        when(productService.searchActiveProducts(null)).thenReturn(List.of());
+        PageRequest pageable = PageRequest.of(0, 9);
+        when(productService.searchActiveProducts(null, pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        ModelAndView result = productsController.products(null);
+        ModelAndView result = productsController.products(null, pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(List.of());
@@ -78,12 +83,13 @@ class ProductsControllerTest {
 
     @Test
     void productsSearchesAndPreservesTrimmedSearchTerm() {
-        when(productService.searchActiveProducts("  lamp  ")).thenReturn(List.of());
+        PageRequest pageable = PageRequest.of(2, 9);
+        when(productService.searchActiveProducts("  lamp  ", pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        ModelAndView result = productsController.products("  lamp  ");
+        ModelAndView result = productsController.products("  lamp  ", pageable);
 
         assertThat(result.getModel().get("search")).isEqualTo("lamp");
-        verify(productService).searchActiveProducts("  lamp  ");
+        verify(productService).searchActiveProducts("  lamp  ", pageable);
     }
 
     @Test

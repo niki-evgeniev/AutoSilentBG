@@ -19,6 +19,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -243,6 +245,36 @@ class ProductServiceImplTest {
 
         verify(productRepository).findAllByActiveTrueOrderByAddDateDesc();
         verify(productRepository, never()).searchActive(any());
+    }
+
+    @Test
+    void pagedSearchUsesNineProductsPerPageAndMapsResults() {
+        Product product = productWithPictures();
+        when(productRepository.searchActive(org.mockito.ArgumentMatchers.eq("phone"),
+                org.mockito.ArgumentMatchers.any(Pageable.class))).thenReturn(new PageImpl<>(List.of(product)));
+
+        var result = productService.searchActiveProducts("  phone  ", org.springframework.data.domain.PageRequest.of(2, 25));
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(productRepository).searchActive(org.mockito.ArgumentMatchers.eq("phone"), captor.capture());
+        assertThat(captor.getValue().getPageNumber()).isEqualTo(2);
+        assertThat(captor.getValue().getPageSize()).isEqualTo(9);
+        assertThat(result.getContent()).extracting(ProductViewDto::id).containsExactly(7L);
+    }
+
+    @Test
+    void pagedBlankSearchLoadsActiveProductsAndKeepsNineProductsPerPage() {
+        when(productRepository.findAllByActiveTrue(org.mockito.ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        productService.searchActiveProducts("   ", org.springframework.data.domain.PageRequest.of(0, 25));
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(productRepository).findAllByActiveTrue(captor.capture());
+        assertThat(captor.getValue().getPageNumber()).isZero();
+        assertThat(captor.getValue().getPageSize()).isEqualTo(9);
+        verify(productRepository, never()).searchActive(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any(Pageable.class));
     }
 
     @Test
