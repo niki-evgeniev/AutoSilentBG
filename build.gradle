@@ -6,7 +6,7 @@ plugins {
 
 group = 'nevg'
 version = '0.0.1-SNAPSHOT'
-description = 'NiRTON'
+description = 'AutoSilent'
 
 java {
     toolchain {
