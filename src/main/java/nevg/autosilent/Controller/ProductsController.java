@@ -64,7 +64,7 @@ public class ProductsController {
 
     public ModelAndView productDetails(Long id) {
         ModelAndView modelAndView = new ModelAndView("product-details");
-        modelAndView.addObject("product", productService.getActiveProduct(id)
+        modelAndView.addObject("product", productService.getActiveProductAndIncrementCount(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Продуктът не е намерен.")));
         seoService.getForProduct(id).ifPresent(seo -> modelAndView.addObject("seo", seo));

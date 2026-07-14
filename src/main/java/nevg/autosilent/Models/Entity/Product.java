@@ -48,6 +48,9 @@ public class Product extends BaseEntity {
     @Column(name = "sold")
     private int sold;
 
+    @Column(name = "view_count", nullable = false)
+    private long count;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
@@ -76,5 +79,8 @@ public class Product extends BaseEntity {
         pictures.forEach(picture -> picture.setMainImage(picture == newMainPicture));
     }
 
+    public void incrementCount() {
+        count++;
+    }
 
 }

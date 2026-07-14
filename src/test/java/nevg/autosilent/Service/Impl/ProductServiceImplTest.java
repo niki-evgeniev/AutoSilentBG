@@ -286,7 +286,7 @@ class ProductServiceImplTest {
 
         assertThat(result).contains(new ProductDetailsDto(
                 7L, "Phone Case", "CASE-1", "Accessories", new BigDecimal("12.50"),
-                "Protective case", 8,
+                "Protective case", 8, 3L,
                 List.of(
                         "/ProductImages/Phone-Case/main%20image%23.png",
                         "/ProductImages/Phone-Case/side.png"
@@ -299,6 +299,28 @@ class ProductServiceImplTest {
         when(productRepository.findByIdAndActiveTrue(404L)).thenReturn(Optional.empty());
 
         assertThat(productService.getActiveProduct(404L)).isEmpty();
+    }
+
+    @Test
+    void getActiveProductAndIncrementCountIncrementsAndMapsProduct() {
+        Product product = productWithPictures();
+        product.setCount(3L);
+        when(productRepository.findActiveByIdForUpdate(7L)).thenReturn(Optional.of(product));
+
+        Optional<ProductDetailsDto> result = productService.getActiveProductAndIncrementCount(7L);
+
+        assertThat(product.getCount()).isEqualTo(4L);
+        assertThat(result).isPresent()
+                .get()
+                .extracting(ProductDetailsDto::count)
+                .isEqualTo(4L);
+    }
+
+    @Test
+    void getActiveProductAndIncrementCountReturnsEmptyWhenProductDoesNotExist() {
+        when(productRepository.findActiveByIdForUpdate(404L)).thenReturn(Optional.empty());
+
+        assertThat(productService.getActiveProductAndIncrementCount(404L)).isEmpty();
     }
 
     @Test
@@ -394,6 +416,7 @@ class ProductServiceImplTest {
         product.setPrice(new BigDecimal("12.50"));
         product.setDescription("Protective case");
         product.setStock(8);
+        product.setCount(3L);
 
         Picture main = new Picture();
         main.setFileName("main image#.png");

@@ -27,5 +27,7 @@ public interface ProductService {
 
     Optional<ProductDetailsDto> getActiveProduct(Long id);
 
+    Optional<ProductDetailsDto> getActiveProductAndIncrementCount(Long id);
+
     void addVibrofltr();
 }

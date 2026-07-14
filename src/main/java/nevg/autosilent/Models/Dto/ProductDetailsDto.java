@@ -11,6 +11,7 @@ public record ProductDetailsDto(
         BigDecimal price,
         String description,
         int stock,
+        long count,
         List<String> imageUrls
 ) {
     public String mainImageUrl() {

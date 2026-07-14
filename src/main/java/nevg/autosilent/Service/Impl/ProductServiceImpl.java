@@ -262,6 +262,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
+    public Optional<ProductDetailsDto> getActiveProductAndIncrementCount(Long id) {
+        return productRepository.findActiveByIdForUpdate(id)
+                .map(product -> {
+                    product.incrementCount();
+                    return toDetailsDto(product);
+                });
+    }
+
+    @Override
     public void addVibrofltr() {
         if (productRepository.count() == 0) {
                 if (productRepository.count() == 0) {
@@ -407,6 +417,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getPrice(),
                 product.getDescription(),
                 product.getStock(),
+                product.getCount(),
                 imageUrls
         );
     }

@@ -96,9 +96,9 @@ class ProductsControllerTest {
     void productDetailsReturnsRequestedProduct() {
         ProductDetailsDto product = new ProductDetailsDto(
                 7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
-                "Description", 2, List.of("/image.png")
+                "Description", 2, 1L, List.of("/image.png")
         );
-        when(productService.getActiveProduct(7L)).thenReturn(Optional.of(product));
+        when(productService.getActiveProductAndIncrementCount(7L)).thenReturn(Optional.of(product));
 
         ModelAndView result = productsController.productDetails(7L);
 
@@ -110,11 +110,11 @@ class ProductsControllerTest {
     void productDetailsAddsSeoWhenConfigured() {
         ProductDetailsDto product = new ProductDetailsDto(
                 7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
-                "Description", 2, List.of("/image.png")
+                "Description", 2, 1L, List.of("/image.png")
         );
         SeoDto seo = new SeoDto();
         seo.setTitle("Search title");
-        when(productService.getActiveProduct(7L)).thenReturn(Optional.of(product));
+        when(productService.getActiveProductAndIncrementCount(7L)).thenReturn(Optional.of(product));
         when(seoService.getForProduct(7L)).thenReturn(Optional.of(seo));
 
         ModelAndView result = productsController.productDetails(7L);
@@ -126,9 +126,9 @@ class ProductsControllerTest {
     void productDetailsPageInitializesCsrfTokenBeforeRenderingQuickOrderForm() {
         ProductDetailsDto product = new ProductDetailsDto(
                 7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
-                "Description", 2, List.of("/image.png")
+                "Description", 2, 1L, List.of("/image.png")
         );
-        when(productService.getActiveProduct(7L)).thenReturn(Optional.of(product));
+        when(productService.getActiveProductAndIncrementCount(7L)).thenReturn(Optional.of(product));
         CsrfToken csrfToken = org.mockito.Mockito.mock(CsrfToken.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setAttribute(CsrfToken.class.getName(), csrfToken);
@@ -144,9 +144,9 @@ class ProductsControllerTest {
     void productDetailsPageWorksWhenCsrfAttributeIsNotPresent() {
         ProductDetailsDto product = new ProductDetailsDto(
                 8L, "Product", "SKU-2", "Category", new BigDecimal("12.00"),
-                "Description", 1, List.of()
+                "Description", 1, 1L, List.of()
         );
-        when(productService.getActiveProduct(8L)).thenReturn(Optional.of(product));
+        when(productService.getActiveProductAndIncrementCount(8L)).thenReturn(Optional.of(product));
 
         ModelAndView result = productsController.productDetailsPage(8L, new MockHttpServletRequest());
 
@@ -156,7 +156,7 @@ class ProductsControllerTest {
 
     @Test
     void productDetailsPageReturnsNotFoundForMissingProduct() {
-        when(productService.getActiveProduct(404L)).thenReturn(Optional.empty());
+        when(productService.getActiveProductAndIncrementCount(404L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productsController.productDetailsPage(
                 404L, new MockHttpServletRequest()))
@@ -167,7 +167,7 @@ class ProductsControllerTest {
 
     @Test
     void productDetailsReturnsNotFoundForMissingOrInactiveProduct() {
-        when(productService.getActiveProduct(404L)).thenReturn(Optional.empty());
+        when(productService.getActiveProductAndIncrementCount(404L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productsController.productDetails(404L))
                 .isInstanceOf(ResponseStatusException.class)
