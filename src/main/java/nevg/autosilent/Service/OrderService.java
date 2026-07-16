@@ -12,11 +12,13 @@ public interface OrderService {
 
     String createRegisteredOrder(String userEmail, String firstName, String lastName,
                                  String phone, String customerNote,
-                                 List<CartItemOrderDto> items);
+                                 List<CartItemOrderDto> items,
+                                 String promoCode);
 
     String createGuestOrder(String email, String firstName, String lastName,
                             String phone, String customerNote,
-                            List<CartItemOrderDto> items);
+                            List<CartItemOrderDto> items,
+                            String promoCode);
 
     String createQuickOrder(QuickOrderDto request);
 }

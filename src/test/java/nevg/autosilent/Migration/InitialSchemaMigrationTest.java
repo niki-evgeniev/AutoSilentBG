@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(3);
+        assertThat(result.migrationsExecuted).isEqualTo(4);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -36,16 +36,21 @@ class InitialSchemaMigrationTest {
                     "roles", "users", "users_roles", "products", "pictures", "category",
                     "seo_product", "favorites", "orders", "order_items", "order_addresses",
                     "order_status_history", "user_addresses", "ip_addresses", "contact_inquiries",
-                    "flyway_schema_history"
+                    "promo_codes", "flyway_schema_history"
             );
-            assertThat(tables(connection)).hasSize(16);
+            assertThat(tables(connection)).hasSize(17);
             assertThat(columns(connection, "contact_inquiries")).contains(
                     "id", "uuid", "sender_name", "sender_email", "subject", "message",
                     "ip_address", "created_at", "is_read"
             );
             assertThat(columns(connection, "seo_product")).contains("image_url", "product_id");
             assertThat(columns(connection, "products")).contains("view_count");
+            assertThat(columns(connection, "orders")).contains("promo_code", "promo_discount_percent");
+            assertThat(columns(connection, "promo_codes")).contains(
+                    "code", "discount_percent", "created_by_user_id", "created_at");
             assertThat(columns(connection, "users")).contains("discount_percent", "is_blocked");
+            assertThat(uniqueIndexes(connection, "promo_codes")).anySatisfy(columns ->
+                    assertThat(columns).containsExactly("code"));
             assertThat(uniqueIndexes(connection, "favorites")).anySatisfy(columns ->
                     assertThat(columns).containsExactlyInAnyOrder("user_id", "product_id"));
             assertThat(uniqueIndexes(connection, "seo_product")).anySatisfy(columns ->
@@ -60,6 +65,7 @@ class InitialSchemaMigrationTest {
                     "order_id", "orders",
                     "product_id", "products"
             ));
+            assertThat(importedKeys(connection, "promo_codes")).containsEntry("created_by_user_id", "users");
             assertThat(nullableColumns(connection, "contact_inquiries"))
                     .doesNotContain("sender_name", "sender_email", "subject", "message", "ip_address", "created_at", "is_read");
             assertThat(singleValue(connection,

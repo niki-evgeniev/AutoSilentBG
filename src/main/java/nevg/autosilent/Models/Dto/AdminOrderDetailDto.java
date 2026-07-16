@@ -25,6 +25,8 @@ public record AdminOrderDetailDto(
         BigDecimal subtotalPrice,
         BigDecimal deliveryPrice,
         BigDecimal discountPrice,
+        String promoCode,
+        BigDecimal promoDiscountPercent,
         BigDecimal totalPrice,
         String customerNote,
         String adminNote,
@@ -40,5 +42,9 @@ public record AdminOrderDetailDto(
         return discountPrice.multiply(BigDecimal.valueOf(100))
                 .divide(subtotalPrice, 2, RoundingMode.HALF_UP)
                 .stripTrailingZeros();
+    }
+
+    public String discountPercentText() {
+        return discountPercent().toPlainString();
     }
 }

@@ -15,6 +15,7 @@ import nevg.autosilent.Repository.OrderRepository;
 import nevg.autosilent.Repository.OrderStatusHistoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.UserRepository;
+import nevg.autosilent.Service.PromoCodeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,7 @@ class OrderServiceImplTest {
     @Mock OrderStatusHistoryRepository historyRepository;
     @Mock ProductRepository productRepository;
     @Mock UserRepository userRepository;
+    @Mock PromoCodeService promoCodeService;
     @Mock MessageSource messageSource;
 
     private OrderServiceImpl service;
@@ -52,9 +54,14 @@ class OrderServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new OrderServiceImpl(orderRepository, orderItemRepository, historyRepository,
-                productRepository, userRepository, messageSource);
+                productRepository, userRepository, promoCodeService, messageSource);
         lenient().when(messageSource.getMessage(anyString(), any(), any(Locale.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(promoCodeService.discountPercent(any())).thenReturn(BigDecimal.ZERO);
+        lenient().when(promoCodeService.normalizeCode(any())).thenAnswer(invocation -> {
+            String code = invocation.getArgument(0);
+            return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
+        });
     }
 
     @Test
@@ -64,7 +71,7 @@ class OrderServiceImplTest {
         when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(product));
 
         String orderNumber = service.createGuestOrder(" guest@example.com ", " Ivan ", " Ivanov ",
-                " 0888123456 ", "  call first  ", List.of(new CartItemOrderDto(3L, 2)));
+                " 0888123456 ", "  call first  ", List.of(new CartItemOrderDto(3L, 2)), null);
 
         assertThat(orderNumber).startsWith("NRT-");
         ArgumentCaptor<OrderEntity> orderCaptor = ArgumentCaptor.forClass(OrderEntity.class);
@@ -106,7 +113,7 @@ class OrderServiceImplTest {
         when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(product));
 
         service.createGuestOrder("guest@example.com", "Ivan", "Ivanov", "0888123456", null,
-                List.of(new CartItemOrderDto(3L, 1), new CartItemOrderDto(3L, 2)));
+                List.of(new CartItemOrderDto(3L, 1), new CartItemOrderDto(3L, 2)), null);
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<OrderItemEntity>> itemsCaptor = ArgumentCaptor.forClass(List.class);
@@ -130,8 +137,26 @@ class OrderServiceImplTest {
         when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(product));
 
         assertThatThrownBy(() -> service.createGuestOrder("guest@example.com", "Ivan", "Ivanov",
-                "0888123456", null, List.of(new CartItemOrderDto(3L, 2))))
+                "0888123456", null, List.of(new CartItemOrderDto(3L, 2)), null))
                 .isInstanceOf(OrderCreationException.class);
+    }
+
+    @Test
+    void createGuestOrderAppliesPromoCodeDiscount() {
+        Product product = product(3L, "Product", "SKU-3", "20.00", 5);
+        when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(product));
+        when(promoCodeService.discountPercent("SAVE10")).thenReturn(new BigDecimal("10"));
+        when(promoCodeService.normalizeCode("SAVE10")).thenReturn("SAVE10");
+
+        service.createGuestOrder("guest@example.com", "Ivan", "Ivanov", "0888123456", null,
+                List.of(new CartItemOrderDto(3L, 2)), "SAVE10");
+
+        ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
+        verify(orderRepository).save(captor.capture());
+        assertThat(captor.getValue().getPromoCode()).isEqualTo("SAVE10");
+        assertThat(captor.getValue().getPromoDiscountPercent()).isEqualByComparingTo("10");
+        assertThat(captor.getValue().getDiscountPrice()).isEqualByComparingTo("4.00");
+        assertThat(captor.getValue().getTotalPrice()).isEqualByComparingTo("36.00");
     }
 
     @Test

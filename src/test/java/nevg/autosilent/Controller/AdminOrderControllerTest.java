@@ -93,7 +93,7 @@ class AdminOrderControllerTest {
                 false, DeliveryType.STORE_PICKUP, PaymentMethod.CASH_ON_DELIVERY,
                 PaymentStatus.PENDING, OrderStatus.NEW,
                 new BigDecimal("25.00"), BigDecimal.ZERO, BigDecimal.ZERO,
-                new BigDecimal("25.00"), null, null,
+                null, BigDecimal.ZERO, new BigDecimal("25.00"), null, null,
                 LocalDateTime.of(2026, 7, 4, 12, 0), List.of(), List.of()
         );
     }

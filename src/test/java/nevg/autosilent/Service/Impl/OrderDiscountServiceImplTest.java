@@ -9,6 +9,7 @@ import nevg.autosilent.Repository.OrderRepository;
 import nevg.autosilent.Repository.OrderStatusHistoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.UserRepository;
+import nevg.autosilent.Service.PromoCodeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,6 +33,7 @@ class OrderDiscountServiceImplTest {
     @Mock OrderStatusHistoryRepository historyRepository;
     @Mock ProductRepository productRepository;
     @Mock UserRepository userRepository;
+    @Mock PromoCodeService promoCodeService;
     @Mock MessageSource messageSource;
 
     @Test
@@ -44,15 +46,44 @@ class OrderDiscountServiceImplTest {
         product.setPrice(new BigDecimal("12.50")); product.setStock(10);
         when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
         when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(product));
+        when(promoCodeService.discountPercent(null)).thenReturn(BigDecimal.ZERO);
+        when(promoCodeService.normalizeCode(null)).thenReturn("");
 
         service().createRegisteredOrder("user@example.com", "Ivan", "Ivanov", "0888123456", null,
-                List.of(new CartItemOrderDto(3L, 2)));
+                List.of(new CartItemOrderDto(3L, 2)), null);
 
         ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
         verify(orderRepository).save(captor.capture());
         assertThat(captor.getValue().getSubtotalPrice()).isEqualByComparingTo("25.00");
         assertThat(captor.getValue().getDiscountPrice()).isEqualByComparingTo("5.00");
         assertThat(captor.getValue().getTotalPrice()).isEqualByComparingTo("20.00");
+    }
+
+    @Test
+    void promoCodeReplacesUserDiscountInsteadOfAddingToIt() {
+        User user = new User();
+        user.setEmail("user@example.com");
+        user.setDiscountPercent(new BigDecimal("20.00"));
+        Product product = new Product();
+        product.setId(3L);
+        product.setNameProduct("Product");
+        product.setSku("SKU-3");
+        product.setPrice(new BigDecimal("100.00"));
+        product.setStock(10);
+        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(product));
+        when(promoCodeService.discountPercent("NIKI89")).thenReturn(new BigDecimal("30"));
+        when(promoCodeService.normalizeCode("NIKI89")).thenReturn("NIKI89");
+
+        service().createRegisteredOrder("user@example.com", "Ivan", "Ivanov", "0888123456", null,
+                List.of(new CartItemOrderDto(3L, 1)), "NIKI89");
+
+        ArgumentCaptor<OrderEntity> captor = ArgumentCaptor.forClass(OrderEntity.class);
+        verify(orderRepository).save(captor.capture());
+        assertThat(captor.getValue().getPromoCode()).isEqualTo("NIKI89");
+        assertThat(captor.getValue().getPromoDiscountPercent()).isEqualByComparingTo("30");
+        assertThat(captor.getValue().getDiscountPrice()).isEqualByComparingTo("30.00");
+        assertThat(captor.getValue().getTotalPrice()).isEqualByComparingTo("70.00");
     }
 
     @Test
@@ -68,6 +99,6 @@ class OrderDiscountServiceImplTest {
 
     private OrderServiceImpl service() {
         return new OrderServiceImpl(orderRepository, orderItemRepository, historyRepository,
-                productRepository, userRepository, messageSource);
+                productRepository, userRepository, promoCodeService, messageSource);
     }
 }

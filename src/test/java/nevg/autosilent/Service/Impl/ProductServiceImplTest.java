@@ -227,6 +227,17 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void getBestSellingProductsMapsTopSoldProducts() {
+        Product product = productWithPictures();
+        when(productRepository.findTop4ByActiveTrueOrderBySoldDescAddDateDesc()).thenReturn(List.of(product));
+
+        List<ProductViewDto> result = productService.getBestSellingProducts();
+
+        verify(productRepository).findTop4ByActiveTrueOrderBySoldDescAddDateDesc();
+        assertThat(result).extracting(ProductViewDto::id).containsExactly(7L);
+    }
+
+    @Test
     void searchActiveProductsTrimsQueryAndMapsResults() {
         Product product = productWithPictures();
         when(productRepository.searchActive("phone")).thenReturn(List.of(product));

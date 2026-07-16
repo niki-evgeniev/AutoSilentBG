@@ -3,10 +3,13 @@ package nevg.autosilent.Controller;
 import nevg.autosilent.Models.Dto.CartItemOrderDto;
 import nevg.autosilent.Models.Dto.CartOrderDto;
 import nevg.autosilent.Models.Dto.CheckoutCustomerDto;
+import nevg.autosilent.Models.Dto.PromoCodeApplyDto;
+import nevg.autosilent.Models.Dto.PromoCodeValidationDto;
 import nevg.autosilent.Models.Dto.QuickOrderDto;
 import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.OrderCreationException;
 import nevg.autosilent.Service.OrderService;
+import nevg.autosilent.Service.PromoCodeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,20 +39,23 @@ class OrderControllerTest {
     private OrderService orderService;
 
     @Mock
+    private PromoCodeService promoCodeService;
+
+    @Mock
     private MessageSource messageSource;
 
     private OrderController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new OrderController(orderService, messageSource);
+        controller = new OrderController(orderService, promoCodeService, messageSource);
     }
 
     @Test
     void cartOrderCreatesGuestOrderWithoutAuthenticatedUser() {
         CartOrderDto request = cartOrder();
         when(orderService.createGuestOrder(
-                "ivan@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items()))
+                "ivan@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items(), "SAVE10"))
                 .thenReturn("NRT-GUEST");
 
         var response = controller.createCartOrder(request, null, Locale.ENGLISH);
@@ -61,7 +68,7 @@ class OrderControllerTest {
     void cartOrderCreatesOrderAndReturnsSuccessUrl() {
         CartOrderDto request = cartOrder();
         when(orderService.createRegisteredOrder(
-                "user@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items()))
+                "user@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items(), "SAVE10"))
                 .thenReturn("NRT-123");
 
         var response = controller.createCartOrder(request, currentUser(), Locale.ENGLISH);
@@ -77,7 +84,7 @@ class OrderControllerTest {
         CartOrderDto request = cartOrder();
         doThrow(new OrderCreationException("Out of stock"))
                 .when(orderService).createRegisteredOrder(
-                        "user@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items());
+                        "user@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items(), "SAVE10");
 
         var response = controller.createCartOrder(request, currentUser(), Locale.ENGLISH);
 
@@ -106,6 +113,24 @@ class OrderControllerTest {
         assertThat(result.getViewName()).isEqualTo("checkout");
         assertThat(customer.email()).isEmpty();
         assertThat(result.getModel().get("guestCheckout")).isEqualTo(true);
+    }
+
+    @Test
+    void promoCodePreviewUsesOnlyPromoDiscountForLoggedInUsers() {
+        when(promoCodeService.discountPercent("NIKI89")).thenReturn(new BigDecimal("30"));
+        when(promoCodeService.normalizeCode("NIKI89")).thenReturn("NIKI89");
+
+        var response = controller.validatePromoCode(new PromoCodeApplyDto("NIKI89"), currentUser());
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isInstanceOf(PromoCodeValidationDto.class)
+                .satisfies(body -> {
+                    PromoCodeValidationDto dto = (PromoCodeValidationDto) body;
+                    assertThat(dto.promoCode()).isEqualTo("NIKI89");
+                    assertThat(dto.promoDiscountPercent()).isEqualByComparingTo("30");
+                    assertThat(dto.totalDiscountPercent()).isEqualByComparingTo("30");
+                });
+        verify(orderService, never()).getCheckoutCustomer("user@example.com");
     }
 
     @Test
@@ -164,7 +189,7 @@ class OrderControllerTest {
     private CartOrderDto cartOrder() {
         return new CartOrderDto(
                 List.of(new CartItemOrderDto(7L, 2)),
-                "Ivan", "Ivanov", "ivan@example.com", "0888123456", "Call first");
+                "Ivan", "Ivanov", "ivan@example.com", "0888123456", "Call first", "SAVE10");
     }
 
     private QuickOrderDto quickOrder() {

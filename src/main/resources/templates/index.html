@@ -162,61 +162,30 @@
                 <h2 th:text="#{home.products.title}">Най-продавани продукти</h2>
             </div>
 
-            <div class="row g-4">
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card tilt-card">
-                        <span class="sale-badge">-20%</span>
-                        <div class="product-image"><img src="/images/hero-phone-holder.svg" alt="Стойка за телефон">
-                        </div>
+            <div class="row g-4" th:if="${bestSellingProducts != null and !bestSellingProducts.isEmpty()}">
+                <div class="col-12 col-sm-6 col-lg-3" th:each="product : ${bestSellingProducts}">
+                    <article class="product-card tilt-card"
+                             th:data-product-id="${product.id()}"
+                             th:data-product-name="${product.name()}"
+                             th:data-product-price="${product.price()}"
+                             th:data-product-image="${product.mainImageUrl()}"
+                             th:data-product-url="@{/products/{id}(id=${product.id()})}">
+                        <a class="product-image" th:href="@{/products/{id}(id=${product.id()})}">
+                            <img th:if="${product.mainImageUrl() != null}"
+                                 th:src="${product.mainImageUrl()}"
+                                 th:alt="${product.name()}">
+                            <i th:unless="${product.mainImageUrl() != null}" class="bi bi-box-seam"></i>
+                        </a>
                         <div class="product-content">
-                            <h3>Стойка за телефон за кола</h3>
-                            <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-half"></i> <span>(128)</span></div>
-                            <div class="price"><span>24.99 €</span> 19.99 €</div>
-                            <button class="btn btn-orange w-100 add-cart" th:text="#{product.addCart}">Добави в количката</button>
-                        </div>
-                    </article>
-                </div>
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card tilt-card">
-                        <span class="sale-badge">-25%</span>
-                        <div class="product-image"><img src="/images/hero-car-charger.svg" alt="Бързо зарядно"></div>
-                        <div class="product-content">
-                            <h3>Бързо зарядно за кола QC 3.0</h3>
-                            <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star"></i> <span>(96)</span></div>
-                            <div class="price"><span>19.99 €</span> 14.99 €</div>
-                            <button class="btn btn-orange w-100 add-cart" th:text="#{product.addCart}">Добави в количката</button>
-                        </div>
-                    </article>
-                </div>
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card tilt-card">
-                        <span class="sale-badge">-25%</span>
-                        <div class="product-image"><img src="/images/hero-car-mats.svg" alt="Стелки за кола"></div>
-                        <div class="product-content">
-                            <h3>Стелки за кола универсални</h3>
-                            <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-half"></i> <span>(74)</span></div>
-                            <div class="price"><span>39.99 €</span> 29.99 €</div>
-                            <button class="btn btn-orange w-100 add-cart" th:text="#{product.addCart}">Добави в количката</button>
-                        </div>
-                    </article>
-                </div>
-                <div class="col-12 col-sm-6 col-lg-3">
-                    <article class="product-card tilt-card">
-                        <span class="sale-badge">-23%</span>
-                        <div class="product-image"><i class="bi bi-bag"></i></div>
-                        <div class="product-content">
-                            <h3>Органайзер за багажник</h3>
-                            <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                                    class="bi bi-star"></i> <span>(63)</span></div>
-                            <div class="price"><span>29.99 €</span> 22.99 €</div>
-                            <button class="btn btn-orange w-100 add-cart" th:text="#{product.addCart}">Добави в количката</button>
+                            <a class="product-name-link" th:href="@{/products/{id}(id=${product.id()})}">
+                                <h3 th:text="${product.name()}">Име на продукт</h3>
+                            </a>
+                            <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
+                            <button class="btn btn-orange w-100 add-cart"
+                                    th:disabled="${product.stock() == 0}"
+                                    th:text="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('products.soldOut')}">
+                                Добави в количката
+                            </button>
                         </div>
                     </article>
                 </div>

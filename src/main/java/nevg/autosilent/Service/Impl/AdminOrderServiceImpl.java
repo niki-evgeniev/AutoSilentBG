@@ -80,7 +80,8 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 order.getCustomerEmail(), order.getCustomerPhone(), order.isGuestOrder(),
                 order.getDeliveryType(), order.getPaymentMethod(), order.getPaymentStatus(),
                 order.getOrderStatus(), order.getSubtotalPrice(), order.getDeliveryPrice(),
-                order.getDiscountPrice(), order.getTotalPrice(), order.getCustomerNote(),
+                order.getDiscountPrice(), order.getPromoCode(), order.getPromoDiscountPercent(),
+                order.getTotalPrice(), order.getCustomerNote(),
                 order.getAdminNote(), order.getCreatedAt(), items, history);
     }
 

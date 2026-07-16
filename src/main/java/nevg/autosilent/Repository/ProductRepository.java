@@ -23,6 +23,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = "pictures")
     List<Product> findAllByActiveTrueOrderByAddDateDesc();
 
+    @EntityGraph(attributePaths = "pictures")
+    List<Product> findTop4ByActiveTrueOrderBySoldDescAddDateDesc();
+
     Page<Product> findAllByActiveTrue(Pageable pageable);
 
     @EntityGraph(attributePaths = "pictures")

@@ -21,6 +21,8 @@ public interface ProductService {
 
     List<ProductViewDto> getActiveProducts();
 
+    List<ProductViewDto> getBestSellingProducts();
+
     List<ProductViewDto> searchActiveProducts(String search);
 
     Page<ProductViewDto> searchActiveProducts(String search, Pageable pageable);

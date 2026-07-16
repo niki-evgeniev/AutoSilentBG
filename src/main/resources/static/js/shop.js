@@ -227,6 +227,74 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const checkoutButton = document.getElementById('cartCheckoutButton');
     if (checkoutButton) {
+        const promoCodeInput = document.getElementById('checkoutPromoCode');
+        const promoApplyButton = document.getElementById('checkoutPromoApply');
+        const promoMessage = document.getElementById('checkoutPromoMessage');
+        const baseDiscountPercent = Math.min(100, Math.max(0, Number(document.body.dataset.discountPercent) || 0));
+
+        function clearPromoCode() {
+            document.body.dataset.discountPercent = String(baseDiscountPercent);
+            document.body.dataset.appliedPromoCode = '';
+            if (promoMessage) {
+                promoMessage.textContent = '';
+                promoMessage.classList.remove('text-success', 'text-danger');
+            }
+            renderCart();
+        }
+
+        if (promoCodeInput) {
+            promoCodeInput.addEventListener('input', function () {
+                if (!promoCodeInput.value.trim()) clearPromoCode();
+            });
+        }
+
+        if (promoApplyButton && promoCodeInput) {
+            promoApplyButton.addEventListener('click', async function () {
+                const code = promoCodeInput.value.trim();
+                if (!code) {
+                    clearPromoCode();
+                    return;
+                }
+
+                promoApplyButton.disabled = true;
+                try {
+                    const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+                    const response = await fetch('/orders/promo-code', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({ promoCode: code })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || document.body.dataset.orderFailed || 'Invalid promo code.');
+
+                    document.body.dataset.discountPercent = String(result.totalDiscountPercent || 0);
+                    document.body.dataset.appliedPromoCode = result.promoCode || code;
+                    if (promoMessage) {
+                        promoMessage.textContent = (document.body.dataset.promoApplied || 'Promo code applied') +
+                            ': ' + document.body.dataset.appliedPromoCode + ' (' + result.promoDiscountPercent + '%)';
+                        promoMessage.classList.add('text-success');
+                        promoMessage.classList.remove('text-danger');
+                    }
+                    renderCart();
+                } catch (error) {
+                    document.body.dataset.discountPercent = String(baseDiscountPercent);
+                    document.body.dataset.appliedPromoCode = '';
+                    if (promoMessage) {
+                        promoMessage.textContent = error.message;
+                        promoMessage.classList.add('text-danger');
+                        promoMessage.classList.remove('text-success');
+                    }
+                    renderCart();
+                } finally {
+                    promoApplyButton.disabled = false;
+                }
+            });
+        }
+
         checkoutButton.addEventListener('click', async function () {
             const cart = readCart();
             const firstName = document.getElementById('checkoutFirstName');
@@ -293,7 +361,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         lastName: lastName.value.trim(),
                         email: email ? email.value.trim() : null,
                         phone: phone.value.trim(),
-                        customerNote: customerNote ? customerNote.value.trim() : ''
+                        customerNote: customerNote ? customerNote.value.trim() : '',
+                        promoCode: document.body.dataset.appliedPromoCode || ''
                     })
                 });
                 const result = await response.json();

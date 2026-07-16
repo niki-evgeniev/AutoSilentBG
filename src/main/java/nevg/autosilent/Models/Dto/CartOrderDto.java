@@ -15,6 +15,7 @@ public record CartOrderDto(
         @NotBlank @Size(max = 100) String lastName,
         @Email @Size(max = 255) String email,
         @NotBlank @Pattern(regexp = "^(?=(?:.*\\d){7,})[+]?[0-9 ()-]{7,20}$") String phone,
-        @Size(max = 2000) String customerNote
+        @Size(max = 2000) String customerNote,
+        @Size(max = 40) String promoCode
 ) {
 }

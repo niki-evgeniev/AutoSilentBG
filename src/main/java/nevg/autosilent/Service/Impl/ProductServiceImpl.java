@@ -256,6 +256,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ProductViewDto> getBestSellingProducts() {
+        return productRepository.findTop4ByActiveTrueOrderBySoldDescAddDateDesc().stream()
+                .map(this::toViewDto)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<ProductDetailsDto> getActiveProduct(Long id) {
         return productRepository.findByIdAndActiveTrue(id)
                 .map(this::toDetailsDto);
@@ -286,6 +294,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product = new Product();
                     product.setNameProduct("Vibrofiltr 1.5");
                     product.setSku("01");
+                    product.setSold(5);
                     product.setCategory("Звукоизолация");
                     product.setPrice(BigDecimal.valueOf(7.70));
                     product.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
@@ -310,6 +319,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product2 = new Product();
                     product2.setNameProduct("Vibrofiltr 2.0");
                     product2.setSku("02");
+                    product2.setSold(6);
                     product2.setCategory("Звукоизолация");
                     product2.setPrice(BigDecimal.valueOf(4.10));
                     product2.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
@@ -334,6 +344,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product3 = new Product();
                     product3.setNameProduct("Vibrofiltr 3.0");
                     product3.setSku("03");
+                    product3.setSold(7);
                     product3.setCategory("Звукоизолация");
                     product3.setPrice(BigDecimal.valueOf(6.70));
                     product3.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
@@ -358,6 +369,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product4 = new Product();
                     product4.setNameProduct("Vibrofiltr 4.0");
                     product4.setSku("04");
+                    product4.setSold(8);
                     product4.setCategory("Звукоизолация");
                     product4.setPrice(BigDecimal.valueOf(8.70));
                     product4.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +

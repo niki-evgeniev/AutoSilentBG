@@ -15,6 +15,7 @@ import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.Exception.OrderCreationException;
 import nevg.autosilent.Service.OrderService;
+import nevg.autosilent.Service.PromoCodeService;
 import org.springframework.stereotype.Service;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -40,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository statusHistoryRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final PromoCodeService promoCodeService;
     private final MessageSource messageSource;
 
     public OrderServiceImpl(OrderRepository orderRepository,
@@ -47,12 +49,14 @@ public class OrderServiceImpl implements OrderService {
                             OrderStatusHistoryRepository statusHistoryRepository,
                             ProductRepository productRepository,
                             UserRepository userRepository,
+                            PromoCodeService promoCodeService,
                             MessageSource messageSource) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.promoCodeService = promoCodeService;
         this.messageSource = messageSource;
     }
 
@@ -70,7 +74,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public String createRegisteredOrder(String userEmail, String firstName, String lastName,
                                         String phone, String customerNote,
-                                        List<CartItemOrderDto> items) {
+                                        List<CartItemOrderDto> items,
+                                        String promoCode) {
         User user = userRepository.findByEmailIgnoreCase(userEmail)
                 .orElseThrow(() -> new OrderCreationException(message("order.error.userNotFound")));
         if (items == null || items.isEmpty()) {
@@ -84,14 +89,15 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerEmail(user.getEmail());
         order.setCustomerPhone(required(phone, "order.error.phoneRequired"));
         order.setCustomerNote(customerNote == null || customerNote.isBlank() ? null : customerNote.trim());
-        return persistOrder(order, items, user.getDiscountPercent());
+        return persistOrder(order, items, user.getDiscountPercent(), promoCode);
     }
 
     @Override
     @Transactional
     public String createGuestOrder(String email, String firstName, String lastName,
                                    String phone, String customerNote,
-                                   List<CartItemOrderDto> items) {
+                                   List<CartItemOrderDto> items,
+                                   String promoCode) {
         if (items == null || items.isEmpty()) {
             throw new OrderCreationException(message("order.error.emptyCart"));
         }
@@ -102,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerEmail(required(email, "order.error.emailRequired"));
         order.setCustomerPhone(required(phone, "order.error.phoneRequired"));
         order.setCustomerNote(customerNote == null || customerNote.isBlank() ? null : customerNote.trim());
-        return persistOrder(order, items, BigDecimal.ZERO);
+        return persistOrder(order, items, BigDecimal.ZERO, promoCode);
     }
 
     @Override
@@ -118,20 +124,27 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomerLastName(names[1]);
         order.setCustomerEmail(request.email().trim());
         order.setCustomerPhone(request.phone().trim());
-        return persistOrder(order, List.of(new CartItemOrderDto(request.productId(), request.quantity())), BigDecimal.ZERO);
+        return persistOrder(order, List.of(new CartItemOrderDto(request.productId(), request.quantity())),
+                BigDecimal.ZERO, null);
     }
 
-    private String persistOrder(OrderEntity order, List<CartItemOrderDto> requests, BigDecimal discountPercent) {
+    private String persistOrder(OrderEntity order, List<CartItemOrderDto> requests,
+                                BigDecimal customerDiscountPercent,
+                                String promoCode) {
         List<PreparedItem> preparedItems = normalize(requests).stream().map(this::prepareItem).toList();
         BigDecimal subtotal = preparedItems.stream()
                 .map(item -> item.product().getPrice().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal percent = discountPercent == null ? BigDecimal.ZERO : discountPercent;
+        BigDecimal promoPercent = promoCodeService.discountPercent(promoCode);
+        String normalizedPromoCode = promoCodeService.normalizeCode(promoCode);
+        BigDecimal percent = totalDiscountPercent(customerDiscountPercent, promoPercent);
         BigDecimal discount = subtotal.multiply(percent)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         order.setSubtotalPrice(subtotal);
         order.setDiscountPrice(discount);
+        order.setPromoCode(normalizedPromoCode.isBlank() ? null : normalizedPromoCode);
+        order.setPromoDiscountPercent(promoPercent);
         order.setTotalPrice(subtotal.add(order.getDeliveryPrice()).subtract(order.getDiscountPrice()));
         orderRepository.save(order);
 
@@ -148,6 +161,15 @@ public class OrderServiceImpl implements OrderService {
         history.setNewStatus(OrderStatus.NEW);
         statusHistoryRepository.save(history);
         return order.getOrderNumber();
+    }
+
+    private BigDecimal totalDiscountPercent(BigDecimal customerDiscountPercent, BigDecimal promoDiscountPercent) {
+        BigDecimal customerPercent = customerDiscountPercent == null ? BigDecimal.ZERO : customerDiscountPercent;
+        BigDecimal promoPercent = promoDiscountPercent == null ? BigDecimal.ZERO : promoDiscountPercent;
+        if (promoPercent.signum() > 0) {
+            return promoPercent;
+        }
+        return customerPercent.min(BigDecimal.valueOf(100));
     }
 
     private PreparedItem prepareItem(CartItemOrderDto request) {

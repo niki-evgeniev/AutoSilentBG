@@ -21,6 +21,8 @@
       th:data-email-invalid="#{checkout.emailInvalid}"
       th:data-phone-required="#{checkout.phoneRequired}"
       th:data-phone-invalid="#{checkout.phoneInvalid}"
+      th:data-promo-apply="#{checkout.promo.apply}"
+      th:data-promo-applied="#{checkout.promo.applied}"
       th:data-discount-percent="${customer.discountPercent()}">
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
@@ -76,6 +78,14 @@
                 <label class="form-label" for="customerNote" th:text="#{checkout.note}">Допълнителна информация</label>
                 <textarea class="form-control mb-3" id="customerNote" rows="4" maxlength="2000"
                           th:placeholder="#{checkout.notePlaceholder}"></textarea>
+                <label class="form-label" for="checkoutPromoCode" th:text="#{checkout.promoCode}">Промокод</label>
+                <div class="input-group mb-2">
+                    <input class="form-control" id="checkoutPromoCode" type="text" maxlength="40"
+                           autocomplete="off" th:placeholder="#{checkout.promoCode.placeholder}">
+                    <button id="checkoutPromoApply" class="btn btn-outline-dark" type="button"
+                            th:text="#{checkout.promo.apply}">Приложи</button>
+                </div>
+                <small id="checkoutPromoMessage" class="d-block mb-3"></small>
                 <div class="checkout-payment-note"><i class="bi bi-cash-coin"></i><span th:text="#{checkout.cashOnly}">Плащане с наложен платеж</span></div>
                 <div><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
                 <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 €</strong></div>
