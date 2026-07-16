@@ -19,7 +19,7 @@ public class InternationalizationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public LocaleResolver localeResolver() {
-        CookieLocaleResolver resolver = new CookieLocaleResolver("NIRTON_LOCALE");
+        CookieLocaleResolver resolver = new CookieLocaleResolver("AutoSilent_LOCALE");
         resolver.setCookieMaxAge(Duration.ofDays(365));
         resolver.setCookiePath("/");
         resolver.setCookieHttpOnly(true);

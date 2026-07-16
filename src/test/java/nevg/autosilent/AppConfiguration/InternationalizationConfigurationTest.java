@@ -37,7 +37,7 @@ class InternationalizationConfigurationTest {
         MockHttpServletResponse selectionResponse = new MockHttpServletResponse();
         localeResolver.setLocale(selectionRequest, selectionResponse, Locale.ENGLISH);
 
-        Cookie localeCookie = selectionResponse.getCookie("NIRTON_LOCALE");
+        Cookie localeCookie = selectionResponse.getCookie("AutoSilent_LOCALE");
         assertThat(localeCookie).isNotNull();
         assertThat(localeCookie.getMaxAge()).isEqualTo(365 * 24 * 60 * 60);
         assertThat(localeCookie.getPath()).isEqualTo("/");

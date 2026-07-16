@@ -20,7 +20,7 @@ public class SpringSecurity {
 
     private final String rememberMeKey;
 
-    public SpringSecurity(@Value("${nirton.remember.me.key}")
+    public SpringSecurity(@Value("${AutoSilent.remember.me.key}")
                           String rememberMeKey) {
         this.rememberMeKey = rememberMeKey;
     }

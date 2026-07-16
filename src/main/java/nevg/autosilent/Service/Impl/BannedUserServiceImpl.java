@@ -29,9 +29,9 @@ public class BannedUserServiceImpl implements BannedUserService {
     @Autowired
     public BannedUserServiceImpl(IpAddressRepository ipAddressRepository,
                                  UserRepository userRepository,
-                                 @Value("${nirton.security.rate-limit.max-requests:120}") int maxRequests,
-                                 @Value("${nirton.security.rate-limit.window:1m}") Duration windowDuration,
-                                 @Value("${nirton.security.rate-limit.ban-duration:15m}") Duration banDuration) {
+                                 @Value("${AutoSilent.security.rate-limit.max-requests:120}") int maxRequests,
+                                 @Value("${AutoSilent.security.rate-limit.window:1m}") Duration windowDuration,
+                                 @Value("${AutoSilent.security.rate-limit.ban-duration:15m}") Duration banDuration) {
         this(ipAddressRepository, userRepository, Clock.systemDefaultZone(), maxRequests, windowDuration, banDuration);
     }
 

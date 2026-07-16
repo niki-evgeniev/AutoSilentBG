@@ -6,7 +6,7 @@ spring:
     cache-duration: 0s
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    #    url: "jdbc:mysql://192.168.0.120:3306/nirton?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
+    #    url: "jdbc:mysql://192.168.0.120:3306/AutoSilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
     #    username: test
     #    password: 12345
     url: "jdbc:mysql://localhost:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
@@ -66,7 +66,7 @@ spring:
       cache:
         period: 0
 
-nirton:
+AutoSilent:
   remember.me.key: 1234
   security:
     # Enable only when the app is reachable exclusively through Cloudflare or another trusted proxy.

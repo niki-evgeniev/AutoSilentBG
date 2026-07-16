@@ -82,7 +82,7 @@ class AdminOrderControllerTest {
                 5L, OrderStatus.SHIPPED, "Sent with courier", moderator(), redirectAttributes);
 
         verify(adminOrderService).updateStatus(
-                5L, OrderStatus.SHIPPED, "Sent with courier", "moderator@nirton.bg");
+                5L, OrderStatus.SHIPPED, "Sent with courier", "moderator@AutoSilent");
         assertThat(result.getViewName()).isEqualTo("redirect:/admin/orders/5");
         assertThat(redirectAttributes.getFlashAttributes().get("statusUpdated")).isEqualTo(true);
     }
@@ -100,7 +100,7 @@ class AdminOrderControllerTest {
 
     private ShopUserDetails moderator() {
         return new ShopUserDetails(
-                "moderator@nirton.bg", "password", "Moderator",
+                "moderator@AutoSilent", "password", "Moderator",
                 List.of(new SimpleGrantedAuthority("ROLE_MODERATOR"))
         );
     }

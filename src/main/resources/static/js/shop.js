@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const header = document.querySelector('.main-header');
     const cartButtons = document.querySelectorAll('.add-cart, .product-add-cart');
-    const cartStorageKey = 'nirton-cart';
+    const cartStorageKey = 'AutoSilent-cart';
 
     function updateActiveNavigation() {
         const navLinks = document.querySelectorAll('.navbar-nav .nav-link[data-nav]');

@@ -30,7 +30,7 @@ public class BannedUserInterceptor implements HandlerInterceptor {
     public BannedUserInterceptor(ThymeleafViewResolver thymeleafViewResolver,
                                  BannedUserService bannedUserService,
                                  ClientIpResolver clientIpResolver,
-                                 @Value("${nirton.security.rate-limit.enabled:true}") boolean enabled) {
+                                 @Value("${AutoSilent.security.rate-limit.enabled:true}") boolean enabled) {
         this.thymeleafViewResolver = thymeleafViewResolver;
         this.bannedUserService = bannedUserService;
         this.clientIpResolver = clientIpResolver;
