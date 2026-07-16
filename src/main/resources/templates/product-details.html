@@ -16,7 +16,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/css/shop.css" rel="stylesheet">
 </head>
-<body th:data-cart-added="#{product.added}" th:data-currency="#{site.currency}">
+<body th:data-cart-added="#{product.added}"
+      th:data-currency="#{site.currency}">
 
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
@@ -24,12 +25,16 @@
 <main class="product-details-page page-3d">
     <section class="product-details-hero page-3d-hero">
         <div class="container">
-            <div th:if="${productUpdated}" class="alert alert-success" th:text="#{edit.success}">Продуктът е обновен успешно.</div>
+            <div th:if="${productUpdated}" class="alert alert-success"
+                 th:text="#{edit.success}">Продуктът е обновен успешно.</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
-                    <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/products}" th:text="#{site.products}">Продукти</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" th:text="${product.name()}">Продукт</li>
+                    <li class="breadcrumb-item"><a th:href="@{/}"
+                                                   th:text="#{site.home}">Начало</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/products}"
+                                                   th:text="#{site.products}">Продукти</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"
+                                                   th:text="${product.name()}">Продукт</li>
                 </ol>
             </nav>
 
@@ -147,9 +152,14 @@
                     <h2 th:text="#{details.description}">Описание на продукта</h2>
                 </div>
                 <p th:text="${product.description()}">Описание на продукта</p>
-                <a class="btn btn-outline-dark custom-outline" th:href="@{/products}">
-                    <i class="bi bi-arrow-left"></i> <span th:text="#{details.back}">Обратно към продуктите</span>
+                <div class="text-center">
+                <a class="btn btn-outline-dark custom-outline"
+                   th:href="@{/products}">
+                    <i class="bi bi-arrow-left"></i>
+                    <span th:text="#{details.back}">Обратно към продуктите
+                    </span>
                 </a>
+                </div>
             </div>
         </div>
     </section>

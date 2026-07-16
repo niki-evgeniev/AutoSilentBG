@@ -14,29 +14,31 @@ class ProductDetailsTemplateTest {
             "src/main/resources/templates/product-details.html");
 
     @Test
-    void quickOrderFormPostsRequiredSnapshotFields() throws IOException {
+    void productCardExposesRequiredCartSnapshotFields() throws IOException {
         String html = Files.readString(TEMPLATE);
 
         assertThat(html)
-                .contains("class=\"quick-order-form\"")
-                .contains("th:action=\"@{/orders/quick}\"")
-                .contains("method=\"post\"")
-                .contains("name=\"productId\"")
-                .contains("name=\"quantity\"")
-                .contains("name=\"names\"")
-                .contains("name=\"email\"")
-                .contains("name=\"phone\"");
+                .contains("class=\"product-details-card tilt-card\"")
+                .contains("th:data-product-id=\"${product.id()}\"")
+                .contains("th:data-product-name=\"${product.name()}\"")
+                .contains("th:data-product-price=\"${product.price()}\"")
+                .contains("th:data-product-image=\"${product.mainImageUrl()}\"")
+                .contains("th:data-product-url=\"@{/products/{id}(id=${product.id()})}\"")
+                .doesNotContain("class=\"quick-order-form\"");
     }
 
     @Test
-    void quickOrderInputsUseCorrectBrowserTypesAndAreRequired() throws IOException {
+    void cartControlsUseQuantityAndRespectProductStock() throws IOException {
         String html = Files.readString(TEMPLATE);
 
         assertThat(html)
-                .contains("id=\"quickOrderNames\"")
-                .contains("type=\"email\"")
-                .contains("type=\"tel\"")
-                .contains("th:text=\"#{quickOrder.submit}\"");
-        assertThat(html.split("required", -1).length - 1).isGreaterThanOrEqualTo(3);
+                .contains("id=\"productQuantity\"")
+                .contains("type=\"number\"")
+                .contains("value=\"1\"")
+                .contains("min=\"1\"")
+                .contains("th:max=\"${product.stock()}\"")
+                .contains("class=\"btn btn-orange product-add-cart\"")
+                .contains("th:disabled=\"${product.stock() == 0}\"")
+                .contains("#messages.msg('product.addCart')");
     }
 }
