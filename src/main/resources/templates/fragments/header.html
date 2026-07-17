@@ -60,8 +60,8 @@
                     </div>
                     <a sec:authorize="isAuthenticated()" class="icon-btn header-action-3d tilt-card"
                        th:href="@{/user/account}" th:aria-label="#{site.profile}"><i class="bi bi-person-check"></i></a>
-                    <a sec:authorize="hasRole('ADMIN')" class="icon-btn header-action-3d tilt-card"
-                       th:href="@{/admin/settings/categories}" th:aria-label="#{site.settings}"><i class="bi bi-gear"></i></a>
+                    <a sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')" class="icon-btn header-action-3d tilt-card"
+                       th:href="@{/admin/orders}" th:aria-label="#{admin.orders}"><i class="bi bi-receipt"></i></a>
                     <a sec:authorize="isAnonymous()" class="icon-btn header-action-3d tilt-card"
                        th:href="@{/user/sign_in}" th:aria-label="#{site.login}"><i class="bi bi-person"></i></a>
                     <a sec:authorize="isAuthenticated()" class="icon-btn header-action-3d tilt-card position-relative"
