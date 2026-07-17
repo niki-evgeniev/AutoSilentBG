@@ -22,6 +22,7 @@ class TopBarTemplateTest {
                 .contains("top-settings-dropdown")
                 .contains("sec:authorize=\"hasRole('ADMIN')\"")
                 .contains("th:href=\"@{/admin/settings/promo-codes}\"")
+                .contains("th:href=\"@{/admin/settings/categories}\"")
                 .contains("th:text=\"#{admin.promoCodes.heading}\"");
     }
 }

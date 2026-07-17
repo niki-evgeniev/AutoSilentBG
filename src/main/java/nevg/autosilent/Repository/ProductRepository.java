@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                 lower(p.nameProduct) like lower(concat('%', :search, '%')) or
                 lower(p.model) like lower(concat('%', :search, '%')) or
                 lower(p.sku) like lower(concat('%', :search, '%')) or
-                lower(p.category) like lower(concat('%', :search, '%')) or
+                        lower(p.category.category) like lower(concat('%', :search, '%')) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
             )
             order by p.addDate desc
@@ -48,7 +48,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                 lower(p.nameProduct) like lower(concat('%', :search, '%')) or
                 lower(p.model) like lower(concat('%', :search, '%')) or
                 lower(p.sku) like lower(concat('%', :search, '%')) or
-                lower(p.category) like lower(concat('%', :search, '%')) or
+                lower(p.category.category) like lower(concat('%', :search, '%')) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
             )
             """,
@@ -58,7 +58,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         lower(p.nameProduct) like lower(concat('%', :search, '%')) or
                         lower(p.model) like lower(concat('%', :search, '%')) or
                         lower(p.sku) like lower(concat('%', :search, '%')) or
-                        lower(p.category) like lower(concat('%', :search, '%')) or
+                lower(p.category.category) like lower(concat('%', :search, '%')) or
                         lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
                     )
                     """)

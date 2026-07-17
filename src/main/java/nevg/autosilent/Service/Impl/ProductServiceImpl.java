@@ -72,6 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
         User owner = userRepository.findByEmailIgnoreCase(ownerEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Потребителят не е намерен."));
+        Category category = findCategory(request.getCategoryId());
         List<Path> storedFiles = new ArrayList<>();
         Path productDirectory = imagesDirectory.resolve(toDirectoryName(displayName(
                 request.getNameProduct(), request.getModel()))).normalize();
@@ -88,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
             product.setNameProduct(request.getNameProduct().trim());
             product.setModel(request.getModel().trim());
             product.setSku(request.getSku().trim().toUpperCase(Locale.ROOT));
-            product.setCategory(request.getCategory().trim());
+            product.setCategory(category);
             product.setPrice(request.getPrice());
             product.setDescription(request.getDescription().trim());
             product.setStock(request.getStock());
@@ -127,7 +128,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setNameProduct(product.getNameProduct());
         dto.setModel(product.getModel());
         dto.setSku(product.getSku());
-        dto.setCategory(product.getCategory());
+        dto.setCategoryId(product.getCategory().getId());
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
         dto.setStock(product.getStock());
@@ -146,6 +147,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findWithPicturesById(id)
                 .orElseThrow(() -> new ProductCreationException("Продуктът не е намерен.", null));
         validateUniqueFields(request, id);
+        Category category = findCategory(request.getCategoryId());
 
         List<MultipartFile> uploads = request.getAdditionalImages().stream()
                 .filter(image -> image != null && !image.isEmpty()).toList();
@@ -205,7 +207,7 @@ public class ProductServiceImpl implements ProductService {
             product.setNameProduct(request.getNameProduct().trim());
             product.setModel(request.getModel().trim());
             product.setSku(request.getSku().trim().toUpperCase(Locale.ROOT));
-            product.setCategory(request.getCategory().trim());
+            product.setCategory(category);
             product.setPrice(request.getPrice());
             product.setDescription(request.getDescription().trim());
             product.setStock(request.getStock());
@@ -288,9 +290,13 @@ public class ProductServiceImpl implements ProductService {
         if (productRepository.count() == 0) {
                 if (productRepository.count() == 0) {
 
-                    Category category = new Category();
-                    category.setCategory(CategoryType.Звукоизолация.name());
-                    categoryRepository.save(category);
+                    Category category = categoryRepository
+                            .findByCategoryIgnoreCase(CategoryType.Звукоизолация.name())
+                            .orElseGet(() -> {
+                                Category newCategory = new Category();
+                                newCategory.setCategory(CategoryType.Звукоизолация.name());
+                                return categoryRepository.save(newCategory);
+                            });
 
                     User user = userRepository.findById(1L)
                             .orElseThrow(() -> new RuntimeException("User not found with id 1"));
@@ -300,7 +306,7 @@ public class ProductServiceImpl implements ProductService {
                     product.setModel("1.5");
                     product.setSku("01");
                     product.setSold(5);
-                    product.setCategory("Звукоизолация");
+                    product.setCategory(category);
                     product.setPrice(BigDecimal.valueOf(7.70));
                     product.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
                             "\n" +
@@ -326,7 +332,7 @@ public class ProductServiceImpl implements ProductService {
                     product2.setModel("2.0");
                     product2.setSku("02");
                     product2.setSold(6);
-                    product2.setCategory("Звукоизолация");
+                    product2.setCategory(category);
                     product2.setPrice(BigDecimal.valueOf(4.10));
                     product2.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
                             "\n" +
@@ -352,7 +358,7 @@ public class ProductServiceImpl implements ProductService {
                     product3.setModel("3.0");
                     product3.setSku("03");
                     product3.setSold(7);
-                    product3.setCategory("Звукоизолация");
+                    product3.setCategory(category);
                     product3.setPrice(BigDecimal.valueOf(6.70));
                     product3.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
                             "\n" +
@@ -378,7 +384,7 @@ public class ProductServiceImpl implements ProductService {
                     product4.setModel("4.0");
                     product4.setSku("04");
                     product4.setSold(8);
-                    product4.setCategory("Звукоизолация");
+                    product4.setCategory(category);
                     product4.setPrice(BigDecimal.valueOf(8.70));
                     product4.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
                             "\n" +
@@ -417,7 +423,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getNameProduct(),
                 product.getModel(),
                 product.getSku(),
-                product.getCategory(),
+                product.getCategory().getCategory(),
                 product.getPrice(),
                 product.getDescription(),
                 product.getStock(),
@@ -435,7 +441,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getNameProduct(),
                 product.getModel(),
                 product.getSku(),
-                product.getCategory(),
+                product.getCategory().getCategory(),
                 product.getPrice(),
                 product.getDescription(),
                 product.getStock(),
@@ -449,6 +455,14 @@ public class ProductServiceImpl implements ProductService {
                 + UriUtils.encodePathSegment(toDirectoryName(product.getDisplayName()), StandardCharsets.UTF_8)
                 + "/"
                 + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8);
+    }
+
+    private Category findCategory(Long categoryId) {
+        if (categoryId == null) {
+            throw new ProductCreationException("Моля, изберете категория.", null);
+        }
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ProductCreationException("Избраната категория не съществува.", null));
     }
 
 

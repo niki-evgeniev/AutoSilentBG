@@ -10,6 +10,7 @@ import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.ProductService;
+import nevg.autosilent.Service.CategoryService;
 import nevg.autosilent.Service.SeoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,12 +47,14 @@ class ProductsControllerTest {
     private ProductService productService;
     @Mock
     private SeoService seoService;
+    @Mock
+    private CategoryService categoryService;
 
     private ProductsController productsController;
 
     @BeforeEach
     void setUp() {
-        productsController = new ProductsController(productService, seoService);
+        productsController = new ProductsController(productService, seoService, categoryService);
     }
 
     @Test

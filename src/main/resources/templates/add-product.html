@@ -93,13 +93,18 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="category" th:text="#{add.category}">Категория</label>
+                                        <label for="categoryId" th:text="#{add.category}">Категория</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-grid"></i>
-                                            <input id="category" th:field="*{category}" type="text" class="form-control"
-                                                   th:errorclass="is-invalid" th:placeholder="#{add.category.placeholder}" maxlength="80">
+                                            <select id="categoryId" th:field="*{categoryId}" class="form-select"
+                                                    th:errorclass="is-invalid">
+                                                <option value="" th:text="#{add.category.choose}">Избери категория</option>
+                                                <option th:each="category : ${categories}"
+                                                        th:value="${category.id()}"
+                                                        th:text="${category.name()}">Категория</option>
+                                            </select>
                                         </div>
-                                        <div class="invalid-feedback d-block" th:errors="*{category}"></div>
+                                        <div class="invalid-feedback d-block" th:errors="*{categoryId}"></div>
                                     </div>
                                 </div>
                             </div>

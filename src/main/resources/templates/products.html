@@ -70,10 +70,10 @@
 
                         <div class="filter-group">
                             <h3 th:text="#{site.categories}">Категории</h3>
-                            <label><input type="checkbox" checked> <span th:text="#{category.car}">Автоаксесоари</span> <span>24</span></label>
-                            <label><input type="checkbox"> <span th:text="#{category.3d}">3D продукти</span> <span>18</span></label>
-                            <label><input type="checkbox"> <span th:text="#{category.gifts}">Подаръци</span> <span>12</span></label>
-                            <label><input type="checkbox"> <span th:text="#{site.promotions}">Промоции</span> <span>7</span></label>
+                            <label th:each="category : ${categories}">
+                                <input type="checkbox" th:value="${category.id()}">
+                                <span th:text="${category.name()}">Категория</span>
+                            </label>
                         </div>
 
                         <div class="filter-group">
@@ -237,9 +237,10 @@
         <form class="filter-sidebar mobile-filter-sidebar">
             <div class="filter-group">
                 <h3 th:text="#{site.categories}">Категории</h3>
-                <label><input type="checkbox" checked> <span th:text="#{category.car}">Автоаксесоари</span> <span>24</span></label>
-                <label><input type="checkbox"> <span th:text="#{category.3d}">3D продукти</span> <span>18</span></label>
-                <label><input type="checkbox"> <span th:text="#{category.gifts}">Подаръци</span> <span>12</span></label>
+                <label th:each="category : ${categories}">
+                    <input type="checkbox" th:value="${category.id()}">
+                    <span th:text="${category.name()}">Категория</span>
+                </label>
                 <label><input type="checkbox"> <span th:text="#{site.promotions}">Промоции</span> <span>7</span></label>
             </div>
             <div class="filter-group">

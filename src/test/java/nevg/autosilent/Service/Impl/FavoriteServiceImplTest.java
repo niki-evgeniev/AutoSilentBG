@@ -3,6 +3,7 @@ package nevg.autosilent.Service.Impl;
 import nevg.autosilent.Models.Entity.Favorite;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
+import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Repository.FavoriteRepository;
 import nevg.autosilent.Repository.ProductRepository;
@@ -164,7 +165,9 @@ class FavoriteServiceImplTest {
         product.setId(id);
         product.setNameProduct(name);
         product.setSku(sku);
-        product.setCategory("Exhaust");
+        Category category = new Category();
+        category.setCategory("Exhaust");
+        product.setCategory(category);
         product.setPrice(new BigDecimal("42.50"));
         product.setDescription("Quiet part");
         product.setStock(9);

@@ -5,6 +5,7 @@ import nevg.autosilent.Models.Dto.ProductDetailsDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
+import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
@@ -67,6 +68,10 @@ class ProductServiceImplTest {
     void setUp() {
         productService = new ProductServiceImpl(productRepository, userRepository, categoryRepository);
         ReflectionTestUtils.setField(productService, "imagesDirectory", imagesDirectory);
+        Category category = new Category();
+        category.setId(3L);
+        category.setCategory("Category");
+        org.mockito.Mockito.lenient().when(categoryRepository.findById(3L)).thenReturn(Optional.of(category));
     }
 
     @Test
@@ -88,7 +93,7 @@ class ProductServiceImplTest {
         assertThat(saved.getNameProduct()).isEqualTo("Product One");
         assertThat(saved.getModel()).isEqualTo("Model One");
         assertThat(saved.getSku()).isEqualTo("SKU-1");
-        assertThat(saved.getCategory()).isEqualTo("Category");
+        assertThat(saved.getCategory().getCategory()).isEqualTo("Category");
         assertThat(saved.getDescription()).isEqualTo("Useful product description");
         assertThat(saved.getUser()).isSameAs(owner);
         assertThat(saved.getPictures()).hasSize(3)
@@ -347,7 +352,7 @@ class ProductServiceImplTest {
 
         assertThat(result.getNameProduct()).isEqualTo("Phone Case");
         assertThat(result.getSku()).isEqualTo("CASE-1");
-        assertThat(result.getCategory()).isEqualTo("Accessories");
+        assertThat(result.getCategoryId()).isEqualTo(3L);
         assertThat(result.getPrice()).isEqualByComparingTo("12.50");
         assertThat(result.getDescription()).isEqualTo("Protective case");
         assertThat(result.getStock()).isEqualTo(8);
@@ -412,7 +417,7 @@ class ProductServiceImplTest {
         request.setNameProduct("  Product One  ");
         request.setModel("  Model One  ");
         request.setSku("  sku-1  ");
-        request.setCategory("  Category  ");
+        request.setCategoryId(3L);
         request.setPrice(new BigDecimal("19.99"));
         request.setDescription("  Useful product description  ");
         request.setStock(3);
@@ -426,7 +431,10 @@ class ProductServiceImplTest {
         product.setId(7L);
         product.setNameProduct("Phone Case");
         product.setSku("CASE-1");
-        product.setCategory("Accessories");
+        Category category = new Category();
+        category.setId(3L);
+        category.setCategory("Accessories");
+        product.setCategory(category);
         product.setPrice(new BigDecimal("12.50"));
         product.setDescription("Protective case");
         product.setStock(8);

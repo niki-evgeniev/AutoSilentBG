@@ -8,6 +8,7 @@ import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
+import nevg.autosilent.Service.CategoryService;
 import nevg.autosilent.Service.ProductService;
 import nevg.autosilent.Service.SeoService;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +36,12 @@ public class ProductsController {
 
     private final ProductService productService;
     private final SeoService seoService;
+    private final CategoryService categoryService;
 
-    public ProductsController(ProductService productService, SeoService seoService) {
+    public ProductsController(ProductService productService, SeoService seoService, CategoryService categoryService) {
         this.productService = productService;
         this.seoService = seoService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/products")
@@ -49,6 +52,7 @@ public class ProductsController {
         var productPage = productService.searchActiveProducts(search, pageable);
         modelAndView.addObject("productPage", productPage);
         modelAndView.addObject("products", productPage.getContent());
+        modelAndView.addObject("categories", categoryService.getAll());
         modelAndView.addObject("search", search == null ? "" : search.trim());
         return modelAndView;
     }
@@ -165,6 +169,7 @@ public class ProductsController {
     private ModelAndView productForm(ProductCreateDto product) {
         ModelAndView modelAndView = new ModelAndView("add-product");
         modelAndView.addObject("product", product);
+        modelAndView.addObject("categories", categoryService.getAll());
         modelAndView.addObject("editMode", false);
         return modelAndView;
     }
@@ -177,6 +182,7 @@ public class ProductsController {
         }
         ModelAndView modelAndView = new ModelAndView("add-product");
         modelAndView.addObject("product", product);
+        modelAndView.addObject("categories", categoryService.getAll());
         modelAndView.addObject("editMode", true);
         modelAndView.addObject("productId", id);
         return modelAndView;

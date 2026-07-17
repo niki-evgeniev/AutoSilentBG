@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(5);
+        assertThat(result.migrationsExecuted).isEqualTo(6);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -44,7 +44,8 @@ class InitialSchemaMigrationTest {
                     "ip_address", "created_at", "is_read"
             );
             assertThat(columns(connection, "seo_product")).contains("image_url", "product_id");
-            assertThat(columns(connection, "products")).contains("view_count", "model");
+            assertThat(columns(connection, "products")).contains("view_count", "model", "category_id")
+                    .doesNotContain("category");
             assertThat(nullableColumns(connection, "products")).contains("model");
             assertThat(columns(connection, "orders")).contains("promo_code", "promo_discount_percent");
             assertThat(columns(connection, "promo_codes")).contains(
@@ -69,6 +70,7 @@ class InitialSchemaMigrationTest {
                     "product_id", "products"
             ));
             assertThat(importedKeys(connection, "promo_codes")).containsEntry("created_by_user_id", "users");
+            assertThat(importedKeys(connection, "products")).containsEntry("category_id", "category");
             assertThat(nullableColumns(connection, "contact_inquiries"))
                     .doesNotContain("sender_name", "sender_email", "subject", "message", "ip_address", "created_at", "is_read");
             assertThat(singleValue(connection,

@@ -26,9 +26,8 @@ public class ProductCreateDto {
     @Size(max = 50, message = "{validation.product.sku.size}")
     private String sku;
 
-    @NotBlank(message = "{validation.product.category.required}")
-    @Size(max = 80, message = "{validation.product.category.size}")
-    private String category;
+    @NotNull(message = "{validation.product.category.required}")
+    private Long categoryId;
 
     @NotNull(message = "{validation.product.price.required}")
     @DecimalMin(value = "0.01", message = "{validation.product.price.min}")
@@ -73,12 +72,12 @@ public class ProductCreateDto {
         this.sku = sku;
     }
 
-    public String getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public BigDecimal getPrice() {
