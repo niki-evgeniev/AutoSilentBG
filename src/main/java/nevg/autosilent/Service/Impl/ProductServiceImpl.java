@@ -73,7 +73,8 @@ public class ProductServiceImpl implements ProductService {
         User owner = userRepository.findByEmailIgnoreCase(ownerEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Потребителят не е намерен."));
         List<Path> storedFiles = new ArrayList<>();
-        Path productDirectory = imagesDirectory.resolve(toDirectoryName(request.getNameProduct())).normalize();
+        Path productDirectory = imagesDirectory.resolve(toDirectoryName(displayName(
+                request.getNameProduct(), request.getModel()))).normalize();
 
         if (!productDirectory.startsWith(imagesDirectory)) {
             throw new InvalidProductImageException("Невалидно име на папка за продукта.");
@@ -85,6 +86,7 @@ public class ProductServiceImpl implements ProductService {
 
             Product product = new Product();
             product.setNameProduct(request.getNameProduct().trim());
+            product.setModel(request.getModel().trim());
             product.setSku(request.getSku().trim().toUpperCase(Locale.ROOT));
             product.setCategory(request.getCategory().trim());
             product.setPrice(request.getPrice());
@@ -123,6 +125,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ProductCreationException("Продуктът не е намерен.", null));
         ProductCreateDto dto = new ProductCreateDto();
         dto.setNameProduct(product.getNameProduct());
+        dto.setModel(product.getModel());
         dto.setSku(product.getSku());
         dto.setCategory(product.getCategory());
         dto.setPrice(product.getPrice());
@@ -163,8 +166,8 @@ public class ProductServiceImpl implements ProductService {
             throw new InvalidProductImageException("Продуктът може да има най-много 5 снимки.");
         }
 
-        String oldDirectoryName = toDirectoryName(product.getNameProduct());
-        String newDirectoryName = toDirectoryName(request.getNameProduct());
+        String oldDirectoryName = toDirectoryName(product.getDisplayName());
+        String newDirectoryName = toDirectoryName(displayName(request.getNameProduct(), request.getModel()));
         Path oldDirectory = imagesDirectory.resolve(oldDirectoryName).normalize();
         Path productDirectory = imagesDirectory.resolve(newDirectoryName).normalize();
         List<Path> storedFiles = new ArrayList<>();
@@ -200,6 +203,7 @@ public class ProductServiceImpl implements ProductService {
             product.changeMainPicture(selectedMain);
 
             product.setNameProduct(request.getNameProduct().trim());
+            product.setModel(request.getModel().trim());
             product.setSku(request.getSku().trim().toUpperCase(Locale.ROOT));
             product.setCategory(request.getCategory().trim());
             product.setPrice(request.getPrice());
@@ -292,7 +296,8 @@ public class ProductServiceImpl implements ProductService {
                             .orElseThrow(() -> new RuntimeException("User not found with id 1"));
 
                     Product product = new Product();
-                    product.setNameProduct("Vibrofiltr 1.5");
+                    product.setNameProduct("Vibrofiltr");
+                    product.setModel("1.5");
                     product.setSku("01");
                     product.setSold(5);
                     product.setCategory("Звукоизолация");
@@ -317,7 +322,8 @@ public class ProductServiceImpl implements ProductService {
                     productRepository.save(product);
 
                     Product product2 = new Product();
-                    product2.setNameProduct("Vibrofiltr 2.0");
+                    product2.setNameProduct("Vibrofiltr");
+                    product2.setModel("2.0");
                     product2.setSku("02");
                     product2.setSold(6);
                     product2.setCategory("Звукоизолация");
@@ -342,7 +348,8 @@ public class ProductServiceImpl implements ProductService {
                     productRepository.save(product2);
 
                     Product product3 = new Product();
-                    product3.setNameProduct("Vibrofiltr 3.0");
+                    product3.setNameProduct("Vibrofiltr");
+                    product3.setModel("3.0");
                     product3.setSku("03");
                     product3.setSold(7);
                     product3.setCategory("Звукоизолация");
@@ -367,7 +374,8 @@ public class ProductServiceImpl implements ProductService {
                     productRepository.save(product3);
 
                     Product product4 = new Product();
-                    product4.setNameProduct("Vibrofiltr 4.0");
+                    product4.setNameProduct("Vibrofiltr");
+                    product4.setModel("4.0");
                     product4.setSku("04");
                     product4.setSold(8);
                     product4.setCategory("Звукоизолация");
@@ -399,7 +407,7 @@ public class ProductServiceImpl implements ProductService {
                 .filter(Picture::isMainImage)
                 .findFirst()
                 .map(picture -> "/ProductImages/"
-                        + UriUtils.encodePathSegment(toDirectoryName(product.getNameProduct()), StandardCharsets.UTF_8)
+                        + UriUtils.encodePathSegment(toDirectoryName(product.getDisplayName()), StandardCharsets.UTF_8)
                         + "/"
                         + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
                 .orElse(null);
@@ -407,6 +415,7 @@ public class ProductServiceImpl implements ProductService {
         return new ProductViewDto(
                 product.getId(),
                 product.getNameProduct(),
+                product.getModel(),
                 product.getSku(),
                 product.getCategory(),
                 product.getPrice(),
@@ -424,6 +433,7 @@ public class ProductServiceImpl implements ProductService {
         return new ProductDetailsDto(
                 product.getId(),
                 product.getNameProduct(),
+                product.getModel(),
                 product.getSku(),
                 product.getCategory(),
                 product.getPrice(),
@@ -436,15 +446,16 @@ public class ProductServiceImpl implements ProductService {
 
     private String toImageUrl(Product product, Picture picture) {
         return "/ProductImages/"
-                + UriUtils.encodePathSegment(toDirectoryName(product.getNameProduct()), StandardCharsets.UTF_8)
+                + UriUtils.encodePathSegment(toDirectoryName(product.getDisplayName()), StandardCharsets.UTF_8)
                 + "/"
                 + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8);
     }
 
 
     private void validateUniqueFields(ProductCreateDto request) {
-        if (productRepository.existsByNameProductIgnoreCase(request.getNameProduct().trim())) {
-            throw new ProductAlreadyExistsException("nameProduct", "Вече съществува продукт с това име.");
+        if (productRepository.existsByNameProductIgnoreCaseAndModelIgnoreCase(
+                request.getNameProduct().trim(), request.getModel().trim())) {
+            throw new ProductAlreadyExistsException("model", "Вече съществува продукт с тази марка и модел.");
         }
         if (productRepository.existsBySkuIgnoreCase(request.getSku().trim())) {
             throw new ProductAlreadyExistsException("sku", "Вече съществува продукт с този код.");
@@ -475,8 +486,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void validateUniqueFields(ProductCreateDto request, Long productId) {
-        if (productRepository.existsByNameProductIgnoreCaseAndIdNot(request.getNameProduct().trim(), productId)) {
-            throw new ProductAlreadyExistsException("nameProduct", "Вече съществува продукт с това име.");
+        if (productRepository.existsByNameProductIgnoreCaseAndModelIgnoreCaseAndIdNot(
+                request.getNameProduct().trim(), request.getModel().trim(), productId)) {
+            throw new ProductAlreadyExistsException("model", "Вече съществува продукт с тази марка и модел.");
         }
         if (productRepository.existsBySkuIgnoreCaseAndIdNot(request.getSku().trim(), productId)) {
             throw new ProductAlreadyExistsException("sku", "Вече съществува продукт с този код.");
@@ -534,6 +546,10 @@ public class ProductServiceImpl implements ProductService {
         return directoryName;
     }
 
+    private String displayName(String brand, String model) {
+        return model == null || model.isBlank() ? brand : brand + " " + model;
+    }
+
     private String detectExtension(MultipartFile image) {
         if (image.getSize() > MAX_IMAGE_SIZE) {
             throw new InvalidProductImageException("Всяка снимка може да бъде до 5 MB.");
@@ -571,7 +587,10 @@ public class ProductServiceImpl implements ProductService {
         if (message.contains("sku") || message.contains("ukfhmd06dsmj6k0n90swsh8ie9g")) {
             return new ProductAlreadyExistsException("sku", "Вече съществува продукт с този код.");
         }
-        return new ProductAlreadyExistsException("nameProduct", "Вече съществува продукт с това име.");
+        if (message.contains("brand_model") || message.contains("model")) {
+            return new ProductAlreadyExistsException("model", "Вече съществува продукт с тази марка и модел.");
+        }
+        return new ProductAlreadyExistsException("nameProduct", "Вече съществува продукт с тази марка.");
     }
 
     private void deleteFiles(List<Path> files, Path productDirectory) {

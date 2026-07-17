@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(4);
+        assertThat(result.migrationsExecuted).isEqualTo(5);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -44,13 +44,16 @@ class InitialSchemaMigrationTest {
                     "ip_address", "created_at", "is_read"
             );
             assertThat(columns(connection, "seo_product")).contains("image_url", "product_id");
-            assertThat(columns(connection, "products")).contains("view_count");
+            assertThat(columns(connection, "products")).contains("view_count", "model");
+            assertThat(nullableColumns(connection, "products")).contains("model");
             assertThat(columns(connection, "orders")).contains("promo_code", "promo_discount_percent");
             assertThat(columns(connection, "promo_codes")).contains(
                     "code", "discount_percent", "created_by_user_id", "created_at");
             assertThat(columns(connection, "users")).contains("discount_percent", "is_blocked");
             assertThat(uniqueIndexes(connection, "promo_codes")).anySatisfy(columns ->
                     assertThat(columns).containsExactly("code"));
+            assertThat(uniqueIndexes(connection, "products")).anySatisfy(columns ->
+                    assertThat(columns).containsExactlyInAnyOrder("name_product", "model"));
             assertThat(uniqueIndexes(connection, "favorites")).anySatisfy(columns ->
                     assertThat(columns).containsExactlyInAnyOrder("user_id", "product_id"));
             assertThat(uniqueIndexes(connection, "seo_product")).anySatisfy(columns ->

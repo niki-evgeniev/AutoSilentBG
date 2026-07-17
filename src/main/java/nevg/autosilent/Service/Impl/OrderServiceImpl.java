@@ -220,7 +220,7 @@ public class OrderServiceImpl implements OrderService {
         OrderItemEntity orderItem = new OrderItemEntity();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
-        orderItem.setProductName(product.getNameProduct());
+        orderItem.setProductName(product.getDisplayName());
         orderItem.setProductSku(product.getSku());
         orderItem.setQuantity(item.quantity());
         orderItem.setUnitPrice(product.getPrice());
@@ -234,7 +234,7 @@ public class OrderServiceImpl implements OrderService {
                 .filter(Picture::isMainImage)
                 .findFirst()
                 .map(picture -> "/ProductImages/" +
-                        UriUtils.encodePathSegment(directoryName(product.getNameProduct()), StandardCharsets.UTF_8) + "/" +
+                        UriUtils.encodePathSegment(directoryName(product.getDisplayName()), StandardCharsets.UTF_8) + "/" +
                         UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
                 .orElse(null);
     }

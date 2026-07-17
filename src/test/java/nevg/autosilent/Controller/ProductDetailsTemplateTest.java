@@ -20,7 +20,7 @@ class ProductDetailsTemplateTest {
         assertThat(html)
                 .contains("class=\"product-details-card tilt-card\"")
                 .contains("th:data-product-id=\"${product.id()}\"")
-                .contains("th:data-product-name=\"${product.name()}\"")
+                .contains("th:data-product-name=\"${product.displayName()}\"")
                 .contains("th:data-product-price=\"${product.price()}\"")
                 .contains("th:data-product-image=\"${product.mainImageUrl()}\"")
                 .contains("th:data-product-url=\"@{/products/{id}(id=${product.id()})}\"")

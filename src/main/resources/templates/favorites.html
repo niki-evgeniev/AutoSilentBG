@@ -26,7 +26,7 @@
             <div class="row g-4" th:if="${!products.isEmpty()}">
                 <div class="col-12 col-sm-6 col-lg-4 col-xl-3" th:each="product : ${products}">
                     <article class="product-card shop-product-card tilt-card"
-                             th:data-product-id="${product.id()}" th:data-product-name="${product.name()}"
+                             th:data-product-id="${product.id()}" th:data-product-name="${product.displayName()}"
                              th:data-product-price="${product.price()}" th:data-product-image="${product.mainImageUrl()}"
                              th:data-product-url="@{/products/{id}(id=${product.id()})}">
                         <form method="post" th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
@@ -36,12 +36,13 @@
                             </button>
                         </form>
                         <div class="product-image">
-                            <img th:if="${product.mainImageUrl() != null}" th:src="${product.mainImageUrl()}" th:alt="${product.name()}">
+                            <img th:if="${product.mainImageUrl() != null}" th:src="${product.mainImageUrl()}" th:alt="${product.displayName()}">
                             <i th:unless="${product.mainImageUrl() != null}" class="bi bi-box-seam product-placeholder-icon"></i>
                         </div>
                         <div class="product-content">
+                            <div class="product-meta"><span th:text="|#{products.brand}: ${product.name()}|">Марка</span><span th:text="|#{products.model}: ${product.model()}|">Модел</span></div>
                             <div class="product-meta"><span th:text="${product.category()}">Категория</span><span th:text="${product.sku()}">Код</span></div>
-                            <h3 class="text-center"><a class="product-name-link" th:href="@{/products/{id}(id=${product.id()})}" th:text="${product.name()}">Продукт</a></h3>
+                            <h3 class="text-center"><a class="product-name-link" th:href="@{/products/{id}(id=${product.id()})}" th:text="${product.displayName()}">Марка и модел</a></h3>
                             <p class="product-card-description" th:text="${product.description()}">Описание</p>
                             <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
                             <div class="product-card-actions">

@@ -13,15 +13,19 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "products")
+@Table(name = "products", uniqueConstraints =
+        @UniqueConstraint(name = "uk_products_brand_model", columnNames = {"name_product", "model"}))
 @NoArgsConstructor
 @Getter
 @Setter
 public class Product extends BaseEntity {
 
 
-    @Column(name = "name_product", nullable = false, unique = true, length = 150)
+    @Column(name = "name_product", nullable = false, length = 150)
     private String nameProduct;
+
+    @Column(name = "model", length = 150)
+    private String model;
 
     @Column(name = "sku", nullable = false, unique = true, length = 50)
     private String sku;
@@ -81,6 +85,10 @@ public class Product extends BaseEntity {
 
     public void incrementCount() {
         count++;
+    }
+
+    public String getDisplayName() {
+        return model == null || model.isBlank() ? nameProduct : nameProduct + " " + model;
     }
 
 }

@@ -59,15 +59,15 @@ public class SeoServiceImpl implements SeoService {
 
     private SeoDto defaults(Product product) {
         SeoDto dto = new SeoDto();
-        dto.setProductName(product.getNameProduct());
-        dto.setTitle(product.getNameProduct());
+        dto.setProductName(product.getDisplayName());
+        dto.setTitle(product.getDisplayName());
         dto.setDescription(product.getDescription());
         return dto;
     }
 
     private SeoDto toDto(Seo seo) {
         SeoDto dto = new SeoDto();
-        dto.setProductName(seo.getProduct().getNameProduct());
+        dto.setProductName(seo.getProduct().getDisplayName());
         dto.setTitle(seo.getTitle());
         dto.setDescription(seo.getDescription());
         dto.setKeywords(seo.getKeywords());

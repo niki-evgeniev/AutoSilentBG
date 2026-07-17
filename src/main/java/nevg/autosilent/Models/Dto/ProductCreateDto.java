@@ -18,6 +18,10 @@ public class ProductCreateDto {
     @Size(min = 2, max = 150, message = "{validation.product.name.size}")
     private String nameProduct;
 
+    @NotBlank(message = "{validation.product.model.required}")
+    @Size(min = 1, max = 150, message = "{validation.product.model.size}")
+    private String model;
+
     @NotBlank(message = "{validation.product.sku.required}")
     @Size(max = 50, message = "{validation.product.sku.size}")
     private String sku;
@@ -51,6 +55,14 @@ public class ProductCreateDto {
 
     public void setNameProduct(String nameProduct) {
         this.nameProduct = nameProduct;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public String getSku() {

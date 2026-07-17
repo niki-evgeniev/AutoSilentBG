@@ -52,15 +52,31 @@
                                 <div><h2 th:text="#{add.basic}">Основна информация</h2><p th:text="#{add.basic.text}">Данните, които клиентите ще виждат.</p></div>
                             </div>
 
-                            <div class="form-group-custom">
-                                <label for="nameProduct" th:text="#{add.name}">Име на продукта</label>
-                                <div class="input-icon-wrap">
-                                    <i class="bi bi-tag"></i>
-                                    <input id="nameProduct" th:field="*{nameProduct}" type="text"
-                                           class="form-control" th:errorclass="is-invalid"
-                                           th:placeholder="#{add.name.placeholder}" maxlength="150">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label for="nameProduct" th:text="#{add.name}">Марка</label>
+                                        <div class="input-icon-wrap">
+                                            <i class="bi bi-tag"></i>
+                                            <input id="nameProduct" th:field="*{nameProduct}" type="text"
+                                                   class="form-control" th:errorclass="is-invalid"
+                                                   th:placeholder="#{add.name.placeholder}" maxlength="150">
+                                        </div>
+                                        <div class="invalid-feedback d-block" th:errors="*{nameProduct}"></div>
+                                    </div>
                                 </div>
-                                <div class="invalid-feedback d-block" th:errors="*{nameProduct}"></div>
+                                <div class="col-md-6">
+                                    <div class="form-group-custom">
+                                        <label for="model" th:text="#{add.model}">Модел</label>
+                                        <div class="input-icon-wrap">
+                                            <i class="bi bi-box"></i>
+                                            <input id="model" th:field="*{model}" type="text"
+                                                   class="form-control" th:errorclass="is-invalid"
+                                                   th:placeholder="#{add.model.placeholder}" maxlength="150">
+                                        </div>
+                                        <div class="invalid-feedback d-block" th:errors="*{model}"></div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row">

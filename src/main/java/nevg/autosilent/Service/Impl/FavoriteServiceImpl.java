@@ -74,10 +74,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     private ProductViewDto toViewDto(Product product) {
         String imageUrl = product.getPictures().stream().filter(Picture::isMainImage).findFirst()
                 .map(picture -> "/ProductImages/"
-                        + UriUtils.encodePathSegment(directoryName(product.getNameProduct()), StandardCharsets.UTF_8)
+                        + UriUtils.encodePathSegment(directoryName(product.getDisplayName()), StandardCharsets.UTF_8)
                         + "/" + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
                 .orElse(null);
-        return new ProductViewDto(product.getId(), product.getNameProduct(), product.getSku(),
+        return new ProductViewDto(product.getId(), product.getNameProduct(), product.getModel(), product.getSku(),
                 product.getCategory(), product.getPrice(), product.getDescription(), product.getStock(), imageUrl);
     }
 

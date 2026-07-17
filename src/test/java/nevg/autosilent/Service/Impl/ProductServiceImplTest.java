@@ -86,6 +86,7 @@ class ProductServiceImplTest {
         verify(productRepository).saveAndFlush(captor.capture());
         Product saved = captor.getValue();
         assertThat(saved.getNameProduct()).isEqualTo("Product One");
+        assertThat(saved.getModel()).isEqualTo("Model One");
         assertThat(saved.getSku()).isEqualTo("SKU-1");
         assertThat(saved.getCategory()).isEqualTo("Category");
         assertThat(saved.getDescription()).isEqualTo("Useful product description");
@@ -94,7 +95,7 @@ class ProductServiceImplTest {
                 .allSatisfy(picture -> assertThat(picture.getProduct()).isSameAs(saved));
         assertThat(saved.getPictures()).filteredOn(Picture::isMainImage).hasSize(1);
 
-        Path productDirectory = imagesDirectory.resolve("Product-One");
+        Path productDirectory = imagesDirectory.resolve("Product-One-Model-One");
         assertThat(productDirectory).isDirectory();
         try (var files = Files.list(productDirectory)) {
             assertThat(files).hasSize(3);
@@ -104,12 +105,13 @@ class ProductServiceImplTest {
     @Test
     void createRejectsAnExistingProductName() {
         ProductCreateDto request = validRequest();
-        when(productRepository.existsByNameProductIgnoreCase("Product One")).thenReturn(true);
+        when(productRepository.existsByNameProductIgnoreCaseAndModelIgnoreCase("Product One", "Model One"))
+                .thenReturn(true);
 
         assertThatThrownBy(() -> productService.create(request, "owner@example.com"))
                 .isInstanceOf(ProductAlreadyExistsException.class)
                 .extracting(exception -> ((ProductAlreadyExistsException) exception).getField())
-                .isEqualTo("nameProduct");
+                .isEqualTo("model");
 
         verify(productRepository, never()).existsBySkuIgnoreCase(any());
         verifyNoInteractions(userRepository);
@@ -408,6 +410,7 @@ class ProductServiceImplTest {
     private ProductCreateDto validRequest() {
         ProductCreateDto request = new ProductCreateDto();
         request.setNameProduct("  Product One  ");
+        request.setModel("  Model One  ");
         request.setSku("  sku-1  ");
         request.setCategory("  Category  ");
         request.setPrice(new BigDecimal("19.99"));

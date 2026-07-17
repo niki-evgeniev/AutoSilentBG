@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    boolean existsByNameProductIgnoreCase(String nameProduct);
+    boolean existsByNameProductIgnoreCaseAndModelIgnoreCase(String nameProduct, String model);
 
     boolean existsBySkuIgnoreCase(String sku);
 
@@ -33,6 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             select p from Product p
             where p.active = true and (
                 lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                lower(p.model) like lower(concat('%', :search, '%')) or
                 lower(p.sku) like lower(concat('%', :search, '%')) or
                 lower(p.category) like lower(concat('%', :search, '%')) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
@@ -45,6 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             select p from Product p
             where p.active = true and (
                 lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                lower(p.model) like lower(concat('%', :search, '%')) or
                 lower(p.sku) like lower(concat('%', :search, '%')) or
                 lower(p.category) like lower(concat('%', :search, '%')) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
@@ -54,6 +56,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                     select count(p) from Product p
                     where p.active = true and (
                         lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                        lower(p.model) like lower(concat('%', :search, '%')) or
                         lower(p.sku) like lower(concat('%', :search, '%')) or
                         lower(p.category) like lower(concat('%', :search, '%')) or
                         lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
@@ -67,7 +70,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = "pictures")
     Optional<Product> findWithPicturesById(Long id);
 
-    boolean existsByNameProductIgnoreCaseAndIdNot(String nameProduct, Long id);
+    boolean existsByNameProductIgnoreCaseAndModelIgnoreCaseAndIdNot(String nameProduct, String model, Long id);
 
     boolean existsBySkuIgnoreCaseAndIdNot(String sku, Long id);
 
