@@ -110,6 +110,33 @@ class ProductsControllerTest {
     }
 
     @Test
+    void productDetailsByUrlReturnsCanonicalProductPage() {
+        ProductDetailsDto product = new ProductDetailsDto(
+                7L, "product-model", "Product", "Model", "SKU-1", "Category",
+                new BigDecimal("10.00"), "Description", 2, 1L, List.of("/image.png")
+        );
+        when(productService.getActiveProductByUrlAndIncrementCount("product-model"))
+                .thenReturn(Optional.of(product));
+
+        ModelAndView result = productsController.productDetails("product-model");
+
+        assertThat(result.getViewName()).isEqualTo("product-details");
+        assertThat(result.getModel().get("product")).isSameAs(product);
+        verify(seoService).getForProduct(7L);
+    }
+
+    @Test
+    void numericProductUrlRedirectsToCanonicalUrl() {
+        when(productService.getActiveProductUrl(7L)).thenReturn(Optional.of("product-model"));
+
+        ModelAndView result = productsController.productDetailsPage(
+                "7", new MockHttpServletRequest());
+
+        assertThat(result.getViewName()).isEqualTo("redirect:/products/product-model");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+    }
+
+    @Test
     void productDetailsAddsSeoWhenConfigured() {
         ProductDetailsDto product = new ProductDetailsDto(
                 7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),
@@ -337,12 +364,13 @@ class ProductsControllerTest {
     void editProductUpdatesActiveProductAndRedirectsToDetails() {
         ProductCreateDto submitted = editableProduct(true);
         RedirectAttributesModelMap redirect = new RedirectAttributesModelMap();
+        when(productService.getActiveProductUrl(9L)).thenReturn(Optional.of("product-model"));
 
         ModelAndView result = productsController.editProduct(
                 9L, submitted, bindingResult(submitted), redirect);
 
         verify(productService).update(9L, submitted);
-        assertThat(result.getViewName()).isEqualTo("redirect:/products/9");
+        assertThat(result.getViewName()).isEqualTo("redirect:/products/product-model");
         assertThat(redirect.getFlashAttributes().get("productUpdated")).isEqualTo(true);
     }
 

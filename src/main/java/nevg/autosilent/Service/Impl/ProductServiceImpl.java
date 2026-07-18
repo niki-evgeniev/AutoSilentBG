@@ -16,6 +16,7 @@ import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.ProductService;
+import nevg.autosilent.Utility.ProductSlugGenerator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,6 +93,7 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
             product.setPrice(request.getPrice());
             product.setDescription(request.getDescription().trim());
+            product.setUrl(uniqueSlug(product.getDisplayName()));
             product.setStock(request.getStock());
             product.setActive(request.isActive());
             product.setUser(owner);
@@ -286,6 +288,29 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<ProductDetailsDto> getActiveProductByUrl(String url) {
+        return productRepository.findByUrlAndActiveTrue(url)
+                .map(this::toDetailsDto);
+    }
+
+    @Override
+    @Transactional
+    public Optional<ProductDetailsDto> getActiveProductByUrlAndIncrementCount(String url) {
+        return productRepository.findActiveByUrlForUpdate(url)
+                .map(product -> {
+                    product.incrementCount();
+                    return toDetailsDto(product);
+                });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> getActiveProductUrl(Long id) {
+        return productRepository.findByIdAndActiveTrue(id).map(Product::getUrl);
+    }
+
+    @Override
     public void addVibrofltr() {
         if (productRepository.count() == 0) {
                 if (productRepository.count() == 0) {
@@ -323,6 +348,7 @@ public class ProductServiceImpl implements ProductService {
                             "количество в опаковка - кашон: 25 бр. / 8,75 m2   \n" +
                             "\n" +
                             "тегло на 1 m², не по-малко: 3,0 кг");
+                    product.setUrl(uniqueSlug(product.getDisplayName()));
                     product.setStock(100);
                     product.setUser(user);
                     productRepository.save(product);
@@ -349,6 +375,7 @@ public class ProductServiceImpl implements ProductService {
                             "количество в опаковка - кашон: 20 броя листове / 3.5 m2   \n" +
                             "\n" +
                             "тегло на 1 m², не по-малко: 3,0 кг");
+                    product2.setUrl(uniqueSlug(product2.getDisplayName()));
                     product2.setStock(100);
                     product2.setUser(user);
                     productRepository.save(product2);
@@ -375,6 +402,7 @@ public class ProductServiceImpl implements ProductService {
                             "количество в опаковка - кашон: 15 броя листове / 2.625 m2   \n" +
                             "\n" +
                             "тегло на 1 m², не по-малко: 4,5 кг");
+                    product3.setUrl(uniqueSlug(product3.getDisplayName()));
                     product3.setStock(100);
                     product3.setUser(user);
                     productRepository.save(product3);
@@ -401,6 +429,7 @@ public class ProductServiceImpl implements ProductService {
                             "количество в опаковка - кашон: 10 броя листове / 1.75 m2   \n" +
                             "\n" +
                             "тегло на 1 m², не по-малко: 6,4 кг");
+                    product4.setUrl(uniqueSlug(product4.getDisplayName()));
                     product4.setStock(100);
                     product4.setUser(user);
                     productRepository.save(product4);
@@ -420,6 +449,7 @@ public class ProductServiceImpl implements ProductService {
 
         return new ProductViewDto(
                 product.getId(),
+                product.getUrl(),
                 product.getNameProduct(),
                 product.getModel(),
                 product.getSku(),
@@ -438,6 +468,7 @@ public class ProductServiceImpl implements ProductService {
 
         return new ProductDetailsDto(
                 product.getId(),
+                product.getUrl(),
                 product.getNameProduct(),
                 product.getModel(),
                 product.getSku(),
@@ -463,6 +494,18 @@ public class ProductServiceImpl implements ProductService {
         }
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ProductCreationException("Избраната категория не съществува.", null));
+    }
+
+    private String uniqueSlug(String displayName) {
+        String base = ProductSlugGenerator.toSlug(displayName);
+        String candidate = base;
+        int suffix = 2;
+        while (productRepository.existsByUrl(candidate)) {
+            String suffixText = "-" + suffix++;
+            int baseLength = Math.min(base.length(), 180 - suffixText.length());
+            candidate = base.substring(0, baseLength).replaceAll("-+$", "") + suffixText;
+        }
+        return candidate;
     }
 
 

@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(6);
+        assertThat(result.migrationsExecuted).isEqualTo(7);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -47,6 +47,7 @@ class InitialSchemaMigrationTest {
             assertThat(columns(connection, "products")).contains("view_count", "model", "category_id")
                     .doesNotContain("category");
             assertThat(nullableColumns(connection, "products")).contains("model");
+            assertThat(nullableColumns(connection, "products")).doesNotContain("url_link");
             assertThat(columns(connection, "orders")).contains("promo_code", "promo_discount_percent");
             assertThat(columns(connection, "promo_codes")).contains(
                     "code", "discount_percent", "created_by_user_id", "created_at");
@@ -55,6 +56,8 @@ class InitialSchemaMigrationTest {
                     assertThat(columns).containsExactly("code"));
             assertThat(uniqueIndexes(connection, "products")).anySatisfy(columns ->
                     assertThat(columns).containsExactlyInAnyOrder("name_product", "model"));
+            assertThat(uniqueIndexes(connection, "products")).anySatisfy(columns ->
+                    assertThat(columns).containsExactly("url_link"));
             assertThat(uniqueIndexes(connection, "favorites")).anySatisfy(columns ->
                     assertThat(columns).containsExactlyInAnyOrder("user_id", "product_id"));
             assertThat(uniqueIndexes(connection, "seo_product")).anySatisfy(columns ->

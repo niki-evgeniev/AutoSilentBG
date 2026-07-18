@@ -1,5 +1,6 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,17 +43,32 @@
 
             <aside id="cartSummary" class="cart-summary-card">
                 <h2 th:text="#{cart.summary}">Общо</h2>
-                <div><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
-                <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 €</strong></div>
-                <a sec:authorize="isAuthenticated()" class="btn btn-orange w-100"
-                   th:href="@{/orders/checkout}" th:text="#{cart.checkout}">Продължи към поръчка</a>
-                <p sec:authorize="!isAuthenticated()" class="cart-auth-hint">
-                    <a th:href="@{/user/sign_in}" th:text="#{site.login}">Вход</a>
-                    <span th:text="#{site.or}">или</span>
-                    <a th:href="@{/user/sign_up}" th:text="#{site.register}">Регистрация</a>
+                <div>
+                    <span
+                            th:text="#{cart.products}">Продукти</span>
+                    <strong id="cartSummaryCount">0</strong></div>
+                <div class="cart-summary-total">
+                    <span
+                            th:text="#{cart.total}">Крайна сума</span>
+                    <strong id="cartSummaryTotal">0.00 €</strong></div>
+                <a sec:authorize="isAuthenticated()"
+                   class="btn btn-orange w-100"
+                   th:href="@{/orders/checkout}"
+                   th:text="#{cart.checkout}">Продължи към поръчка</a>
+                <p sec:authorize="!isAuthenticated()"
+                   class="cart-auth-hint">
+                    <a th:href="@{/user/sign_in}"
+                       th:text="#{site.login}">Вход </a>
+                    <span th:text="#{site.or}"
+                    class="ms-1"> или </span>
+                    <a th:href="@{/user/sign_up}"
+                       th:text="#{site.register}"
+                       class="ms-1"> Регистрация</a>
                 </p>
-                <a sec:authorize="!isAuthenticated()" class="cart-guest-checkout"
-                   th:href="@{/orders/checkout}" th:text="#{cart.guestCheckout}">Поръчай като гост</a>
+                <a sec:authorize="!isAuthenticated()"
+                   class="cart-guest-checkout mt-3"
+                   th:href="@{/orders/checkout}"
+                   th:text="#{cart.guestCheckout}">Поръчай като гост</a>
             </aside>
         </div>
     </section>

@@ -45,6 +45,11 @@ class UserControllerTest {
     }
 
     @Test
+    void forgotPasswordReturnsSupportPage() {
+        assertThat(userController.forgotPassword().getViewName()).isEqualTo("forgot-password");
+    }
+
+    @Test
     void registerFormReturnsEmptyRegistrationModel() {
         ModelAndView result = userController.register();
 

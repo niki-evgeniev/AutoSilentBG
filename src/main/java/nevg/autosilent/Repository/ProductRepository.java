@@ -20,6 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsBySkuIgnoreCase(String sku);
 
+    boolean existsByUrl(String url);
+
     @EntityGraph(attributePaths = "pictures")
     List<Product> findAllByActiveTrueOrderByAddDateDesc();
 
@@ -68,6 +70,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdAndActiveTrue(Long id);
 
     @EntityGraph(attributePaths = "pictures")
+    Optional<Product> findByUrlAndActiveTrue(String url);
+
+    @EntityGraph(attributePaths = "pictures")
     Optional<Product> findWithPicturesById(Long id);
 
     boolean existsByNameProductIgnoreCaseAndModelIgnoreCaseAndIdNot(String nameProduct, String model, Long id);
@@ -77,4 +82,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select distinct p from Product p left join fetch p.pictures where p.id = :id and p.active = true")
     Optional<Product> findActiveByIdForUpdate(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select distinct p from Product p left join fetch p.pictures where p.url = :url and p.active = true")
+    Optional<Product> findActiveByUrlForUpdate(@Param("url") String url);
 }

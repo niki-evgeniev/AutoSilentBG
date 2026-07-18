@@ -148,7 +148,7 @@
                                      th:data-product-name="${product.displayName()}"
                                      th:data-product-price="${product.price()}"
                                      th:data-product-image="${product.mainImageUrl()}"
-                                     th:data-product-url="@{/products/{id}(id=${product.id()})}">
+                                     th:data-product-url="@{/products/{url}(url=${product.url()})}">
                                 <form sec:authorize="isAuthenticated()" method="post"
                                       th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
                                     <input type="hidden" name="source" value="products">
@@ -165,7 +165,7 @@
                                     <i th:unless="${product.mainImageUrl() != null}"
                                        class="bi bi-box-seam product-placeholder-icon"></i>
                                 </div>
-                                <div class="product-content">
+                                <div class="product-content text-center">
                                     <div class="product-meta">
                                         <span th:text="|#{products.brand}: ${product.name()}|">Марка</span>
                                         <span th:text="|#{products.model}: ${product.model()}|">Модел</span>
@@ -176,7 +176,7 @@
                                     </div>
                                     <h3 class="text-center">
                                         <a class="product-name-link"
-                                           th:href="@{/products/{id}(id=${product.id()})}"
+                                           th:href="@{/products/{url}(url=${product.url()})}"
                                            th:text="${product.displayName()}">Марка и модел</a>
                                     </h3>
                                     <p class="product-card-description"
@@ -186,7 +186,7 @@
                                     <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
                                     <div class="product-card-actions">
                                         <a class="btn btn-outline-dark custom-outline"
-                                           th:href="@{/products/{id}(id=${product.id()})}">
+                                           th:href="@{/products/{url}(url=${product.url()})}">
                                             <span th:text="#{products.more}">Виж повече</span>
                                         </a>
                                         <button class="btn btn-orange add-cart"

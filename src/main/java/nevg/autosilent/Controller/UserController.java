@@ -35,6 +35,11 @@ public class UserController {
         return new ModelAndView("login");
     }
 
+    @GetMapping("/user/forgot-password")
+    public ModelAndView forgotPassword() {
+        return new ModelAndView("forgot-password");
+    }
+
     @GetMapping("/user/sign_up")
     public ModelAndView register() {
         return registrationView(new UserRegistrationDto());

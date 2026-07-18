@@ -57,13 +57,40 @@ public class ProductsController {
         return modelAndView;
     }
 
-    @GetMapping("/products/{id}")
-    public ModelAndView productDetailsPage(@PathVariable Long id, HttpServletRequest request) {
+    @GetMapping("/products/{url}")
+    public ModelAndView productDetailsPage(@PathVariable String url, HttpServletRequest request) {
+        Object csrfAttribute = request.getAttribute(CsrfToken.class.getName());
+        if (csrfAttribute instanceof CsrfToken csrfToken) {
+            csrfToken.getToken();
+        }
+        if (url.matches("\\d+")) {
+            Long id = Long.valueOf(url);
+            String canonicalUrl = productService.getActiveProductUrl(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Продуктът не е намерен."));
+            ModelAndView redirect = new ModelAndView("redirect:/products/" + canonicalUrl);
+            redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
+            return redirect;
+        }
+        return productDetails(url);
+    }
+
+    public ModelAndView productDetailsPage(Long id, HttpServletRequest request) {
         Object csrfAttribute = request.getAttribute(CsrfToken.class.getName());
         if (csrfAttribute instanceof CsrfToken csrfToken) {
             csrfToken.getToken();
         }
         return productDetails(id);
+    }
+
+    public ModelAndView productDetails(String url) {
+        ModelAndView modelAndView = new ModelAndView("product-details");
+        var product = productService.getActiveProductByUrlAndIncrementCount(url)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Продуктът не е намерен."));
+        modelAndView.addObject("product", product);
+        seoService.getForProduct(product.id()).ifPresent(seo -> modelAndView.addObject("seo", seo));
+        return modelAndView;
     }
 
     public ModelAndView productDetails(Long id) {
@@ -155,7 +182,13 @@ public class ProductsController {
         }
 
         redirectAttributes.addFlashAttribute("productUpdated", true);
-        return new ModelAndView(product.isActive() ? "redirect:/products/" + id : "redirect:/products");
+        if (!product.isActive()) {
+            return new ModelAndView("redirect:/products");
+        }
+        String productUrl = productService.getActiveProductUrl(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Продуктът не е намерен."));
+        return new ModelAndView("redirect:/products/" + productUrl);
     }
 
     @PostMapping("/products/{id}/delete")

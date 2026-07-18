@@ -105,7 +105,7 @@
                                 </label>
                             </div>
 
-                            <a href="#" class="forgot-link" th:text="#{login.forgot}">Забравена парола?</a>
+                            <a th:href="@{/user/forgot-password}" class="forgot-link" th:text="#{login.forgot}">Забравена парола?</a>
                         </div>
 
                         <button type="submit" class="btn-auth-primary" th:text="#{login.submit}">Влез в профила</button>

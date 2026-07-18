@@ -77,7 +77,7 @@ public class FavoriteServiceImpl implements FavoriteService {
                         + UriUtils.encodePathSegment(directoryName(product.getDisplayName()), StandardCharsets.UTF_8)
                         + "/" + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
                 .orElse(null);
-        return new ProductViewDto(product.getId(), product.getNameProduct(), product.getModel(), product.getSku(),
+        return new ProductViewDto(product.getId(), product.getUrl(), product.getNameProduct(), product.getModel(), product.getSku(),
                 product.getCategory().getCategory(), product.getPrice(), product.getDescription(), product.getStock(), imageUrl);
     }
 

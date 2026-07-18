@@ -30,25 +30,34 @@
                     <h1 th:text="#{home.hero.title}">Намери правилния продукт за теб</h1>
                     <p th:text="#{home.hero.text}">Качествени продукти, бърза доставка и сигурно плащане.</p>
                     <div class="hero-buttons">
-                        <a href="#products" class="btn btn-orange" th:text="#{home.hero.products}">Разгледай продуктите</a>
-                        <a href="#promo" class="btn btn-outline-dark custom-outline" th:text="#{home.hero.promotions}">Виж промоции</a>
+                        <a href="#products" class="btn btn-orange"
+                           th:text="#{home.hero.products}">Разгледай продуктите</a>
+                        <a href="#promo" class="btn btn-outline-dark custom-outline"
+                           th:text="#{home.hero.promotions}">Виж промоции</a>
                     </div>
                 </div>
 
                 <div class="col-lg-7">
                     <div class="hero-slider-wrap home-3d-scene">
                         <div class="scene-orbit" aria-hidden="true"></div>
-                        <div class="scene-chip chip-fast" aria-hidden="true"><i class="bi bi-lightning-charge-fill"></i></div>
-                        <div class="scene-chip chip-secure" aria-hidden="true"><i class="bi bi-shield-lock-fill"></i></div>
-                        <div class="scene-chip chip-delivery" aria-hidden="true"><i class="bi bi-truck"></i></div>
+                        <div class="scene-chip chip-fast" aria-hidden="true">
+                            <i class="bi bi-lightning-charge-fill"></i></div>
+                        <div class="scene-chip chip-secure" aria-hidden="true">
+                            <i class="bi bi-shield-lock-fill"></i></div>
+                        <div class="scene-chip chip-delivery" aria-hidden="true">
+                            <i class="bi bi-truck"></i></div>
                         <div class="swiper hero-swiper">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide">
                                     <article class="hero-slide-card tilt-card">
                                         <div class="slide-text">
-                                            <span th:text="#{home.slide1.label}">Топ продукт</span>
-                                            <h2 th:text="#{home.slide1.title}">Стойка за телефон</h2>
-                                            <p th:text="#{home.slide1.text}">Стабилна стойка за автомобил с модерен дизайн.</p>
+                                            <span
+                                                    th:text="#{home.slide1.label}">Топ продукт</span>
+                                            <h2
+                                                    th:text="#{home.slide1.title}">Стойка за телефон</h2>
+                                            <p
+                                                    th:text="#{home.slide1.text}">Стабилна стойка за автомобил с модерен
+                                                дизайн.</p>
                                         </div>
                                         <img src="/images/carousel-2.jpg"
                                              alt="Стойка за телефон за автомобил">
@@ -57,21 +66,31 @@
                                 <div class="swiper-slide">
                                     <article class="hero-slide-card tilt-card">
                                         <div class="slide-text">
-                                            <span th:text="#{home.slide2.label}">Бързо зареждане</span>
-                                            <h2 th:text="#{home.slide2.title}">Зарядно за кола QC 3.0</h2>
-                                            <p th:text="#{home.slide2.text}">Компактен аксесоар за всяко пътуване.</p>
+                                            <span
+                                                    th:text="#{home.slide2.label}">Бързо зареждане</span>
+                                            <h2
+                                                    th:text="#{home.slide2.title}">Зарядно за кола QC 3.0</h2>
+                                            <p
+                                                    th:text="#{home.slide2.text}">Компактен аксесоар за всяко
+                                                пътуване.</p>
                                         </div>
-                                        <img src="/images/hero-car-charger.svg" alt="Бързо зарядно за автомобил">
+                                        <img src="/images/ba6495b3-73f9-4d94-ae0a-7ef317cbd0de.png"
+                                             alt="Бързо зарядно за автомобил">
                                     </article>
                                 </div>
                                 <div class="swiper-slide">
                                     <article class="hero-slide-card tilt-card">
                                         <div class="slide-text">
-                                            <span th:text="#{home.slide3.label}">Практично</span>
-                                            <h2 th:text="#{home.slide3.title}">Стелки за автомобил</h2>
-                                            <p th:text="#{home.slide3.text}">Универсални стелки с графитено-оранжев акцент.</p>
+                                            <span
+                                                    th:text="#{home.slide3.label}">Практично</span>
+                                            <h2
+                                                    th:text="#{home.slide3.title}">Стелки за автомобил</h2>
+                                            <p
+                                                    th:text="#{home.slide3.text}">Универсални стелки с графитено-оранжев
+                                                акцент.</p>
                                         </div>
-                                        <img src="/images/hero-car-mats.svg" alt="Стелки за автомобил">
+                                        <img src="/images/fe4d53b7-608e-424f-b4b4-6444d1e027d4.png"
+                                             alt="Стелки за автомобил">
                                     </article>
                                 </div>
                             </div>
@@ -111,52 +130,52 @@
         </div>
     </section>
 
-<!--    <section id="categories" class="section-padding">-->
-<!--        <div class="container">-->
-<!--            <div class="section-title">-->
-<!--                <span th:text="#{home.categories.label}">Избери категория</span>-->
-<!--                <h2 th:text="#{home.categories.title}">Популярни категории</h2>-->
-<!--            </div>-->
+    <!--    <section id="categories" class="section-padding">-->
+    <!--        <div class="container">-->
+    <!--            <div class="section-title">-->
+    <!--                <span th:text="#{home.categories.label}">Избери категория</span>-->
+    <!--                <h2 th:text="#{home.categories.title}">Популярни категории</h2>-->
+    <!--            </div>-->
 
-<!--            <div class="row g-4">-->
-<!--                <div class="col-12 col-sm-6 col-lg-3">-->
-<!--                    <article class="category-card tilt-card">-->
-<!--                        <div class="category-img"><i class="bi bi-car-front"></i></div>-->
-<!--                        <h3 th:text="#{category.car}">Автоаксесоари</h3>-->
-<!--                        <p th:text="#{category.car.text}">Практични и качествени аксесоари за автомобила.</p>-->
-<!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-<!--                    </article>-->
-<!--                </div>-->
-<!--                <div class="col-12 col-sm-6 col-lg-3">-->
-<!--                    <article class="category-card tilt-card">-->
-<!--                        <div class="category-img"><i class="bi bi-box-seam"></i></div>-->
-<!--                        <h3 th:text="#{category.3d}">3D продукти</h3>-->
-<!--                        <p th:text="#{category.3d.text}">Иновативни 3D принтирани продукти и аксесоари.</p>-->
-<!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-<!--                    </article>-->
-<!--                </div>-->
-<!--                <div class="col-12 col-sm-6 col-lg-3">-->
-<!--                    <article class="category-card tilt-card">-->
-<!--                        <div class="category-img"><i class="bi bi-gift"></i></div>-->
-<!--                        <h3 th:text="#{category.gifts}">Подаръци</h3>-->
-<!--                        <p th:text="#{category.gifts.text}">Оригинални подаръци за всеки повод.</p>-->
-<!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-<!--                    </article>-->
-<!--                </div>-->
-<!--                <div class="col-12 col-sm-6 col-lg-3">-->
-<!--                    <article class="category-card tilt-card">-->
-<!--                        <div class="category-img accent"><i class="bi bi-percent"></i></div>-->
-<!--                        <h3 th:text="#{category.promotions}">Промоции</h3>-->
-<!--                        <p th:text="#{category.promotions.text}">Виж всички продукти с намаление.</p>-->
-<!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-<!--                    </article>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </section>-->
-<br>
-<br>
-<br>
+    <!--            <div class="row g-4">-->
+    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
+    <!--                    <article class="category-card tilt-card">-->
+    <!--                        <div class="category-img"><i class="bi bi-car-front"></i></div>-->
+    <!--                        <h3 th:text="#{category.car}">Автоаксесоари</h3>-->
+    <!--                        <p th:text="#{category.car.text}">Практични и качествени аксесоари за автомобила.</p>-->
+    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
+    <!--                    </article>-->
+    <!--                </div>-->
+    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
+    <!--                    <article class="category-card tilt-card">-->
+    <!--                        <div class="category-img"><i class="bi bi-box-seam"></i></div>-->
+    <!--                        <h3 th:text="#{category.3d}">3D продукти</h3>-->
+    <!--                        <p th:text="#{category.3d.text}">Иновативни 3D принтирани продукти и аксесоари.</p>-->
+    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
+    <!--                    </article>-->
+    <!--                </div>-->
+    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
+    <!--                    <article class="category-card tilt-card">-->
+    <!--                        <div class="category-img"><i class="bi bi-gift"></i></div>-->
+    <!--                        <h3 th:text="#{category.gifts}">Подаръци</h3>-->
+    <!--                        <p th:text="#{category.gifts.text}">Оригинални подаръци за всеки повод.</p>-->
+    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
+    <!--                    </article>-->
+    <!--                </div>-->
+    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
+    <!--                    <article class="category-card tilt-card">-->
+    <!--                        <div class="category-img accent"><i class="bi bi-percent"></i></div>-->
+    <!--                        <h3 th:text="#{category.promotions}">Промоции</h3>-->
+    <!--                        <p th:text="#{category.promotions.text}">Виж всички продукти с намаление.</p>-->
+    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
+    <!--                    </article>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </section>-->
+    <br>
+    <br>
+    <br>
     <section id="products" class="section-padding pt-0">
         <div class="container">
             <div class="section-title">
@@ -171,15 +190,15 @@
                              th:data-product-name="${product.displayName()}"
                              th:data-product-price="${product.price()}"
                              th:data-product-image="${product.mainImageUrl()}"
-                             th:data-product-url="@{/products/{id}(id=${product.id()})}">
-                        <a class="product-image" th:href="@{/products/{id}(id=${product.id()})}">
+                             th:data-product-url="@{/products/{url}(url=${product.url()})}">
+                        <a class="product-image" th:href="@{/products/{url}(url=${product.url()})}">
                             <img th:if="${product.mainImageUrl() != null}"
                                  th:src="${product.mainImageUrl()}"
                                  th:alt="${product.displayName()}">
                             <i th:unless="${product.mainImageUrl() != null}" class="bi bi-box-seam"></i>
                         </a>
-                        <div class="product-content">
-                            <a class="product-name-link" th:href="@{/products/{id}(id=${product.id()})}">
+                        <div class="product-content text-center">
+                            <a class="product-name-link" th:href="@{/products/{url}(url=${product.url()})}">
                                 <h3 th:text="${product.displayName()}">Марка и модел</h3>
                             </a>
                             <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
@@ -198,13 +217,14 @@
     <section id="promo" class="promo-section">
         <div class="container">
             <div class="promo-box">
-                <div>
+                <div class="text-center col-md-10">
                     <span th:text="#{home.promo.label}">Само тази седмица</span>
                     <h2 th:text="#{home.promo.title}">Специални предложения</h2>
                     <p th:text="#{home.promo.text}">Не пропускай продуктите с намаление.</p>
                     <a href="#" class="btn btn-orange" th:text="#{home.promo.button}">Виж промоциите</a>
                 </div>
-                <div class="promo-icon"><i class="bi bi-percent"></i></div>
+                <div class="promo-icon col-md-2">
+                    <i class="bi bi-percent"></i></div>
             </div>
         </div>
     </section>

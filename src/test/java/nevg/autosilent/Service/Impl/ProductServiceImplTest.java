@@ -92,6 +92,7 @@ class ProductServiceImplTest {
         Product saved = captor.getValue();
         assertThat(saved.getNameProduct()).isEqualTo("Product One");
         assertThat(saved.getModel()).isEqualTo("Model One");
+        assertThat(saved.getUrl()).isEqualTo("product-one-model-one");
         assertThat(saved.getSku()).isEqualTo("SKU-1");
         assertThat(saved.getCategory().getCategory()).isEqualTo("Category");
         assertThat(saved.getDescription()).isEqualTo("Useful product description");

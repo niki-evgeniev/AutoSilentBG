@@ -31,5 +31,11 @@ public interface ProductService {
 
     Optional<ProductDetailsDto> getActiveProductAndIncrementCount(Long id);
 
+    Optional<ProductDetailsDto> getActiveProductByUrl(String url);
+
+    Optional<ProductDetailsDto> getActiveProductByUrlAndIncrementCount(String url);
+
+    Optional<String> getActiveProductUrl(Long id);
+
     void addVibrofltr();
 }

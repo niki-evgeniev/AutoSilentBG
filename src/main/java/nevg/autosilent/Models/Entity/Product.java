@@ -40,7 +40,7 @@ public class Product extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "url_link")
+    @Column(name = "url_link", nullable = false, unique = true, length = 180)
     private String url;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
