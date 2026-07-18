@@ -22,10 +22,6 @@ public class ProductCreateDto {
     @Size(min = 1, max = 150, message = "{validation.product.model.size}")
     private String model;
 
-    @NotBlank(message = "{validation.product.sku.required}")
-    @Size(max = 50, message = "{validation.product.sku.size}")
-    private String sku;
-
     @NotNull(message = "{validation.product.category.required}")
     private Long categoryId;
 
@@ -62,14 +58,6 @@ public class ProductCreateDto {
 
     public void setModel(String model) {
         this.model = model;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
     }
 
     public Long getCategoryId() {

@@ -20,6 +20,6 @@ public class AddToDb implements CommandLineRunner {
     @Override
     public void run(String @NonNull ... args) throws Exception {
         userRegistrationService.addFirstAdminProfileAndAddRoles();
-        productService.addVibrofltr();
+//        productService.addVibrofltr();
     }
 }

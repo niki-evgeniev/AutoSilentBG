@@ -77,8 +77,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByNameProductIgnoreCaseAndModelIgnoreCaseAndIdNot(String nameProduct, String model, Long id);
 
-    boolean existsBySkuIgnoreCaseAndIdNot(String sku, Long id);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select distinct p from Product p left join fetch p.pictures where p.id = :id and p.active = true")
     Optional<Product> findActiveByIdForUpdate(@Param("id") Long id);

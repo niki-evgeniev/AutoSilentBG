@@ -134,7 +134,7 @@ public class ProductsController {
         try {
             productService.create(product, currentUser.getUsername());
         } catch (ProductAlreadyExistsException exception) {
-            bindingResult.rejectValue(exception.getField(), "product.exists", exception.getMessage());
+            rejectDuplicate(bindingResult, exception);
             return productForm(product);
         } catch (InvalidProductImageException exception) {
             bindingResult.reject("images.invalid", exception.getMessage());
@@ -171,7 +171,7 @@ public class ProductsController {
         try {
             productService.update(id, product);
         } catch (ProductAlreadyExistsException exception) {
-            bindingResult.rejectValue(exception.getField(), "product.exists", exception.getMessage());
+            rejectDuplicate(bindingResult, exception);
             return editProductForm(id, product);
         } catch (InvalidProductImageException exception) {
             bindingResult.reject("images.invalid", exception.getMessage());
@@ -205,6 +205,14 @@ public class ProductsController {
         modelAndView.addObject("categories", categoryService.getAll());
         modelAndView.addObject("editMode", false);
         return modelAndView;
+    }
+
+    private void rejectDuplicate(BindingResult bindingResult, ProductAlreadyExistsException exception) {
+        if ("sku".equals(exception.getField())) {
+            bindingResult.reject("product.exists", exception.getMessage());
+            return;
+        }
+        bindingResult.rejectValue(exception.getField(), "product.exists", exception.getMessage());
     }
 
     private ModelAndView editProductForm(Long id, ProductCreateDto product) {

@@ -259,7 +259,7 @@ class ProductsControllerTest {
                 product, bindingResult, currentUser(), new RedirectAttributesModelMap());
 
         assertThat(result.getViewName()).isEqualTo("add-product");
-        assertThat(bindingResult.getFieldError("sku"))
+        assertThat(bindingResult.getGlobalError())
                 .isNotNull()
                 .satisfies(error -> {
                     assertThat(error.getCode()).isEqualTo("product.exists");
@@ -398,7 +398,7 @@ class ProductsControllerTest {
                 9L, submitted, binding, new RedirectAttributesModelMap());
 
         assertThat(result.getViewName()).isEqualTo("add-product");
-        assertThat(binding.getFieldError("sku")).isNotNull()
+        assertThat(binding.getGlobalError()).isNotNull()
                 .satisfies(error -> assertThat(error.getDefaultMessage()).isEqualTo("Duplicate SKU"));
     }
 

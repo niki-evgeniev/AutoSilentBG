@@ -93,7 +93,7 @@ class ProductServiceImplTest {
         assertThat(saved.getNameProduct()).isEqualTo("Product One");
         assertThat(saved.getModel()).isEqualTo("Model One");
         assertThat(saved.getUrl()).isEqualTo("product-one-model-one");
-        assertThat(saved.getSku()).isEqualTo("SKU-1");
+        assertThat(saved.getSku()).matches("AS-\\d{10}");
         assertThat(saved.getCategory().getCategory()).isEqualTo("Category");
         assertThat(saved.getDescription()).isEqualTo("Useful product description");
         assertThat(saved.getUser()).isSameAs(owner);
@@ -118,20 +118,6 @@ class ProductServiceImplTest {
                 .isInstanceOf(ProductAlreadyExistsException.class)
                 .extracting(exception -> ((ProductAlreadyExistsException) exception).getField())
                 .isEqualTo("model");
-
-        verify(productRepository, never()).existsBySkuIgnoreCase(any());
-        verifyNoInteractions(userRepository);
-    }
-
-    @Test
-    void createRejectsAnExistingSku() {
-        ProductCreateDto request = validRequest();
-        when(productRepository.existsBySkuIgnoreCase("sku-1")).thenReturn(true);
-
-        assertThatThrownBy(() -> productService.create(request, "owner@example.com"))
-                .isInstanceOf(ProductAlreadyExistsException.class)
-                .extracting(exception -> ((ProductAlreadyExistsException) exception).getField())
-                .isEqualTo("sku");
 
         verifyNoInteractions(userRepository);
     }
@@ -352,7 +338,6 @@ class ProductServiceImplTest {
         ProductCreateDto result = productService.getForEdit(7L);
 
         assertThat(result.getNameProduct()).isEqualTo("Phone Case");
-        assertThat(result.getSku()).isEqualTo("CASE-1");
         assertThat(result.getCategoryId()).isEqualTo(3L);
         assertThat(result.getPrice()).isEqualByComparingTo("12.50");
         assertThat(result.getDescription()).isEqualTo("Protective case");
@@ -417,7 +402,6 @@ class ProductServiceImplTest {
         ProductCreateDto request = new ProductCreateDto();
         request.setNameProduct("  Product One  ");
         request.setModel("  Model One  ");
-        request.setSku("  sku-1  ");
         request.setCategoryId(3L);
         request.setPrice(new BigDecimal("19.99"));
         request.setDescription("  Useful product description  ");

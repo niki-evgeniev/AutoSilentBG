@@ -158,13 +158,15 @@
                                 </form>
                                 <a sec:authorize="isAnonymous()" class="wishlist-btn" th:href="@{/user/sign_in}"
                                    th:aria-label="#{favorites.loginRequired}"><i class="bi bi-heart"></i></a>
-                                <div class="product-image">
+                                <a class="product-image"
+                                   th:href="@{/products/{url}(url=${product.url()})}"
+                                   th:aria-label="${product.displayName()}">
                                     <img th:if="${product.mainImageUrl() != null}"
                                          th:src="${product.mainImageUrl()}"
                                          th:alt="${product.displayName()}">
                                     <i th:unless="${product.mainImageUrl() != null}"
                                        class="bi bi-box-seam product-placeholder-icon"></i>
-                                </div>
+                                </a>
                                 <div class="product-content text-center">
                                     <div class="product-meta">
                                         <span th:text="|#{products.brand}: ${product.name()}|">Марка</span>

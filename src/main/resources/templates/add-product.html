@@ -80,18 +80,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group-custom">
-                                        <label for="sku" th:text="#{add.sku}">Продуктов код</label>
-                                        <div class="input-icon-wrap">
-                                            <i class="bi bi-upc-scan"></i>
-                                            <input id="sku" th:field="*{sku}" type="text" class="form-control"
-                                                   th:errorclass="is-invalid" placeholder="NIR-001" maxlength="50">
-                                        </div>
-                                        <div class="invalid-feedback d-block" th:errors="*{sku}"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <div class="form-group-custom">
                                         <label for="categoryId" th:text="#{add.category}">Категория</label>
                                         <div class="input-icon-wrap">

@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(7);
+        assertThat(result.migrationsExecuted).isEqualTo(1);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {

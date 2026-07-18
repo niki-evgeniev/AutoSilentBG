@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.SecureRandom;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,9 @@ public class ProductServiceImpl implements ProductService {
 
     private static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024;
     private static final int PRODUCTS_PAGE_SIZE = 9;
+    private static final long SKU_NUMBER_LIMIT = 10_000_000_000L;
+    private static final int SKU_GENERATION_ATTEMPTS = 20;
+    private static final SecureRandom SKU_RANDOM = new SecureRandom();
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
@@ -89,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
             Product product = new Product();
             product.setNameProduct(request.getNameProduct().trim());
             product.setModel(request.getModel().trim());
-            product.setSku(request.getSku().trim().toUpperCase(Locale.ROOT));
+            product.setSku(generateUniqueSku());
             product.setCategory(category);
             product.setPrice(request.getPrice());
             product.setDescription(request.getDescription().trim());
@@ -129,7 +133,6 @@ public class ProductServiceImpl implements ProductService {
         ProductCreateDto dto = new ProductCreateDto();
         dto.setNameProduct(product.getNameProduct());
         dto.setModel(product.getModel());
-        dto.setSku(product.getSku());
         dto.setCategoryId(product.getCategory().getId());
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
@@ -208,7 +211,6 @@ public class ProductServiceImpl implements ProductService {
 
             product.setNameProduct(request.getNameProduct().trim());
             product.setModel(request.getModel().trim());
-            product.setSku(request.getSku().trim().toUpperCase(Locale.ROOT));
             product.setCategory(category);
             product.setPrice(request.getPrice());
             product.setDescription(request.getDescription().trim());
@@ -329,7 +331,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product = new Product();
                     product.setNameProduct("Vibrofiltr");
                     product.setModel("1.5");
-                    product.setSku("01");
+                    product.setSku(generateUniqueSku());
                     product.setSold(5);
                     product.setCategory(category);
                     product.setPrice(BigDecimal.valueOf(7.70));
@@ -356,7 +358,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product2 = new Product();
                     product2.setNameProduct("Vibrofiltr");
                     product2.setModel("2.0");
-                    product2.setSku("02");
+                    product2.setSku(generateUniqueSku());
                     product2.setSold(6);
                     product2.setCategory(category);
                     product2.setPrice(BigDecimal.valueOf(4.10));
@@ -383,7 +385,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product3 = new Product();
                     product3.setNameProduct("Vibrofiltr");
                     product3.setModel("3.0");
-                    product3.setSku("03");
+                    product3.setSku(generateUniqueSku());
                     product3.setSold(7);
                     product3.setCategory(category);
                     product3.setPrice(BigDecimal.valueOf(6.70));
@@ -410,7 +412,7 @@ public class ProductServiceImpl implements ProductService {
                     Product product4 = new Product();
                     product4.setNameProduct("Vibrofiltr");
                     product4.setModel("4.0");
-                    product4.setSku("04");
+                    product4.setSku(generateUniqueSku());
                     product4.setSold(8);
                     product4.setCategory(category);
                     product4.setPrice(BigDecimal.valueOf(8.70));
@@ -514,9 +516,16 @@ public class ProductServiceImpl implements ProductService {
                 request.getNameProduct().trim(), request.getModel().trim())) {
             throw new ProductAlreadyExistsException("model", "Вече съществува продукт с тази марка и модел.");
         }
-        if (productRepository.existsBySkuIgnoreCase(request.getSku().trim())) {
-            throw new ProductAlreadyExistsException("sku", "Вече съществува продукт с този код.");
+    }
+
+    private String generateUniqueSku() {
+        for (int attempt = 0; attempt < SKU_GENERATION_ATTEMPTS; attempt++) {
+            String sku = String.format(Locale.ROOT, "AS-%010d", SKU_RANDOM.nextLong(SKU_NUMBER_LIMIT));
+            if (!productRepository.existsBySkuIgnoreCase(sku)) {
+                return sku;
+            }
         }
+        throw new ProductCreationException("Не можа да бъде генериран уникален продуктов код.", null);
     }
 
     @Override
@@ -546,9 +555,6 @@ public class ProductServiceImpl implements ProductService {
         if (productRepository.existsByNameProductIgnoreCaseAndModelIgnoreCaseAndIdNot(
                 request.getNameProduct().trim(), request.getModel().trim(), productId)) {
             throw new ProductAlreadyExistsException("model", "Вече съществува продукт с тази марка и модел.");
-        }
-        if (productRepository.existsBySkuIgnoreCaseAndIdNot(request.getSku().trim(), productId)) {
-            throw new ProductAlreadyExistsException("sku", "Вече съществува продукт с този код.");
         }
     }
 

@@ -20,7 +20,6 @@ import java.util.List;
 @Setter
 public class Product extends BaseEntity {
 
-
     @Column(name = "name_product", nullable = false, length = 150)
     private String nameProduct;
 

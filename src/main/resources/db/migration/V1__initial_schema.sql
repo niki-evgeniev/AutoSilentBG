@@ -19,8 +19,12 @@ CREATE TABLE users (
     verification_token VARCHAR(255) NULL,
     is_activate BOOLEAN NOT NULL DEFAULT FALSE,
     token_created DATETIME NULL,
+    discount_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+    is_blocked BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT uk_users_uuid UNIQUE (uuid),
-    CONSTRAINT uk_users_email UNIQUE (email)
+    CONSTRAINT uk_users_email UNIQUE (email),
+    CONSTRAINT chk_users_discount_percent CHECK (discount_percent >= 0.00 AND discount_percent <= 100.00),
+    INDEX idx_users_blocked (is_blocked)
 );
 
 CREATE TABLE users_roles (
@@ -31,24 +35,36 @@ CREATE TABLE users_roles (
     CONSTRAINT fk_users_roles_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
+CREATE TABLE category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    uuid BINARY(16) NOT NULL,
+    category VARCHAR(80) NOT NULL,
+    CONSTRAINT uk_category_uuid UNIQUE (uuid),
+    CONSTRAINT uk_category_name UNIQUE (category)
+);
+
 CREATE TABLE products (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     uuid BINARY(16) NOT NULL,
     name_product VARCHAR(150) NOT NULL,
+    model VARCHAR(150) NULL,
     sku VARCHAR(50) NOT NULL,
-    category VARCHAR(80) NOT NULL,
+    category_id BIGINT NOT NULL,
     price DECIMAL(12,2) NOT NULL,
     description TEXT NULL,
-    url_link VARCHAR(255) NULL,
+    url_link VARCHAR(180) NOT NULL,
     stock INT NULL,
     sold INT NULL,
+    view_count BIGINT NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     add_date DATETIME NULL,
     user_id BIGINT NOT NULL,
     CONSTRAINT uk_products_uuid UNIQUE (uuid),
-    CONSTRAINT uk_products_name UNIQUE (name_product),
+    CONSTRAINT uk_products_brand_model UNIQUE (name_product, model),
     CONSTRAINT uk_products_sku UNIQUE (sku),
-    CONSTRAINT fk_products_user FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT uk_products_url UNIQUE (url_link),
+    CONSTRAINT fk_products_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 CREATE TABLE pictures (
@@ -60,15 +76,6 @@ CREATE TABLE pictures (
     CONSTRAINT uk_pictures_uuid UNIQUE (uuid),
     CONSTRAINT uk_picture_product_filename UNIQUE (product_id, file_name),
     CONSTRAINT fk_pictures_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-);
-
-CREATE TABLE category (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    uuid BINARY(16) NOT NULL,
-    category VARCHAR(255) NULL,
-    product_id BIGINT NULL,
-    CONSTRAINT uk_category_uuid UNIQUE (uuid),
-    CONSTRAINT fk_category_product FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
 CREATE TABLE seo_product (
@@ -114,6 +121,8 @@ CREATE TABLE orders (
     total_price DECIMAL(10,2) NOT NULL,
     customer_note TEXT NULL,
     admin_note TEXT NULL,
+    promo_code VARCHAR(40) NULL,
+    promo_discount_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NULL,
     CONSTRAINT uk_orders_uuid UNIQUE (uuid),
@@ -218,4 +227,17 @@ CREATE TABLE contact_inquiries (
     INDEX idx_contact_inquiries_created_at (created_at),
     INDEX idx_contact_inquiries_ip_address (ip_address),
     INDEX idx_contact_inquiries_read_created (is_read, created_at)
+);
+
+CREATE TABLE promo_codes (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    uuid BINARY(16) NOT NULL,
+    code VARCHAR(40) NOT NULL,
+    discount_percent INT NOT NULL,
+    created_by_user_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    CONSTRAINT uk_promo_codes_uuid UNIQUE (uuid),
+    CONSTRAINT uk_promo_codes_code UNIQUE (code),
+    CONSTRAINT fk_promo_codes_created_by FOREIGN KEY (created_by_user_id) REFERENCES users(id),
+    CONSTRAINT chk_promo_codes_discount CHECK (discount_percent IN (5, 10, 15, 20, 25, 30))
 );
