@@ -67,6 +67,8 @@ spring:
         period: 0
 
 AutoSilent:
+  # Set AUTOSILENT_SITE_URL to the public production origin, for example https://example.com.
+  site-url: ${AUTOSILENT_SITE_URL:http://localhost:8080}
   remember.me.key: 1234
   security:
     # Enable only when the app is reachable exclusively through Cloudflare or another trusted proxy.

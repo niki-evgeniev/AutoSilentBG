@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.text.Normalizer;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -100,6 +101,7 @@ public class ProductServiceImpl implements ProductService {
             product.setUrl(uniqueSlug(product.getDisplayName()));
             product.setStock(request.getStock());
             product.setActive(request.isActive());
+            product.setContentUpdatedAt(LocalDateTime.now());
             product.setUser(owner);
 
             product.addPicture(createPicture(mainImageName, true));
@@ -216,6 +218,7 @@ public class ProductServiceImpl implements ProductService {
             product.setDescription(request.getDescription().trim());
             product.setStock(request.getStock());
             product.setActive(request.isActive());
+            product.setContentUpdatedAt(LocalDateTime.now());
             productRepository.saveAndFlush(product);
 
             for (Picture removed : removedPictures) {

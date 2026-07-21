@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -49,6 +50,7 @@ public class SeoServiceImpl implements SeoService {
         seo.setDescription(request.getDescription().trim());
         seo.setKeywords(trimToNull(request.getKeywords()));
         seo.setImageUrl(trimToNull(request.getImageUrl()));
+        product.setContentUpdatedAt(LocalDateTime.now());
         seoRepository.save(seo);
     }
 

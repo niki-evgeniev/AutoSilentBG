@@ -53,6 +53,7 @@ class SeoServiceImplTest {
         assertThat(captor.getValue().getTitle()).isEqualTo("Search title");
         assertThat(captor.getValue().getDescription()).isEqualTo("Search description");
         assertThat(captor.getValue().getKeywords()).isNull();
+        assertThat(product.getContentUpdatedAt()).isNotNull();
     }
 
     @Test

@@ -62,6 +62,9 @@ public class Product extends BaseEntity {
     @Column(name = "add_date")
     private LocalDateTime addDate;
 
+    @Column(name = "content_updated_at")
+    private LocalDateTime contentUpdatedAt;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

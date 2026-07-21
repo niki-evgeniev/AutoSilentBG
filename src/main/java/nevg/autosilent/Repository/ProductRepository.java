@@ -1,5 +1,6 @@
 package nevg.autosilent.Repository;
 
+import nevg.autosilent.Models.Dto.SitemapProductDto;
 import nevg.autosilent.Models.Entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Query("""
+            select new nevg.autosilent.Models.Dto.SitemapProductDto(
+                p.url, coalesce(p.contentUpdatedAt, p.addDate))
+            from Product p
+            where p.active = true
+            order by p.url
+            """)
+    List<SitemapProductDto> findAllActiveForSitemap();
 
     boolean existsByNameProductIgnoreCaseAndModelIgnoreCase(String nameProduct, String model);
 

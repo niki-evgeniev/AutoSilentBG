@@ -28,7 +28,7 @@ class InitialSchemaMigrationTest {
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(1);
+        assertThat(result.migrationsExecuted).isEqualTo(2);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -44,7 +44,8 @@ class InitialSchemaMigrationTest {
                     "ip_address", "created_at", "is_read"
             );
             assertThat(columns(connection, "seo_product")).contains("image_url", "product_id");
-            assertThat(columns(connection, "products")).contains("view_count", "model", "category_id")
+            assertThat(columns(connection, "products")).contains(
+                            "view_count", "model", "category_id", "content_updated_at")
                     .doesNotContain("category");
             assertThat(nullableColumns(connection, "products")).contains("model");
             assertThat(nullableColumns(connection, "products")).doesNotContain("url_link");
@@ -78,6 +79,9 @@ class InitialSchemaMigrationTest {
                     .doesNotContain("sender_name", "sender_email", "subject", "message", "ip_address", "created_at", "is_read");
             assertThat(singleValue(connection,
                     "select count(*) from flyway_schema_history where version = '1' and success = true"))
+                    .isEqualTo(1);
+            assertThat(singleValue(connection,
+                    "select count(*) from flyway_schema_history where version = '2' and success = true"))
                     .isEqualTo(1);
         }
     }
