@@ -6,6 +6,7 @@ import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.EmailAlreadyExistsException;
 import nevg.autosilent.Service.UserRegistrationService;
 import nevg.autosilent.Service.UserProfileService;
+import nevg.autosilent.Service.UserOrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,12 +32,14 @@ class UserControllerTest {
     private UserRegistrationService registrationService;
     @Mock
     private UserProfileService profileService;
+    @Mock
+    private UserOrderService userOrderService;
 
     private UserController userController;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(registrationService, profileService);
+        userController = new UserController(registrationService, profileService, userOrderService);
     }
 
     @Test
@@ -136,7 +139,13 @@ class UserControllerTest {
 
     @Test
     void userOrdersReturnsOrdersView() {
-        assertThat(userController.userOrders().getViewName()).isEqualTo("user-orders");
+        when(userOrderService.getOrders("user@example.com")).thenReturn(List.of());
+
+        ModelAndView result = userController.userOrders(currentUser());
+
+        assertThat(result.getViewName()).isEqualTo("user-orders");
+        assertThat(result.getModel()).containsEntry("orders", List.of());
+        verify(userOrderService).getOrders("user@example.com");
     }
 
     @Test

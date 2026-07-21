@@ -8,6 +8,7 @@ import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.EmailAlreadyExistsException;
 import nevg.autosilent.Service.UserRegistrationService;
 import nevg.autosilent.Service.UserProfileService;
+import nevg.autosilent.Service.UserOrderService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -24,10 +25,14 @@ public class UserController {
 
     private final UserRegistrationService userRegistrationService;
     private final UserProfileService userProfileService;
+    private final UserOrderService userOrderService;
 
-    public UserController(UserRegistrationService userRegistrationService, UserProfileService userProfileService) {
+    public UserController(UserRegistrationService userRegistrationService,
+                          UserProfileService userProfileService,
+                          UserOrderService userOrderService) {
         this.userRegistrationService = userRegistrationService;
         this.userProfileService = userProfileService;
+        this.userOrderService = userOrderService;
     }
 
     @GetMapping("/user/sign_in")
@@ -79,8 +84,10 @@ public class UserController {
     }
 
     @GetMapping("/user/orders")
-    public ModelAndView userOrders() {
-        return new ModelAndView("user-orders");
+    public ModelAndView userOrders(@AuthenticationPrincipal ShopUserDetails currentUser) {
+        ModelAndView modelAndView = new ModelAndView("user-orders");
+        modelAndView.addObject("orders", userOrderService.getOrders(currentUser.getUsername()));
+        return modelAndView;
     }
 
     @GetMapping("/user/addresses")
