@@ -27,6 +27,8 @@ public interface ProductService {
 
     Page<ProductViewDto> searchActiveProducts(String search, Pageable pageable);
 
+    Page<ProductViewDto> getActiveProductsByCategory(Long categoryId, Pageable pageable);
+
     Optional<ProductDetailsDto> getActiveProduct(Long id);
 
     Optional<ProductDetailsDto> getActiveProductAndIncrementCount(Long id);

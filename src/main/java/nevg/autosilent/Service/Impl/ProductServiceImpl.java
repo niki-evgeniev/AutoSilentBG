@@ -554,6 +554,18 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.searchActive(search.trim(), pageRequest).map(this::toViewDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductViewDto> getActiveProductsByCategory(Long categoryId, Pageable pageable) {
+        int pageNumber = pageable == null ? 0 : Math.max(pageable.getPageNumber(), 0);
+        Sort sort = pageable == null || pageable.getSort().isUnsorted()
+                ? Sort.by(Sort.Direction.DESC, "addDate")
+                : pageable.getSort();
+        PageRequest pageRequest = PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE, sort);
+        return productRepository.findAllByActiveTrueAndCategoryId(categoryId, pageRequest)
+                .map(this::toViewDto);
+    }
+
     private void validateUniqueFields(ProductCreateDto request, Long productId) {
         if (productRepository.existsByNameProductIgnoreCaseAndModelIgnoreCaseAndIdNot(
                 request.getNameProduct().trim(), request.getModel().trim(), productId)) {

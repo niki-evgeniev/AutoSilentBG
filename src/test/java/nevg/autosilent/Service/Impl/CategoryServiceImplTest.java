@@ -66,6 +66,17 @@ class CategoryServiceImplTest {
                         org.assertj.core.groups.Tuple.tuple(2L, "Изолация"));
     }
 
+    @Test
+    void getByIdReturnsCategoryWithSeoSlug() {
+        Category category = category(3L, "Звукоизолация");
+        when(categoryRepository.findById(3L)).thenReturn(java.util.Optional.of(category));
+
+        assertThat(categoryService.getById(3L)).hasValueSatisfying(result -> {
+            assertThat(result.name()).isEqualTo("Звукоизолация");
+            assertThat(result.slug()).isEqualTo("zvukoizolatsiya");
+        });
+    }
+
     private Category category(Long id, String name) {
         Category category = new Category();
         category.setId(id);

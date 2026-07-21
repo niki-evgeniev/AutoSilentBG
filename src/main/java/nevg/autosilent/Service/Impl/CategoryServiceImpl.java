@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -41,7 +42,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public List<CategoryViewDto> getAll() {
         return categoryRepository.findAllByOrderByCategoryAsc().stream()
-                .map(category -> new CategoryViewDto(category.getId(), category.getCategory()))
+                .map(this::toViewDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CategoryViewDto> getById(Long id) {
+        return categoryRepository.findById(id).map(this::toViewDto);
+    }
+
+    private CategoryViewDto toViewDto(Category category) {
+        return new CategoryViewDto(category.getId(), category.getCategory());
     }
 }

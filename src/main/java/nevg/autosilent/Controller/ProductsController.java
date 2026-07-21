@@ -57,6 +57,31 @@ public class ProductsController {
         return modelAndView;
     }
 
+    @GetMapping("/products/category/{categoryId}/{slug}")
+    public ModelAndView productsByCategory(@PathVariable Long categoryId,
+                                           @PathVariable String slug,
+                                           @PageableDefault(size = 9, sort = "addDate",
+                                                   direction = Sort.Direction.DESC) Pageable pageable) {
+        var category = categoryService.getById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Категорията не е намерена."));
+        if (!category.slug().equals(slug)) {
+            ModelAndView redirect = new ModelAndView(
+                    "redirect:/products/category/" + category.id() + "/" + category.slug());
+            redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
+            return redirect;
+        }
+
+        var productPage = productService.getActiveProductsByCategory(categoryId, pageable);
+        ModelAndView modelAndView = new ModelAndView("products");
+        modelAndView.addObject("productPage", productPage);
+        modelAndView.addObject("products", productPage.getContent());
+        modelAndView.addObject("categories", categoryService.getAll());
+        modelAndView.addObject("selectedCategory", category);
+        modelAndView.addObject("search", "");
+        return modelAndView;
+    }
+
     @GetMapping("/products/{url}")
     public ModelAndView productDetailsPage(@PathVariable String url, HttpServletRequest request) {
         Object csrfAttribute = request.getAttribute(CsrfToken.class.getName());

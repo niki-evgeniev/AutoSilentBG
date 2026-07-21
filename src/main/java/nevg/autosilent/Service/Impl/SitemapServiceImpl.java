@@ -1,8 +1,11 @@
 package nevg.autosilent.Service.Impl;
 
+import nevg.autosilent.Models.Dto.SitemapCategoryDto;
 import nevg.autosilent.Models.Dto.SitemapProductDto;
+import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Service.SitemapService;
+import nevg.autosilent.Utility.ProductSlugGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +27,14 @@ public class SitemapServiceImpl implements SitemapService {
     private static final List<String> STATIC_PUBLIC_PATHS = List.of("/", "/products", "/contact");
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final String siteUrl;
 
     public SitemapServiceImpl(ProductRepository productRepository,
+                              CategoryRepository categoryRepository,
                               @Value("${AutoSilent.site-url:http://localhost:8080}") String siteUrl) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.siteUrl = normalizeSiteUrl(siteUrl);
     }
 
@@ -44,6 +50,11 @@ public class SitemapServiceImpl implements SitemapService {
 
             for (String path : STATIC_PUBLIC_PATHS) {
                 writeUrl(xml, siteUrl + path, null);
+            }
+            for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
+                String categoryPath = "/products/category/" + category.id() + "/"
+                        + ProductSlugGenerator.toSlug(category.name());
+                writeUrl(xml, siteUrl + categoryPath, category.lastModified());
             }
             for (SitemapProductDto product : productRepository.findAllActiveForSitemap()) {
                 writeUrl(xml, siteUrl + "/products/" + product.url(), product.lastModified());

@@ -1,6 +1,8 @@
 package nevg.autosilent.Service.Impl;
 
+import nevg.autosilent.Models.Dto.SitemapCategoryDto;
 import nevg.autosilent.Models.Dto.SitemapProductDto;
+import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,8 @@ class SitemapServiceImplTest {
 
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @Test
     void sitemapContainsPublicPagesAndActiveProductsWithReliableLastModifiedDate() throws Exception {
@@ -31,7 +35,12 @@ class SitemapServiceImplTest {
                 new SitemapProductDto("vibrofiltr-2-0", LocalDateTime.of(2026, 7, 21, 14, 30)),
                 new SitemapProductDto("special-and-safe", null)
         ));
-        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, "https://shop.example/");
+        when(categoryRepository.findAllWithActiveProductsForSitemap()).thenReturn(List.of(
+                new SitemapCategoryDto(3L, "Звукоизолация",
+                        LocalDateTime.of(2026, 7, 20, 10, 0))
+        ));
+        SitemapServiceImpl service = new SitemapServiceImpl(
+                productRepository, categoryRepository, "https://shop.example/");
 
         Document document = parse(service.generateSitemap());
         NodeList locations = document.getElementsByTagNameNS(
@@ -43,17 +52,19 @@ class SitemapServiceImplTest {
                 "https://shop.example/",
                 "https://shop.example/products",
                 "https://shop.example/contact",
+                "https://shop.example/products/category/3/zvukoizolatsiya",
                 "https://shop.example/products/vibrofiltr-2-0",
                 "https://shop.example/products/special-and-safe"
         );
-        assertThat(textValues(lastModified)).containsExactly("2026-07-21");
+        assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-21");
         assertThat(document.getElementsByTagName("priority").getLength()).isZero();
         assertThat(document.getElementsByTagName("changefreq").getLength()).isZero();
     }
 
     @Test
     void robotsTxtReferencesSitemapAndBlocksPrivateAreas() {
-        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, "https://shop.example");
+        SitemapServiceImpl service = new SitemapServiceImpl(
+                productRepository, categoryRepository, "https://shop.example");
 
         assertThat(service.generateRobotsTxt())
                 .contains("User-agent: *", "Allow: /")
@@ -63,7 +74,8 @@ class SitemapServiceImplTest {
 
     @Test
     void invalidSiteUrlIsRejectedAtStartup() {
-        assertThatThrownBy(() -> new SitemapServiceImpl(productRepository, "shop.example"))
+        assertThatThrownBy(() -> new SitemapServiceImpl(
+                productRepository, categoryRepository, "shop.example"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("absolute HTTP(S) URL");
     }

@@ -1120,6 +1120,21 @@ a { text-decoration: none; }
 
 .filter-group label:last-child { margin-bottom: 0; }
 
+.filter-group .category-filter-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 11px;
+    color: #3f4652;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.filter-group .category-filter-link:hover,
+.filter-group .category-filter-link.active { color: var(--color-orange); }
+.filter-group .category-filter-link span { margin-left: 0; color: inherit; font-size: inherit; }
+.filter-group .category-filter-link:last-child { margin-bottom: 0; }
+
 .filter-group input[type="checkbox"],
 .filter-group input[type="radio"] {
     accent-color: var(--color-orange);

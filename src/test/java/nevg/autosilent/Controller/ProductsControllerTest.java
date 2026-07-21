@@ -1,6 +1,7 @@
 package nevg.autosilent.Controller;
 
 import nevg.autosilent.Models.Dto.ProductCreateDto;
+import nevg.autosilent.Models.Dto.CategoryViewDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Dto.ProductImageEditDto;
@@ -93,6 +94,37 @@ class ProductsControllerTest {
 
         assertThat(result.getModel().get("search")).isEqualTo("lamp");
         verify(productService).searchActiveProducts("  lamp  ", pageable);
+    }
+
+    @Test
+    void categoryPageShowsOnlyProductsFromCanonicalCategory() {
+        CategoryViewDto category = new CategoryViewDto(3L, "Звукоизолация");
+        PageRequest pageable = PageRequest.of(0, 9);
+        PageImpl<ProductViewDto> page = new PageImpl<>(List.of());
+        when(categoryService.getById(3L)).thenReturn(Optional.of(category));
+        when(productService.getActiveProductsByCategory(3L, pageable)).thenReturn(page);
+
+        ModelAndView result = productsController.productsByCategory(
+                3L, "zvukoizolatsiya", pageable);
+
+        assertThat(result.getViewName()).isEqualTo("products");
+        assertThat(result.getModel().get("selectedCategory")).isSameAs(category);
+        assertThat(result.getModel().get("productPage")).isSameAs(page);
+    }
+
+    @Test
+    void categoryPageRedirectsNonCanonicalSlugPermanently() {
+        CategoryViewDto category = new CategoryViewDto(3L, "Звукоизолация");
+        when(categoryService.getById(3L)).thenReturn(Optional.of(category));
+
+        ModelAndView result = productsController.productsByCategory(
+                3L, "wrong", PageRequest.of(0, 9));
+
+        assertThat(result.getViewName())
+                .isEqualTo("redirect:/products/category/3/zvukoizolatsiya");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+        verify(productService, never()).getActiveProductsByCategory(
+                org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
