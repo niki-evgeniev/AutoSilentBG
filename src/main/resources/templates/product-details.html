@@ -10,9 +10,39 @@
     <meta property="og:image" th:if="${(seo != null and seo.imageUrl != null) or product.mainImageUrl() != null}"
           th:content="${seo != null and seo.imageUrl != null ? seo.imageUrl : product.mainImageUrl()}">
     <meta property="og:type" content="product">
-    <meta property="og:url" th:content="@{/products/{url}(url=${product.url()})}">
-    <link rel="canonical" th:href="@{/products/{url}(url=${product.url()})}">
+    <meta property="og:url" th:content="|https://autosilent.bg/products/${product.url()}|">
+    <link rel="canonical" th:href="|https://autosilent.bg/products/${product.url()}|">
     <title th:text="${seo != null ? seo.title : #messages.msg('details.title', product.displayName())}">Детайли за продукт - AutoSilent</title>
+
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": /*[[${product.displayName()}]]*/ "Product",
+            "description": /*[[${seo != null ? seo.description : product.description()}]]*/ "Product description",
+            "sku": /*[[${product.sku()}]]*/ "SKU",
+            "brand": {
+                "@type": "Brand",
+                "name": /*[[${product.name()}]]*/ "Brand"
+            },
+            "category": /*[[${product.category()}]]*/ "Category",
+            "url": /*[[|https://autosilent.bg/products/${product.url()}|]]*/ "https://autosilent.bg/products/product",
+            "image": /*[[${product.mainImageUrl() == null ? null : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ null,
+            "offers": {
+                "@type": "Offer",
+                "url": /*[[|https://autosilent.bg/products/${product.url()}|]]*/ "https://autosilent.bg/products/product",
+                "priceCurrency": "EUR",
+                "price": /*[[${product.price()}]]*/ 0,
+                "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
+                "itemCondition": "https://schema.org/NewCondition",
+                "seller": {
+                    "@type": "Organization",
+                    "name": "AutoSilent",
+                    "url": "https://autosilent.bg/"
+                }
+            }
+        }
+    </script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
