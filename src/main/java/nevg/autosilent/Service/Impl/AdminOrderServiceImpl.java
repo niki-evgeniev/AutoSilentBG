@@ -50,11 +50,26 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     @Override
     @Transactional(readOnly = true)
     public List<AdminOrderSummaryDto> searchOrdersByNumber(String search) {
-        if (search == null || search.isBlank()) {
+        return filterOrders(search, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdminOrderSummaryDto> filterOrders(String search, OrderStatus status) {
+        String normalizedSearch = search == null ? "" : search.trim();
+        if (normalizedSearch.isBlank() && status == null) {
             return getAllOrders();
         }
+        if (normalizedSearch.isBlank()) {
+            return mapOrderSummaries(orderRepository.findByOrderStatusOrderByCreatedAtDesc(status));
+        }
+        if (status == null) {
+            return mapOrderSummaries(orderRepository
+                    .findByOrderNumberContainingIgnoreCaseOrderByCreatedAtDesc(normalizedSearch));
+        }
         return mapOrderSummaries(orderRepository
-                .findByOrderNumberContainingIgnoreCaseOrderByCreatedAtDesc(search.trim()));
+                .findByOrderNumberContainingIgnoreCaseAndOrderStatusOrderByCreatedAtDesc(
+                        normalizedSearch, status));
     }
 
     private List<AdminOrderSummaryDto> mapOrderSummaries(List<OrderEntity> orders) {

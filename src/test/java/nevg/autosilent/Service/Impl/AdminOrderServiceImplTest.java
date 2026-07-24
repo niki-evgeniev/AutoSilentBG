@@ -91,6 +91,34 @@ class AdminOrderServiceImplTest {
     }
 
     @Test
+    void filterOrdersByStatusReturnsOnlySelectedStatus() {
+        OrderEntity order = order();
+        order.setOrderStatus(OrderStatus.SHIPPED);
+        when(orderRepository.findByOrderStatusOrderByCreatedAtDesc(OrderStatus.SHIPPED))
+                .thenReturn(List.of(order));
+
+        var result = service.filterOrders("", OrderStatus.SHIPPED);
+
+        assertThat(result).singleElement()
+                .extracting(dto -> dto.status())
+                .isEqualTo(OrderStatus.SHIPPED);
+    }
+
+    @Test
+    void filterOrdersCombinesNumberAndStatus() {
+        when(orderRepository
+                .findByOrderNumberContainingIgnoreCaseAndOrderStatusOrderByCreatedAtDesc(
+                        "NRT", OrderStatus.NEW))
+                .thenReturn(List.of(order()));
+
+        assertThat(service.filterOrders(" NRT ", OrderStatus.NEW)).hasSize(1);
+
+        verify(orderRepository)
+                .findByOrderNumberContainingIgnoreCaseAndOrderStatusOrderByCreatedAtDesc(
+                        "NRT", OrderStatus.NEW);
+    }
+
+    @Test
     void getOrderMapsItemsAndHistory() {
         OrderEntity order = order();
         OrderItemEntity item = new OrderItemEntity();

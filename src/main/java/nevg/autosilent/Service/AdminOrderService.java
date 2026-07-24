@@ -12,6 +12,8 @@ public interface AdminOrderService {
 
     List<AdminOrderSummaryDto> searchOrdersByNumber(String search);
 
+    List<AdminOrderSummaryDto> filterOrders(String search, OrderStatus status);
+
     AdminOrderDetailDto getOrder(Long orderId);
 
     void updateStatus(Long orderId, OrderStatus newStatus, String note, String changedByEmail);

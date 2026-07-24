@@ -26,11 +26,14 @@ public class AdminOrderController {
     }
 
     @GetMapping
-    public ModelAndView orders(@RequestParam(required = false) String search) {
+    public ModelAndView orders(@RequestParam(required = false) String search,
+                               @RequestParam(required = false) OrderStatus status) {
         String normalizedSearch = search == null ? "" : search.trim();
         ModelAndView modelAndView = new ModelAndView("admin-orders");
-        modelAndView.addObject("orders", adminOrderService.searchOrdersByNumber(normalizedSearch));
+        modelAndView.addObject("orders", adminOrderService.filterOrders(normalizedSearch, status));
         modelAndView.addObject("search", normalizedSearch);
+        modelAndView.addObject("selectedStatus", status);
+        modelAndView.addObject("statuses", OrderStatus.values());
         return modelAndView;
     }
 

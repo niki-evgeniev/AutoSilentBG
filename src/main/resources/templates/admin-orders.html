@@ -24,8 +24,20 @@
                    th:text="#{admin.orders.search.label}">Търсене по номер на поръчка</label>
             <input id="orderSearch" name="search" type="search" maxlength="50"
                    th:value="${search}" th:placeholder="#{admin.orders.search.placeholder}">
+            <input th:if="${selectedStatus != null}" type="hidden" name="status"
+                   th:value="${selectedStatus.name()}">
             <button type="submit" th:text="#{site.search}">Търси</button>
         </form>
+
+        <nav class="admin-order-filters mb-4" th:aria-label="#{admin.orders.filter.label}">
+            <a th:href="@{/admin/orders(search=${search})}"
+               th:classappend="${selectedStatus == null} ? ' active'"
+               th:text="#{admin.orders.filter.all}">Всички</a>
+            <a th:each="status : ${statuses}"
+               th:href="@{/admin/orders(search=${search},status=${status.name()})}"
+               th:classappend="${selectedStatus == status} ? ' active'"
+               th:text="${#messages.msg('order.status.' + status.name())}">Статус</a>
+        </nav>
 
         <div class="admin-table-card">
             <div class="table-responsive" th:if="${!orders.isEmpty()}">
@@ -58,9 +70,12 @@
             </div>
             <div class="cart-empty" th:if="${orders.isEmpty()}">
                 <i class="bi bi-receipt"></i>
-                <h2 th:text="${search.isBlank()} ? #{admin.orders.empty} : #{admin.orders.search.empty(${search})}">
-                    Няма намерени поръчки
-                </h2>
+                <h2 th:if="${selectedStatus != null}"
+                    th:text="#{admin.orders.filter.empty}">Няма поръчки с избрания статус.</h2>
+                <h2 th:if="${selectedStatus == null && search.isBlank()}"
+                    th:text="#{admin.orders.empty}">Все още няма поръчки</h2>
+                <h2 th:if="${selectedStatus == null && !search.isBlank()}"
+                    th:text="#{admin.orders.search.empty(${search})}">Няма намерени поръчки</h2>
             </div>
         </div>
     </section>

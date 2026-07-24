@@ -53,13 +53,16 @@ class AdminOrderControllerTest {
                 1L, "NRT-1", "Ivan Ivanov", "0888123456", OrderStatus.NEW,
                 new BigDecimal("25.00"), LocalDateTime.of(2026, 7, 4, 12, 0), false
         ));
-        when(adminOrderService.searchOrdersByNumber("NRT-1")).thenReturn(orders);
+        when(adminOrderService.filterOrders("NRT-1", OrderStatus.SHIPPED)).thenReturn(orders);
 
-        ModelAndView result = controller.orders("  NRT-1  ");
+        ModelAndView result = controller.orders("  NRT-1  ", OrderStatus.SHIPPED);
 
         assertThat(result.getViewName()).isEqualTo("admin-orders");
         assertThat(result.getModel().get("orders")).isSameAs(orders);
         assertThat(result.getModel().get("search")).isEqualTo("NRT-1");
+        assertThat(result.getModel().get("selectedStatus")).isEqualTo(OrderStatus.SHIPPED);
+        assertThat((OrderStatus[]) result.getModel().get("statuses"))
+                .containsExactly(OrderStatus.values());
     }
 
     @Test
