@@ -48,17 +48,18 @@ class AdminOrderControllerTest {
     }
 
     @Test
-    void ordersReturnsAllOrdersInModel() {
+    void ordersSearchesByNumberAndPreservesTrimmedTerm() {
         List<AdminOrderSummaryDto> orders = List.of(new AdminOrderSummaryDto(
                 1L, "NRT-1", "Ivan Ivanov", "0888123456", OrderStatus.NEW,
                 new BigDecimal("25.00"), LocalDateTime.of(2026, 7, 4, 12, 0), false
         ));
-        when(adminOrderService.getAllOrders()).thenReturn(orders);
+        when(adminOrderService.searchOrdersByNumber("NRT-1")).thenReturn(orders);
 
-        ModelAndView result = controller.orders();
+        ModelAndView result = controller.orders("  NRT-1  ");
 
         assertThat(result.getViewName()).isEqualTo("admin-orders");
         assertThat(result.getModel().get("orders")).isSameAs(orders);
+        assertThat(result.getModel().get("search")).isEqualTo("NRT-1");
     }
 
     @Test

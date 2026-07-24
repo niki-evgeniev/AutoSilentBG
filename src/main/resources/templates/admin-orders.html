@@ -18,6 +18,15 @@
             <h1 th:text="#{admin.orders.heading}">Всички поръчки</h1>
         </div>
 
+        <form class="shop-search-box mb-4" th:action="@{/admin/orders}" method="get" role="search">
+            <i class="bi bi-search"></i>
+            <label class="visually-hidden" for="orderSearch"
+                   th:text="#{admin.orders.search.label}">Търсене по номер на поръчка</label>
+            <input id="orderSearch" name="search" type="search" maxlength="50"
+                   th:value="${search}" th:placeholder="#{admin.orders.search.placeholder}">
+            <button type="submit" th:text="#{site.search}">Търси</button>
+        </form>
+
         <div class="admin-table-card">
             <div class="table-responsive" th:if="${!orders.isEmpty()}">
                 <table class="table align-middle admin-orders-table">
@@ -49,7 +58,9 @@
             </div>
             <div class="cart-empty" th:if="${orders.isEmpty()}">
                 <i class="bi bi-receipt"></i>
-                <h2 th:text="#{admin.orders.empty}">Все още няма поръчки</h2>
+                <h2 th:text="${search.isBlank()} ? #{admin.orders.empty} : #{admin.orders.search.empty(${search})}">
+                    Няма намерени поръчки
+                </h2>
             </div>
         </div>
     </section>

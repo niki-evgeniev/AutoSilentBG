@@ -64,6 +64,33 @@ class AdminOrderServiceImplTest {
     }
 
     @Test
+    void searchOrdersByNumberTrimsQueryAndMapsResults() {
+        OrderEntity order = order();
+        when(orderRepository.findByOrderNumberContainingIgnoreCaseOrderByCreatedAtDesc("NRT-10"))
+                .thenReturn(List.of(order));
+
+        var result = service.searchOrdersByNumber("  NRT-10  ");
+
+        assertThat(result).singleElement()
+                .extracting(dto -> dto.orderNumber())
+                .isEqualTo("NRT-10");
+        verify(orderRepository)
+                .findByOrderNumberContainingIgnoreCaseOrderByCreatedAtDesc("NRT-10");
+    }
+
+    @Test
+    void blankOrderSearchReturnsAllOrders() {
+        when(orderRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of());
+
+        assertThat(service.searchOrdersByNumber("   ")).isEmpty();
+
+        verify(orderRepository).findAllByOrderByCreatedAtDesc();
+        verify(orderRepository, never())
+                .findByOrderNumberContainingIgnoreCaseOrderByCreatedAtDesc(
+                        org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
     void getOrderMapsItemsAndHistory() {
         OrderEntity order = order();
         OrderItemEntity item = new OrderItemEntity();

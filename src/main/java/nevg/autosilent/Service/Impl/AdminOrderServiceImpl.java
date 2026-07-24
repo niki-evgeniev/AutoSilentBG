@@ -44,7 +44,21 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     @Override
     @Transactional(readOnly = true)
     public List<AdminOrderSummaryDto> getAllOrders() {
-        return orderRepository.findAllByOrderByCreatedAtDesc().stream()
+        return mapOrderSummaries(orderRepository.findAllByOrderByCreatedAtDesc());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AdminOrderSummaryDto> searchOrdersByNumber(String search) {
+        if (search == null || search.isBlank()) {
+            return getAllOrders();
+        }
+        return mapOrderSummaries(orderRepository
+                .findByOrderNumberContainingIgnoreCaseOrderByCreatedAtDesc(search.trim()));
+    }
+
+    private List<AdminOrderSummaryDto> mapOrderSummaries(List<OrderEntity> orders) {
+        return orders.stream()
                 .map(order -> new AdminOrderSummaryDto(
                         order.getId(),
                         order.getOrderNumber(),
