@@ -73,15 +73,18 @@ public class SitemapServiceImpl implements SitemapService {
     public String generateRobotsTxt() {
         return """
                 User-agent: *
-                Allow: /
                 Disallow: /admin/
-                Disallow: /user/
-                Disallow: /orders/
+                Disallow: /login
+                Disallow: /register
                 Disallow: /cart
-                Disallow: /favorites
+                Disallow: /checkout
+                Disallow: /profile/
+                Disallow: /orders/
+                Disallow: /api/
+                Disallow: /search
 
-                Sitemap: %s/sitemap.xml
-                """.formatted(siteUrl);
+                Sitemap: https://autosilent.bg/sitemap.xml
+                """;
     }
 
     private void writeUrl(XMLStreamWriter xml, String location, LocalDateTime lastModified)

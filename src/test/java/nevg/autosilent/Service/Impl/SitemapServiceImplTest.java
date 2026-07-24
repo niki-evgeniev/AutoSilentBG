@@ -62,14 +62,25 @@ class SitemapServiceImplTest {
     }
 
     @Test
-    void robotsTxtReferencesSitemapAndBlocksPrivateAreas() {
+    void robotsTxtUsesProductionSitemapAndConfiguredCrawlerRules() {
         SitemapServiceImpl service = new SitemapServiceImpl(
                 productRepository, categoryRepository, "https://shop.example");
 
         assertThat(service.generateRobotsTxt())
-                .contains("User-agent: *", "Allow: /")
-                .contains("Disallow: /admin/", "Disallow: /user/", "Disallow: /orders/")
-                .contains("Sitemap: https://shop.example/sitemap.xml");
+                .isEqualTo("""
+                        User-agent: *
+                        Disallow: /admin/
+                        Disallow: /login
+                        Disallow: /register
+                        Disallow: /cart
+                        Disallow: /checkout
+                        Disallow: /profile/
+                        Disallow: /orders/
+                        Disallow: /api/
+                        Disallow: /search
+
+                        Sitemap: https://autosilent.bg/sitemap.xml
+                        """);
     }
 
     @Test
