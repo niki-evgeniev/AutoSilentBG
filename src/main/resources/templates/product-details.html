@@ -4,10 +4,10 @@
     <meta name="robots" content="noindex">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" th:content="${seo != null ? seo.description : product.description()}">
+    <meta name="description" th:content="${seo != null ? seo.description : product.plainDescription()}">
     <meta name="keywords" th:if="${seo != null and seo.keywords != null}" th:content="${seo.keywords}">
     <meta property="og:title" th:content="${seo != null ? seo.title : product.displayName()}">
-    <meta property="og:description" th:content="${seo != null ? seo.description : product.description()}">
+    <meta property="og:description" th:content="${seo != null ? seo.description : product.plainDescription()}">
     <meta property="og:image" th:if="${(seo != null and seo.imageUrl != null) or product.mainImageUrl() != null}"
           th:content="${seo != null and seo.imageUrl != null ? seo.imageUrl : product.mainImageUrl()}">
     <meta property="og:type" content="product">
@@ -20,7 +20,7 @@
             "@context": "https://schema.org",
             "@type": "Product",
             "name": /*[[${product.displayName()}]]*/ "Product",
-            "description": /*[[${seo != null ? seo.description : product.description()}]]*/ "Product description",
+            "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/ "Product description",
             "sku": /*[[${product.sku()}]]*/ "SKU",
             "brand": {
                 "@type": "Brand",
@@ -188,7 +188,8 @@
                     <span th:text="#{details.moreInfo}">Повече информация</span>
                     <h2 th:text="#{details.description}">Описание на продукта</h2>
                 </div>
-                <p th:text="${product.description()}">Описание на продукта</p>
+                <div class="product-description-content"
+                     th:utext="${product.description()}">Описание на продукта</div>
                 <div class="text-center">
                 <a class="btn btn-outline-dark custom-outline"
                    th:href="@{/products}">

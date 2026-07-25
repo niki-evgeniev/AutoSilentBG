@@ -18,6 +18,7 @@ import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.ProductService;
+import nevg.autosilent.Utility.ProductDescriptionSanitizer;
 import nevg.autosilent.Utility.ProductSlugGenerator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -104,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
             product.setSku(generateUniqueSku());
             product.setCategory(category);
             product.setPrice(request.getPrice());
-            product.setDescription(request.getDescription().trim());
+            product.setDescription(ProductDescriptionSanitizer.sanitize(request.getDescription()));
             product.setUrl(uniqueSlug(product.getDisplayName()));
             product.setStock(request.getStock());
             product.setActive(request.isActive());
@@ -232,7 +233,7 @@ public class ProductServiceImpl implements ProductService {
             }
             product.setCategory(category);
             product.setPrice(request.getPrice());
-            product.setDescription(request.getDescription().trim());
+            product.setDescription(ProductDescriptionSanitizer.sanitize(request.getDescription()));
             product.setStock(request.getStock());
             product.setActive(request.isActive());
             product.setContentUpdatedAt(LocalDateTime.now());
@@ -483,7 +484,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getSku(),
                 product.getCategory().getCategory(),
                 product.getPrice(),
-                product.getDescription(),
+                ProductDescriptionSanitizer.toPlainText(product.getDescription()),
                 product.getStock(),
                 mainImageUrl
         );
@@ -502,7 +503,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getSku(),
                 product.getCategory().getCategory(),
                 product.getPrice(),
-                product.getDescription(),
+                ProductDescriptionSanitizer.sanitize(product.getDescription()),
                 product.getStock(),
                 product.getCount(),
                 imageUrls

@@ -1,5 +1,7 @@
 package nevg.autosilent.Models.Dto;
 
+import nevg.autosilent.Utility.ProductDescriptionSanitizer;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -27,5 +29,9 @@ public record ProductDetailsDto(
 
     public String mainImageUrl() {
         return imageUrls.isEmpty() ? null : imageUrls.getFirst();
+    }
+
+    public String plainDescription() {
+        return ProductDescriptionSanitizer.toPlainText(description);
     }
 }

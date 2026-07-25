@@ -9,6 +9,7 @@ import nevg.autosilent.Repository.FavoriteRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.FavoriteService;
+import nevg.autosilent.Utility.ProductDescriptionSanitizer;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +79,8 @@ public class FavoriteServiceImpl implements FavoriteService {
                         + "/" + UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
                 .orElse(null);
         return new ProductViewDto(product.getId(), product.getUrl(), product.getNameProduct(), product.getModel(), product.getSku(),
-                product.getCategory().getCategory(), product.getPrice(), product.getDescription(), product.getStock(), imageUrl);
+                product.getCategory().getCategory(), product.getPrice(),
+                ProductDescriptionSanitizer.toPlainText(product.getDescription()), product.getStock(), imageUrl);
     }
 
     private String directoryName(String productName) {

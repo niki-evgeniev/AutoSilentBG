@@ -114,6 +114,23 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void createSanitizesHtmlDescriptionBeforeSaving() {
+        ProductCreateDto request = validRequest();
+        request.setDescription("""
+                <p onclick="alert(1)">Тих <strong>продукт</strong></p>
+                <script>alert('xss')</script>
+                """);
+        when(userRepository.findByEmailIgnoreCase("owner@example.com")).thenReturn(Optional.of(new User()));
+
+        productService.create(request, "owner@example.com");
+
+        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).saveAndFlush(captor.capture());
+        assertThat(captor.getValue().getDescription())
+                .isEqualTo("<p>Тих <strong>продукт</strong></p>");
+    }
+
+    @Test
     void createRejectsAnExistingProductName() {
         ProductCreateDto request = validRequest();
         when(productRepository.existsByNameProductIgnoreCaseAndModelIgnoreCase("Product One", "Model One"))
@@ -226,6 +243,19 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void getActiveProductsUsesPlainTextForHtmlDescription() {
+        Product product = productWithPictures();
+        product.setDescription("<p>Тих <strong>продукт</strong></p><script>alert(1)</script>");
+        when(productRepository.findAllByActiveTrueOrderByAddDateDesc()).thenReturn(List.of(product));
+
+        List<ProductViewDto> result = productService.getActiveProducts();
+
+        assertThat(result).singleElement()
+                .extracting(ProductViewDto::description)
+                .isEqualTo("Тих продукт");
+    }
+
+    @Test
     void getBestSellingProductsMapsTopSoldProducts() {
         Product product = productWithPictures();
         when(productRepository.findTop4ByActiveTrueOrderBySoldDescAddDateDesc()).thenReturn(List.of(product));
@@ -302,6 +332,18 @@ class ProductServiceImplTest {
                         "/ProductImages/Phone-Case/side.png"
                 )
         ));
+    }
+
+    @Test
+    void getActiveProductSanitizesStoredHtmlDescription() {
+        Product product = productWithPictures();
+        product.setDescription("<p onclick=\"alert(1)\">Тих <strong>продукт</strong></p><script>alert(1)</script>");
+        when(productRepository.findByIdAndActiveTrue(7L)).thenReturn(Optional.of(product));
+
+        ProductDetailsDto result = productService.getActiveProduct(7L).orElseThrow();
+
+        assertThat(result.description()).isEqualTo("<p>Тих <strong>продукт</strong></p>");
+        assertThat(result.plainDescription()).isEqualTo("Тих продукт");
     }
 
     @Test

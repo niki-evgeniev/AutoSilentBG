@@ -2024,10 +2024,15 @@ a { text-decoration: none; }
 .product-information-section { padding: 70px 0 82px; }
 .product-information-card { padding: 38px; }
 .product-information-card .section-title { margin-bottom: 22px; }
-.product-information-card p {
+.product-description-content {
     max-width: 900px; margin-bottom: 28px; color: #4b5563;
     font-size: 16px; line-height: 1.8; white-space: pre-line;
 }
+.product-description-content p:last-child { margin-bottom: 0; }
+.product-description-content table { width: 100%; margin: 20px 0; border-collapse: collapse; }
+.product-description-content th,
+.product-description-content td { padding: 10px 12px; border: 1px solid #dee2e6; text-align: left; }
+.product-description-content th { background: #f7f7f7; }
 
 /* Cart */
 .cart-page { min-height: 65vh; background: #f7f7f7; }

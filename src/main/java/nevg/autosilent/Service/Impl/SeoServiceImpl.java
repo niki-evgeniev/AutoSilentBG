@@ -6,6 +6,7 @@ import nevg.autosilent.Models.Entity.Seo;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.SeoRepository;
 import nevg.autosilent.Service.SeoService;
+import nevg.autosilent.Utility.ProductDescriptionSanitizer;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,7 @@ public class SeoServiceImpl implements SeoService {
         SeoDto dto = new SeoDto();
         dto.setProductName(product.getDisplayName());
         dto.setTitle(product.getDisplayName());
-        dto.setDescription(product.getDescription());
+        dto.setDescription(ProductDescriptionSanitizer.toPlainText(product.getDescription()));
         return dto;
     }
 
