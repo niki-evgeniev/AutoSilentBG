@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 public class ProductsController {
@@ -94,6 +95,12 @@ public class ProductsController {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "Продуктът не е намерен."));
             ModelAndView redirect = new ModelAndView("redirect:/products/" + canonicalUrl);
+            redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
+            return redirect;
+        }
+        Optional<String> currentUrl = productService.getActiveProductUrlByPreviousUrl(url);
+        if (currentUrl.isPresent()) {
+            ModelAndView redirect = new ModelAndView("redirect:/products/" + currentUrl.get());
             redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
             return redirect;
         }

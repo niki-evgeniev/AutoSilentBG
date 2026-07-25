@@ -169,6 +169,48 @@ class ProductsControllerTest {
     }
 
     @Test
+    void previousProductUrlRedirectsPermanentlyToCurrentUrl() {
+        when(productService.getActiveProductUrlByPreviousUrl("old-product-name"))
+                .thenReturn(Optional.of("new-product-name"));
+
+        ModelAndView result = productsController.productDetailsPage(
+                "old-product-name", new MockHttpServletRequest());
+
+        assertThat(result.getViewName()).isEqualTo("redirect:/products/new-product-name");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+        verify(productService, never())
+                .getActiveProductByUrlAndIncrementCount("old-product-name");
+    }
+
+    @Test
+    void soldOutActiveProductStillReturnsProductPage() {
+        ProductDetailsDto product = new ProductDetailsDto(
+                7L, "sold-out-product", "Product", "Model", "SKU-1", "Category",
+                new BigDecimal("10.00"), "Description", 0, 1L, List.of("/image.png")
+        );
+        when(productService.getActiveProductByUrlAndIncrementCount("sold-out-product"))
+                .thenReturn(Optional.of(product));
+
+        ModelAndView result = productsController.productDetailsPage(
+                "sold-out-product", new MockHttpServletRequest());
+
+        assertThat(result.getViewName()).isEqualTo("product-details");
+        assertThat(((ProductDetailsDto) result.getModel().get("product")).stock()).isZero();
+    }
+
+    @Test
+    void unknownOrDeletedProductUrlReturnsNotFound() {
+        when(productService.getActiveProductByUrlAndIncrementCount("missing-product"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productsController.productDetailsPage(
+                "missing-product", new MockHttpServletRequest()))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
     void productDetailsAddsSeoWhenConfigured() {
         ProductDetailsDto product = new ProductDetailsDto(
                 7L, "Product", "SKU-1", "Category", new BigDecimal("10.00"),

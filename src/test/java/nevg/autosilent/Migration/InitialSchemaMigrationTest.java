@@ -23,12 +23,12 @@ class InitialSchemaMigrationTest {
                 + ";MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1";
         Flyway flyway = Flyway.configure()
                 .dataSource(url, "sa", "")
-                .locations("classpath:db/migration")
+                .locations("filesystem:src/main/resources/db/migration")
                 .load();
 
         var result = flyway.migrate();
 
-        assertThat(result.migrationsExecuted).isEqualTo(2);
+        assertThat(result.migrationsExecuted).isEqualTo(3);
         assertThat(result.success).isTrue();
 
         try (Connection connection = DriverManager.getConnection(url, "sa", "")) {
@@ -36,9 +36,9 @@ class InitialSchemaMigrationTest {
                     "roles", "users", "users_roles", "products", "pictures", "category",
                     "seo_product", "favorites", "orders", "order_items", "order_addresses",
                     "order_status_history", "user_addresses", "ip_addresses", "contact_inquiries",
-                    "promo_codes", "flyway_schema_history"
+                    "promo_codes", "product_url_redirects", "flyway_schema_history"
             );
-            assertThat(tables(connection)).hasSize(17);
+            assertThat(tables(connection)).hasSize(18);
             assertThat(columns(connection, "contact_inquiries")).contains(
                     "id", "uuid", "sender_name", "sender_email", "subject", "message",
                     "ip_address", "created_at", "is_read"
@@ -75,6 +75,10 @@ class InitialSchemaMigrationTest {
             ));
             assertThat(importedKeys(connection, "promo_codes")).containsEntry("created_by_user_id", "users");
             assertThat(importedKeys(connection, "products")).containsEntry("category_id", "category");
+            assertThat(importedKeys(connection, "product_url_redirects"))
+                    .containsEntry("product_id", "products");
+            assertThat(uniqueIndexes(connection, "product_url_redirects")).anySatisfy(columns ->
+                    assertThat(columns).containsExactly("old_url"));
             assertThat(nullableColumns(connection, "contact_inquiries"))
                     .doesNotContain("sender_name", "sender_email", "subject", "message", "ip_address", "created_at", "is_read");
             assertThat(singleValue(connection,
@@ -82,6 +86,9 @@ class InitialSchemaMigrationTest {
                     .isEqualTo(1);
             assertThat(singleValue(connection,
                     "select count(*) from flyway_schema_history where version = '2' and success = true"))
+                    .isEqualTo(1);
+            assertThat(singleValue(connection,
+                    "select count(*) from flyway_schema_history where version = '3' and success = true"))
                     .isEqualTo(1);
         }
     }

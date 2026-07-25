@@ -5,10 +5,12 @@ import nevg.autosilent.Models.Dto.ProductDetailsDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
+import nevg.autosilent.Models.Entity.ProductUrlRedirect;
 import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.ProductUrlRedirectRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
@@ -56,6 +58,8 @@ class ProductServiceImplTest {
     @Mock
     private ProductRepository productRepository;
     @Mock
+    private ProductUrlRedirectRepository productUrlRedirectRepository;
+    @Mock
     private UserRepository userRepository;
     @Mock
     private CategoryRepository categoryRepository;
@@ -66,7 +70,8 @@ class ProductServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        productService = new ProductServiceImpl(productRepository, userRepository, categoryRepository);
+        productService = new ProductServiceImpl(
+                productRepository, productUrlRedirectRepository, userRepository, categoryRepository);
         ReflectionTestUtils.setField(productService, "imagesDirectory", imagesDirectory);
         Category category = new Category();
         category.setId(3L);
@@ -374,6 +379,38 @@ class ProductServiceImplTest {
                 .isInstanceOf(InvalidProductImageException.class);
 
         verify(productRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void updateStoresPreviousUrlWhenProductNameChanges() {
+        Product product = productWithPictures();
+        product.setUrl("phone-case");
+        product.getPictures().get(0).setId(11L);
+        product.getPictures().get(1).setId(12L);
+        ProductCreateDto request = validRequest();
+        request.setMainImage(null);
+        request.setAdditionalImages(List.of());
+        request.setExistingMainImageId(11L);
+        when(productRepository.findWithPicturesById(7L)).thenReturn(Optional.of(product));
+
+        productService.update(7L, request);
+
+        assertThat(product.getUrl()).isEqualTo("product-one-model-one");
+        ArgumentCaptor<ProductUrlRedirect> redirect =
+                ArgumentCaptor.forClass(ProductUrlRedirect.class);
+        verify(productUrlRedirectRepository).save(redirect.capture());
+        assertThat(redirect.getValue().getOldUrl()).isEqualTo("phone-case");
+        assertThat(redirect.getValue().getProduct()).isSameAs(product);
+        verify(productRepository).saveAndFlush(product);
+    }
+
+    @Test
+    void previousUrlResolvesOnlyThroughActiveProductRedirectRepository() {
+        when(productUrlRedirectRepository.findActiveProductUrl("old-phone-case"))
+                .thenReturn(Optional.of("new-phone-case"));
+
+        assertThat(productService.getActiveProductUrlByPreviousUrl("old-phone-case"))
+                .contains("new-phone-case");
     }
 
     @Test

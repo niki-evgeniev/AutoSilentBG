@@ -7,10 +7,12 @@ import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
+import nevg.autosilent.Models.Entity.ProductUrlRedirect;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Models.Enums.CategoryType;
 import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.ProductUrlRedirectRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
@@ -56,12 +58,17 @@ public class ProductServiceImpl implements ProductService {
     private static final SecureRandom SKU_RANDOM = new SecureRandom();
 
     private final ProductRepository productRepository;
+    private final ProductUrlRedirectRepository productUrlRedirectRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final Path imagesDirectory;
 
-    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              ProductUrlRedirectRepository productUrlRedirectRepository,
+                              UserRepository userRepository,
+                              CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.productUrlRedirectRepository = productUrlRedirectRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.imagesDirectory = Path.of("ProductImages").toAbsolutePath().normalize();
@@ -211,8 +218,18 @@ public class ProductServiceImpl implements ProductService {
                     .findFirst().orElse(product.getPictures().get(0));
             product.changeMainPicture(selectedMain);
 
+            String oldUrl = product.getUrl();
+            String oldDisplayName = product.getDisplayName();
             product.setNameProduct(request.getNameProduct().trim());
             product.setModel(request.getModel().trim());
+            if (!oldDisplayName.equals(product.getDisplayName())) {
+                String updatedUrl = uniqueSlug(product.getDisplayName());
+                ProductUrlRedirect redirect = new ProductUrlRedirect();
+                redirect.setOldUrl(oldUrl);
+                redirect.setProduct(product);
+                productUrlRedirectRepository.save(redirect);
+                product.setUrl(updatedUrl);
+            }
             product.setCategory(category);
             product.setPrice(request.getPrice());
             product.setDescription(request.getDescription().trim());
@@ -313,6 +330,12 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Optional<String> getActiveProductUrl(Long id) {
         return productRepository.findByIdAndActiveTrue(id).map(Product::getUrl);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> getActiveProductUrlByPreviousUrl(String previousUrl) {
+        return productUrlRedirectRepository.findActiveProductUrl(previousUrl);
     }
 
     @Override
@@ -505,7 +528,8 @@ public class ProductServiceImpl implements ProductService {
         String base = ProductSlugGenerator.toSlug(displayName);
         String candidate = base;
         int suffix = 2;
-        while (productRepository.existsByUrl(candidate)) {
+        while (productRepository.existsByUrl(candidate)
+                || productUrlRedirectRepository.existsByOldUrl(candidate)) {
             String suffixText = "-" + suffix++;
             int baseLength = Math.min(base.length(), 180 - suffixText.length());
             candidate = base.substring(0, baseLength).replaceAll("-+$", "") + suffixText;

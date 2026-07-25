@@ -39,5 +39,7 @@ public interface ProductService {
 
     Optional<String> getActiveProductUrl(Long id);
 
+    Optional<String> getActiveProductUrlByPreviousUrl(String previousUrl);
+
     void addVibrofltr();
 }
