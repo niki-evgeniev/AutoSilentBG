@@ -16,7 +16,7 @@ class NotFoundTemplateTest {
                 Path.of("src/main/resources/templates/error/404.html"), StandardCharsets.UTF_8);
 
         assertThat(template)
-                .contains("<meta name=\"robots\" content=\"noindex,follow\">")
+                .contains("<meta name=\"robots\" content=\"noindex\">")
                 .contains("class=\"error-code\">404")
                 .contains("th:href=\"@{/}\"")
                 .contains("th:href=\"@{/products}\"");

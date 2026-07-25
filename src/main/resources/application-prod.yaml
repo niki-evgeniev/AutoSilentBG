@@ -1,0 +1,33 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
+    username: root
+    password: 12345
+  messages:
+    cache-duration: 1h
+  thymeleaf:
+    cache: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 30d
+          cache-public: true
+
+AutoSilent:
+  site-url: ${AUTOSILENT_SITE_URL:https://autosilent.bg}
+  remember.me.key: ${REMEMBER_ME_KEY:1234}
+  security:
+    trust-forwarded-headers: ${TRUST_FORWARDED_HEADERS:false}
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: INFO
+    org.springframework.security: INFO
+
+server:
+  port: 8585

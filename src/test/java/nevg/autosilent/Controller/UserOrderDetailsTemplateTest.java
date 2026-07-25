@@ -18,7 +18,7 @@ class UserOrderDetailsTemplateTest {
         assertThat(history)
                 .contains("th:href=\"@{/user/orders/{orderNumber}(orderNumber=${order.orderNumber()})}\"");
         assertThat(details)
-                .contains("<meta name=\"robots\" content=\"noindex,nofollow\">")
+                .contains("<meta name=\"robots\" content=\"noindex\">")
                 .containsSubsequence(
                         "th:text=\"#{checkout.products}\"",
                         "order.createdAt()",

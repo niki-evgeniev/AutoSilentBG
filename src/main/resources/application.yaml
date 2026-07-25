@@ -1,17 +1,10 @@
 spring:
+  profiles:
+    default: dev
   messages:
     basename: messages
     encoding: UTF-8
     fallback-to-system-locale: false
-    cache-duration: 0s
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    #    url: "jdbc:mysql://192.168.0.120:3306/AutoSilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
-    #    username: test
-    #    password: 12345
-    url: "jdbc:mysql://localhost:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
-    username: root
-    password: 12345
   servlet:
     multipart:
       max-file-size: 25MB
@@ -23,13 +16,7 @@ spring:
   sql:
     init:
       mode: never
-
   jpa:
-    # Choose either MySQL 8 or MySQL 5 below
-    # For MySQL 8
-    #    database-platform: org.hibernate.dialect.MySQLDialect
-    #For MySQL 5
-    #database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
     open-in-view: false
@@ -39,57 +26,15 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: false
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username:  your_email@gmail.com
-    password: your_password
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-  #Cloudinary Properties
-  #cloudinary:
-  #api-key:
-  #api-secret:
-  #cloud-name:
-  thymeleaf: # Thymeleaf
-    cache: false
-    mode: HTML
-    encoding: UTF-8
-    prefix: file:src/main/resources/templates/
-  web:
-    resources:
-      static-locations: file:src/main/resources/static/
-      cache:
-        period: 0
 
 AutoSilent:
-  # Set AUTOSILENT_SITE_URL to the public production origin, for example https://example.com.
-  site-url: ${AUTOSILENT_SITE_URL:http://localhost:8080}
-  remember.me.key: 1234
   security:
-    # Enable only when the app is reachable exclusively through Cloudflare or another trusted proxy.
-    trust-forwarded-headers: false
     rate-limit:
       enabled: true
       max-requests: 120
       window: 1m
       ban-duration: 15m
-logging:
-  level:
-    #    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: INFO
-    org.springframework.security: INFO
-#    org.thymeleaf: DEBUG
-#    org.apache.coyote.http11.Http11Processor: DEBUG
-#    org.apache.tomcat.util.net: DEBUG
-#    org.apache.tomcat.util.http: DEBUG
-#    org.springframework.web.multipart: DEBUG
-#    org.apache.catalina: DEBUG
-#    org.apache.catalina.core.ApplicationFilterChain: DEBUG
+
 server:
   tomcat:
     max-http-form-post-size: 25MB
