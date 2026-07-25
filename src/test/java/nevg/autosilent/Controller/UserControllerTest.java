@@ -2,6 +2,8 @@ package nevg.autosilent.Controller;
 
 import nevg.autosilent.Models.Dto.UserRegistrationDto;
 import nevg.autosilent.Models.Dto.UserProfileDto;
+import nevg.autosilent.Models.Dto.UserOrderDetailDto;
+import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.EmailAlreadyExistsException;
 import nevg.autosilent.Service.UserRegistrationService;
@@ -24,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -146,6 +150,20 @@ class UserControllerTest {
         assertThat(result.getViewName()).isEqualTo("user-orders");
         assertThat(result.getModel()).containsEntry("orders", List.of());
         verify(userOrderService).getOrders("user@example.com");
+    }
+
+    @Test
+    void userOrderReturnsOwnedOrderDetailsView() {
+        UserOrderDetailDto order = new UserOrderDetailDto(
+                "NRT-123", OrderStatus.NEW, new BigDecimal("20.00"), BigDecimal.ZERO, BigDecimal.ZERO,
+                null, BigDecimal.ZERO, new BigDecimal("20.00"), null,
+                List.of());
+        when(userOrderService.getOrder("NRT-123", "user@example.com")).thenReturn(order);
+
+        ModelAndView result = userController.userOrder("NRT-123", currentUser());
+
+        assertThat(result.getViewName()).isEqualTo("user-order-details");
+        assertThat(result.getModel().get("order")).isSameAs(order);
     }
 
     @Test

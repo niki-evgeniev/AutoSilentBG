@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.ModelAndView;
@@ -87,6 +88,15 @@ public class UserController {
     public ModelAndView userOrders(@AuthenticationPrincipal ShopUserDetails currentUser) {
         ModelAndView modelAndView = new ModelAndView("user-orders");
         modelAndView.addObject("orders", userOrderService.getOrders(currentUser.getUsername()));
+        return modelAndView;
+    }
+
+    @GetMapping("/user/orders/{orderNumber}")
+    public ModelAndView userOrder(@PathVariable String orderNumber,
+                                  @AuthenticationPrincipal ShopUserDetails currentUser) {
+        ModelAndView modelAndView = new ModelAndView("user-order-details");
+        modelAndView.addObject(
+                "order", userOrderService.getOrder(orderNumber, currentUser.getUsername()));
         return modelAndView;
     }
 
