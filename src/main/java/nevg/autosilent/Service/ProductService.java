@@ -2,6 +2,7 @@ package nevg.autosilent.Service;
 
 import nevg.autosilent.Models.Dto.ProductCreateDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
+import nevg.autosilent.Models.Dto.ProductFilterDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,12 @@ public interface ProductService {
     Page<ProductViewDto> searchActiveProducts(String search, Pageable pageable);
 
     Page<ProductViewDto> getActiveProductsByCategory(Long categoryId, Pageable pageable);
+
+    Page<ProductViewDto> filterActiveProducts(ProductFilterDto filter, Pageable pageable);
+
+    List<String> getActiveBrands();
+
+    List<String> getActiveModels();
 
     Optional<ProductDetailsDto> getActiveProduct(Long id);
 

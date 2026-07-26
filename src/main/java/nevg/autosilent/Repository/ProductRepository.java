@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import jakarta.persistence.LockModeType;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +42,63 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findAllByActiveTrue(Pageable pageable);
 
     Page<Product> findAllByActiveTrueAndCategoryId(Long categoryId, Pageable pageable);
+
+    @Query(value = """
+            select p from Product p
+            where p.active = true
+              and (:categoryId is null or p.category.id = :categoryId)
+              and (:brand is null or lower(p.nameProduct) = lower(:brand))
+              and (:model is null or lower(p.model) = lower(:model))
+              and (:minPrice is null or p.price >= :minPrice)
+              and (:maxPrice is null or p.price <= :maxPrice)
+              and (:inStock = false or p.stock > 0)
+              and (:search is null or
+                   lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                   lower(p.model) like lower(concat('%', :search, '%')) or
+                   lower(p.sku) like lower(concat('%', :search, '%')) or
+                   lower(p.category.category) like lower(concat('%', :search, '%')) or
+                   lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
+            """,
+            countQuery = """
+                    select count(p) from Product p
+                    where p.active = true
+                      and (:categoryId is null or p.category.id = :categoryId)
+                      and (:brand is null or lower(p.nameProduct) = lower(:brand))
+                      and (:model is null or lower(p.model) = lower(:model))
+                      and (:minPrice is null or p.price >= :minPrice)
+                      and (:maxPrice is null or p.price <= :maxPrice)
+                      and (:inStock = false or p.stock > 0)
+                      and (:search is null or
+                           lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                           lower(p.model) like lower(concat('%', :search, '%')) or
+                           lower(p.sku) like lower(concat('%', :search, '%')) or
+                           lower(p.category.category) like lower(concat('%', :search, '%')) or
+                           lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
+                    """)
+    Page<Product> filterActive(@Param("search") String search,
+                               @Param("brand") String brand,
+                               @Param("model") String model,
+                               @Param("minPrice") BigDecimal minPrice,
+                               @Param("maxPrice") BigDecimal maxPrice,
+                               @Param("inStock") boolean inStock,
+                               @Param("categoryId") Long categoryId,
+                               Pageable pageable);
+
+    @Query("""
+            select distinct p.nameProduct from Product p
+            where p.active = true
+            order by p.nameProduct
+            """)
+    List<String> findDistinctActiveBrands();
+
+    @Query("""
+            select distinct p.model from Product p
+            where p.active = true
+              and p.model is not null
+              and trim(p.model) <> ''
+            order by p.model
+            """)
+    List<String> findDistinctActiveModels();
 
     @EntityGraph(attributePaths = "pictures")
     @Query("""

@@ -2,6 +2,7 @@ package nevg.autosilent.Service.Impl;
 
 import nevg.autosilent.Models.Dto.ProductCreateDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
+import nevg.autosilent.Models.Dto.ProductFilterDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
@@ -23,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockMultipartFile;
@@ -315,6 +317,49 @@ class ProductServiceImplTest {
         assertThat(captor.getValue().getPageSize()).isEqualTo(9);
         verify(productRepository, never()).searchActive(org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.any(Pageable.class));
+    }
+
+    @Test
+    void filterActiveProductsPassesAllNormalizedCriteriaAndUsesNineItemsPerPage() {
+        Product product = productWithPictures();
+        ProductFilterDto filter = new ProductFilterDto(
+                "  phone  ", " Phone ", " Case ",
+                new BigDecimal("-5"), new BigDecimal("50"), true, 3L);
+        when(productRepository.filterActive(
+                org.mockito.ArgumentMatchers.eq("phone"),
+                org.mockito.ArgumentMatchers.eq("Phone"),
+                org.mockito.ArgumentMatchers.eq("Case"),
+                org.mockito.ArgumentMatchers.eq(BigDecimal.ZERO),
+                org.mockito.ArgumentMatchers.eq(new BigDecimal("50")),
+                org.mockito.ArgumentMatchers.eq(true),
+                org.mockito.ArgumentMatchers.eq(3L),
+                org.mockito.ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(product)));
+
+        var result = productService.filterActiveProducts(filter, PageRequest.of(2, 25));
+
+        ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
+        verify(productRepository).filterActive(
+                org.mockito.ArgumentMatchers.eq("phone"),
+                org.mockito.ArgumentMatchers.eq("Phone"),
+                org.mockito.ArgumentMatchers.eq("Case"),
+                org.mockito.ArgumentMatchers.eq(BigDecimal.ZERO),
+                org.mockito.ArgumentMatchers.eq(new BigDecimal("50")),
+                org.mockito.ArgumentMatchers.eq(true),
+                org.mockito.ArgumentMatchers.eq(3L),
+                pageable.capture());
+        assertThat(pageable.getValue().getPageNumber()).isEqualTo(2);
+        assertThat(pageable.getValue().getPageSize()).isEqualTo(9);
+        assertThat(result.getContent()).extracting(ProductViewDto::id).containsExactly(7L);
+    }
+
+    @Test
+    void activeBrandAndModelOptionsComeFromRepository() {
+        when(productRepository.findDistinctActiveBrands()).thenReturn(List.of("Brand A", "Brand B"));
+        when(productRepository.findDistinctActiveModels()).thenReturn(List.of("Model 1", "Model 2"));
+
+        assertThat(productService.getActiveBrands()).containsExactly("Brand A", "Brand B");
+        assertThat(productService.getActiveModels()).containsExactly("Model 1", "Model 2");
     }
 
     @Test

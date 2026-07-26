@@ -2,6 +2,7 @@ package nevg.autosilent.Service.Impl;
 
 import nevg.autosilent.Models.Dto.ProductCreateDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
+import nevg.autosilent.Models.Dto.ProductFilterDto;
 import nevg.autosilent.Models.Dto.ProductImageEditDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Entity.Category;
@@ -589,6 +590,41 @@ public class ProductServiceImpl implements ProductService {
         PageRequest pageRequest = PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE, sort);
         return productRepository.findAllByActiveTrueAndCategoryId(categoryId, pageRequest)
                 .map(this::toViewDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductViewDto> filterActiveProducts(ProductFilterDto filter, Pageable pageable) {
+        ProductFilterDto normalized = filter == null
+                ? new ProductFilterDto(null, null, null, null, null, false, null)
+                : filter;
+        int pageNumber = pageable == null ? 0 : Math.max(pageable.getPageNumber(), 0);
+        Sort sort = pageable == null || pageable.getSort().isUnsorted()
+                ? Sort.by(Sort.Direction.DESC, "addDate")
+                : pageable.getSort();
+        PageRequest pageRequest = PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE, sort);
+        return productRepository.filterActive(
+                        normalized.search(),
+                        normalized.brand(),
+                        normalized.model(),
+                        normalized.minPrice(),
+                        normalized.maxPrice(),
+                        normalized.inStock(),
+                        normalized.categoryId(),
+                        pageRequest)
+                .map(this::toViewDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getActiveBrands() {
+        return productRepository.findDistinctActiveBrands();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getActiveModels() {
+        return productRepository.findDistinctActiveModels();
     }
 
     private void validateUniqueFields(ProductCreateDto request, Long productId) {

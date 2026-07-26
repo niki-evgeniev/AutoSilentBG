@@ -1104,7 +1104,8 @@ a { text-decoration: none; }
 
 .filter-head h2 i { color: var(--color-orange); margin-right: 6px; }
 
-.filter-head button {
+.filter-head button,
+.filter-head a {
     border: 0;
     background: transparent;
     color: var(--color-orange);
@@ -1138,6 +1139,38 @@ a { text-decoration: none; }
 }
 
 .filter-group label:last-child { margin-bottom: 0; }
+
+.filter-group .filter-field {
+    display: block;
+    margin-bottom: 0;
+}
+
+.filter-group .filter-field > span {
+    display: block;
+    margin: 0 0 8px;
+    color: #3f4652;
+    font-size: 13px;
+}
+
+.filter-group .form-select,
+.filter-group .form-control {
+    min-height: 44px;
+    border-color: rgba(25, 25, 25, 0.13);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.filter-group .form-select:focus,
+.filter-group .form-control:focus {
+    border-color: var(--color-orange);
+    box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.12);
+}
+
+.price-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
 
 .filter-group .category-filter-link {
     display: flex;
@@ -1247,6 +1280,14 @@ a { text-decoration: none; }
     border: 1px solid rgba(255, 106, 0, 0.18);
     border-radius: 999px;
     padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.active-filter-clear {
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-orange);
     font-size: 13px;
     font-weight: 800;
 }

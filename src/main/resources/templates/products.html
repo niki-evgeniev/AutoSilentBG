@@ -48,11 +48,20 @@
                     <p th:text="#{products.intro}">Филтрирай по категория, дебелина, материал, цена и наличност.</p>
                 </div>
                 <div class="col-lg-5">
-                    <form class="shop-search-box tilt-card" th:action="@{/products}" method="get" role="search">
+                    <form class="shop-search-box tilt-card"
+                          th:action="${selectedCategory == null}
+                              ? @{/products}
+                              : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}"
+                          method="get" role="search">
                         <i class="bi bi-search"></i>
                         <label class="visually-hidden" for="productsSearch" th:text="#{site.search}">Търси</label>
                         <input id="productsSearch" name="search" type="search" maxlength="150"
                                th:value="${search}" th:placeholder="#{products.search.placeholder}">
+                        <input th:if="${filter.brand() != null}" type="hidden" name="brand" th:value="${filter.brand()}">
+                        <input th:if="${filter.model() != null}" type="hidden" name="model" th:value="${filter.model()}">
+                        <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice" th:value="${filter.minPrice()}">
+                        <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice" th:value="${filter.maxPrice()}">
+                        <input th:if="${filter.inStock()}" type="hidden" name="inStock" value="true">
                         <button type="submit" th:text="#{site.search}">Търси</button>
                     </form>
                 </div>
@@ -71,55 +80,84 @@
 
             <div class="row g-4">
                 <aside class="col-lg-3 d-none d-lg-block">
-                    <form class="filter-sidebar tilt-card">
+                    <form class="filter-sidebar tilt-card" method="get"
+                          th:action="${selectedCategory == null}
+                              ? @{/products}
+                              : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                        <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
                         <div class="filter-head">
                             <h2><i class="bi bi-sliders"></i> <span th:text="#{products.filters}">Филтри</span></h2>
-                            <button type="reset" th:text="#{products.clear}">Изчисти</button>
+                            <a th:href="@{/products}" th:text="#{products.clear}">Изчисти</a>
                         </div>
 
                         <div class="filter-group">
                             <h3 th:text="#{site.categories}">Категории</h3>
                             <a class="category-filter-link" th:each="category : ${categories}"
                                th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                               th:href="@{/products/category/{categoryId}/{slug}(categoryId=${category.id()},slug=${category.slug()})}">
+                               th:href="@{/products/category/{categoryId}/{slug}(
+                                   categoryId=${category.id()},slug=${category.slug()},
+                                   search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
+                                   minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()})}">
                                 <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                             </a>
                         </div>
 
                         <div class="filter-group">
+                            <label class="filter-field" for="brandDesktop">
+                                <span th:text="#{products.brand}">Марка</span>
+                                <select id="brandDesktop" class="form-select" name="brand">
+                                    <option value="" th:selected="${filter.brand() == null}"
+                                            th:text="#{products.allBrands}">Всички марки</option>
+                                    <option th:each="brandOption : ${brands}"
+                                            th:value="${brandOption}"
+                                            th:text="${brandOption}"
+                                            th:selected="${brandOption == filter.brand()}">Марка</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-field" for="modelDesktop">
+                                <span th:text="#{products.model}">Модел</span>
+                                <select id="modelDesktop" class="form-select" name="model">
+                                    <option value="" th:selected="${filter.model() == null}"
+                                            th:text="#{products.allModels}">Всички модели</option>
+                                    <option th:each="modelOption : ${models}"
+                                            th:value="${modelOption}"
+                                            th:text="${modelOption}"
+                                            th:selected="${modelOption == filter.model()}">Модел</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="filter-group">
                             <h3 th:text="#{products.price}">Цена</h3>
-                            <div class="price-values">
-                                <span th:text="#{product.price(0)}">0 €</span>
-                                <strong id="priceValueDesktop" th:text="#{product.price(80)}">80 €</strong>
+                            <div class="price-filter-grid">
+                                <label class="filter-field" for="minPriceDesktop">
+                                    <span th:text="#{products.priceFrom}">Цена от</span>
+                                    <input id="minPriceDesktop" class="form-control" type="number"
+                                           name="minPrice" min="0" step="0.01" th:value="${filter.minPrice()}">
+                                </label>
+                                <label class="filter-field" for="maxPriceDesktop">
+                                    <span th:text="#{products.priceTo}">Цена до</span>
+                                    <input id="maxPriceDesktop" class="form-control" type="number"
+                                           name="maxPrice" min="0" step="0.01" th:value="${filter.maxPrice()}">
+                                </label>
                             </div>
-                            <input class="form-range price-range" type="range" min="0" max="200" value="80"
-                                   data-price-output="priceValueDesktop">
-                        </div>
-
-                        <div class="filter-group">
-                            <h3 th:text="#{products.thickness}">Дебелина</h3>
-                            <label><input type="checkbox"> <span th:text="#{products.upTo2}">До 2 мм</span></label>
-                            <label><input type="checkbox"> <span th:text="#{products.from3To5}">3 - 5 мм</span></label>
-                            <label><input type="checkbox"> <span th:text="#{products.from6To10}">6 - 10 мм</span></label>
-                            <label><input type="checkbox"> <span th:text="#{products.over10}">Над 10 мм</span></label>
-                        </div>
-
-                        <div class="filter-group">
-                            <h3 th:text="#{products.material}">Материал</h3>
-                            <label><input type="checkbox"> <span th:text="#{products.plastic}">Пластмаса</span></label>
-                            <label><input type="checkbox"> <span th:text="#{products.textile}">Текстил</span></label>
-                            <label><input type="checkbox"> <span th:text="#{products.rubber}">Гума</span></label>
-                            <label><input type="checkbox"> PLA / PETG</label>
                         </div>
 
                         <div class="filter-group">
                             <h3 th:text="#{products.availability}">Наличност</h3>
-                            <label><input type="radio" name="stock" checked> <span th:text="#{products.all}">Всички</span></label>
-                            <label><input type="radio" name="stock"> <span th:text="#{products.inStock}">В наличност</span></label>
-                            <label><input type="radio" name="stock"> <span th:text="#{products.fastDelivery}">С бърза доставка</span></label>
+                            <label><input type="radio" name="inStock" value="false"
+                                          th:checked="${!filter.inStock()}">
+                                <span th:text="#{products.all}">Всички</span></label>
+                            <label><input type="radio" name="inStock" value="true"
+                                          th:checked="${filter.inStock()}">
+                                <span th:text="#{products.inStock}">В наличност</span></label>
                         </div>
 
-                        <button type="button" class="btn btn-orange w-100" th:text="#{products.apply}">Приложи филтрите</button>
+                        <button type="submit" class="btn btn-orange w-100"
+                                th:text="#{products.apply}">Приложи филтрите</button>
                     </form>
                 </aside>
 
@@ -145,10 +183,20 @@
                         </div>
                     </div>
 
-                    <div class="active-filter-tags" th:if="${selectedCategory != null}">
-                        <span><span th:text="${selectedCategory.name()}">Категория</span>
-                            <a th:href="@{/products}" th:aria-label="#{products.clear}"><i class="bi bi-x"></i></a>
-                        </span>
+                    <div class="active-filter-tags"
+                         th:if="${selectedCategory != null or filter.hasCatalogFilters()}">
+                        <span th:if="${selectedCategory != null}" th:text="${selectedCategory.name()}">Категория</span>
+                        <span th:if="${filter.brand() != null}"
+                              th:text="|#{products.brand}: ${filter.brand()}|">Марка</span>
+                        <span th:if="${filter.model() != null}"
+                              th:text="|#{products.model}: ${filter.model()}|">Модел</span>
+                        <span th:if="${filter.minPrice() != null}"
+                              th:text="|#{products.priceFrom}: ${filter.minPrice()} €|">Цена от</span>
+                        <span th:if="${filter.maxPrice() != null}"
+                              th:text="|#{products.priceTo}: ${filter.maxPrice()} €|">Цена до</span>
+                        <span th:if="${filter.inStock()}" th:text="#{products.inStock}">В наличност</span>
+                        <a class="active-filter-clear" th:href="@{/products}"
+                           th:text="#{products.clear}">Изчисти</a>
                     </div>
 
                     <div class="row g-4" th:if="${!products.isEmpty()}">
@@ -218,17 +266,23 @@
 
                     <nav class="shop-pagination" th:if="${productPage.totalPages > 1}"
                          th:aria-label="#{products.pagination}">
-                        <a th:href="${selectedCategory == null} ? @{/products(search=${search},page=${productPage.number - 1})} : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},page=${productPage.number - 1})}"
+                        <a th:href="${selectedCategory == null}
+                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number - 1})}
+                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number - 1})}"
                            th:classappend="${productPage.first} ? ' disabled'"
                            th:aria-label="#{products.previous}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                         <a th:each="pageNumber : ${#numbers.sequence(0, productPage.totalPages - 1)}"
-                           th:href="${selectedCategory == null} ? @{/products(search=${search},page=${pageNumber})} : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},page=${pageNumber})}"
+                           th:href="${selectedCategory == null}
+                               ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${pageNumber})}
+                               : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${pageNumber})}"
                            th:classappend="${pageNumber == productPage.number} ? ' active'"
                            th:text="${pageNumber + 1}"
                            th:aria-label="#{products.page(${pageNumber + 1})}">1</a>
-                        <a th:href="${selectedCategory == null} ? @{/products(search=${search},page=${productPage.number + 1})} : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},page=${productPage.number + 1})}"
+                        <a th:href="${selectedCategory == null}
+                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number + 1})}
+                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number + 1})}"
                            th:classappend="${productPage.last} ? ' disabled'"
                            th:aria-label="#{products.next}">
                             <i class="bi bi-chevron-right"></i>
@@ -246,36 +300,70 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" th:aria-label="#{products.close}"></button>
     </div>
     <div class="offcanvas-body">
-        <form class="filter-sidebar mobile-filter-sidebar">
+        <form class="filter-sidebar mobile-filter-sidebar" method="get"
+              th:action="${selectedCategory == null}
+                  ? @{/products}
+                  : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+            <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
             <div class="filter-group">
                 <h3 th:text="#{site.categories}">Категории</h3>
                 <a class="category-filter-link" th:each="category : ${categories}"
                    th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                   th:href="@{/products/category/{categoryId}/{slug}(categoryId=${category.id()},slug=${category.slug()})}">
+                   th:href="@{/products/category/{categoryId}/{slug}(
+                       categoryId=${category.id()},slug=${category.slug()},
+                       search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
+                       minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()})}">
                     <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                 </a>
-                <label><input type="checkbox"> <span th:text="#{site.promotions}">Промоции</span> <span>7</span></label>
+            </div>
+            <div class="filter-group">
+                <label class="filter-field" for="brandMobile">
+                    <span th:text="#{products.brand}">Марка</span>
+                    <select id="brandMobile" class="form-select" name="brand">
+                        <option value="" th:selected="${filter.brand() == null}"
+                                th:text="#{products.allBrands}">Всички марки</option>
+                        <option th:each="brandOption : ${brands}" th:value="${brandOption}"
+                                th:text="${brandOption}" th:selected="${brandOption == filter.brand()}">Марка</option>
+                    </select>
+                </label>
+            </div>
+            <div class="filter-group">
+                <label class="filter-field" for="modelMobile">
+                    <span th:text="#{products.model}">Модел</span>
+                    <select id="modelMobile" class="form-select" name="model">
+                        <option value="" th:selected="${filter.model() == null}"
+                                th:text="#{products.allModels}">Всички модели</option>
+                        <option th:each="modelOption : ${models}" th:value="${modelOption}"
+                                th:text="${modelOption}" th:selected="${modelOption == filter.model()}">Модел</option>
+                    </select>
+                </label>
             </div>
             <div class="filter-group">
                 <h3 th:text="#{products.price}">Цена</h3>
-                <div class="price-values"><span th:text="#{product.price(0)}">0 €</span><strong id="priceValueMobile" th:text="#{product.price(80)}">80 €</strong></div>
-                <input class="form-range price-range" type="range" min="0" max="200" value="80"
-                       data-price-output="priceValueMobile">
-            </div>
-            <div class="filter-group">
-                <h3 th:text="#{products.thickness}">Дебелина</h3>
-                <label><input type="checkbox"> <span th:text="#{products.upTo2}">До 2 мм</span></label>
-                <label><input type="checkbox"> <span th:text="#{products.from3To5}">3 - 5 мм</span></label>
-                <label><input type="checkbox"> <span th:text="#{products.from6To10}">6 - 10 мм</span></label>
-                <label><input type="checkbox"> <span th:text="#{products.over10}">Над 10 мм</span></label>
+                <div class="price-filter-grid">
+                    <label class="filter-field" for="minPriceMobile">
+                        <span th:text="#{products.priceFrom}">Цена от</span>
+                        <input id="minPriceMobile" class="form-control" type="number"
+                               name="minPrice" min="0" step="0.01" th:value="${filter.minPrice()}">
+                    </label>
+                    <label class="filter-field" for="maxPriceMobile">
+                        <span th:text="#{products.priceTo}">Цена до</span>
+                        <input id="maxPriceMobile" class="form-control" type="number"
+                               name="maxPrice" min="0" step="0.01" th:value="${filter.maxPrice()}">
+                    </label>
+                </div>
             </div>
             <div class="filter-group">
                 <h3 th:text="#{products.availability}">Наличност</h3>
-                <label><input type="radio" name="mobileStock" checked> <span th:text="#{products.all}">Всички</span></label>
-                <label><input type="radio" name="mobileStock"> <span th:text="#{products.inStock}">В наличност</span></label>
-                <label><input type="radio" name="mobileStock"> <span th:text="#{products.fastDelivery}">С бърза доставка</span></label>
+                <label><input type="radio" name="inStock" value="false"
+                              th:checked="${!filter.inStock()}">
+                    <span th:text="#{products.all}">Всички</span></label>
+                <label><input type="radio" name="inStock" value="true"
+                              th:checked="${filter.inStock()}">
+                    <span th:text="#{products.inStock}">В наличност</span></label>
             </div>
-            <button type="button" class="btn btn-orange w-100" data-bs-dismiss="offcanvas" th:text="#{products.apply}">Приложи филтрите</button>
+            <button type="submit" class="btn btn-orange w-100"
+                    th:text="#{products.apply}">Приложи филтрите</button>
         </form>
     </div>
 </div>

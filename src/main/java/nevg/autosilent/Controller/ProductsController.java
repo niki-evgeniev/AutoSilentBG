@@ -3,7 +3,9 @@ package nevg.autosilent.Controller;
 
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
+import nevg.autosilent.Models.Dto.CategoryViewDto;
 import nevg.autosilent.Models.Dto.ProductCreateDto;
+import nevg.autosilent.Models.Dto.ProductFilterDto;
 import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
@@ -29,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -47,20 +50,27 @@ public class ProductsController {
 
     @GetMapping("/products")
     public ModelAndView products(@RequestParam(name = "search", required = false) String search,
+                                 @RequestParam(name = "brand", required = false) String brand,
+                                 @RequestParam(name = "model", required = false) String model,
+                                 @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
+                                 @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
+                                 @RequestParam(name = "inStock", defaultValue = "false") boolean inStock,
                                  @PageableDefault(size = 9, sort = "addDate",
                                          direction = Sort.Direction.DESC) Pageable pageable) {
-        ModelAndView modelAndView = new ModelAndView("products");
-        var productPage = productService.searchActiveProducts(search, pageable);
-        modelAndView.addObject("productPage", productPage);
-        modelAndView.addObject("products", productPage.getContent());
-        modelAndView.addObject("categories", categoryService.getAll());
-        modelAndView.addObject("search", search == null ? "" : search.trim());
-        return modelAndView;
+        ProductFilterDto filter = new ProductFilterDto(
+                search, brand, model, minPrice, maxPrice, inStock, null);
+        return catalog(filter, pageable, null);
     }
 
     @GetMapping("/products/category/{categoryId}/{slug}")
     public ModelAndView productsByCategory(@PathVariable Long categoryId,
                                            @PathVariable String slug,
+                                           @RequestParam(name = "search", required = false) String search,
+                                           @RequestParam(name = "brand", required = false) String brand,
+                                           @RequestParam(name = "model", required = false) String model,
+                                           @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
+                                           @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
+                                           @RequestParam(name = "inStock", defaultValue = "false") boolean inStock,
                                            @PageableDefault(size = 9, sort = "addDate",
                                                    direction = Sort.Direction.DESC) Pageable pageable) {
         var category = categoryService.getById(categoryId)
@@ -73,13 +83,24 @@ public class ProductsController {
             return redirect;
         }
 
-        var productPage = productService.getActiveProductsByCategory(categoryId, pageable);
+        ProductFilterDto filter = new ProductFilterDto(
+                search, brand, model, minPrice, maxPrice, inStock, categoryId);
+        return catalog(filter, pageable, category);
+    }
+
+    private ModelAndView catalog(ProductFilterDto filter, Pageable pageable, CategoryViewDto selectedCategory) {
+        var productPage = productService.filterActiveProducts(filter, pageable);
         ModelAndView modelAndView = new ModelAndView("products");
         modelAndView.addObject("productPage", productPage);
         modelAndView.addObject("products", productPage.getContent());
         modelAndView.addObject("categories", categoryService.getAll());
-        modelAndView.addObject("selectedCategory", category);
-        modelAndView.addObject("search", "");
+        modelAndView.addObject("brands", productService.getActiveBrands());
+        modelAndView.addObject("models", productService.getActiveModels());
+        modelAndView.addObject("filter", filter);
+        modelAndView.addObject("search", filter.search() == null ? "" : filter.search());
+        if (selectedCategory != null) {
+            modelAndView.addObject("selectedCategory", selectedCategory);
+        }
         return modelAndView;
     }
 

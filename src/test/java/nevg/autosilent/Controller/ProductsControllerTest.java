@@ -3,6 +3,7 @@ package nevg.autosilent.Controller;
 import nevg.autosilent.Models.Dto.ProductCreateDto;
 import nevg.autosilent.Models.Dto.CategoryViewDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
+import nevg.autosilent.Models.Dto.ProductFilterDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Dto.ProductImageEditDto;
 import nevg.autosilent.Models.Dto.SeoDto;
@@ -65,21 +66,26 @@ class ProductsControllerTest {
                 "Description", 2, "/image.png"
         ));
         PageRequest pageable = PageRequest.of(0, 9);
-        when(productService.searchActiveProducts(null, pageable)).thenReturn(new PageImpl<>(products));
+        ProductFilterDto filter = new ProductFilterDto(null, null, null, null, null, false, null);
+        when(productService.filterActiveProducts(filter, pageable)).thenReturn(new PageImpl<>(products));
 
-        ModelAndView result = productsController.products(null, pageable);
+        ModelAndView result = productsController.products(
+                null, null, null, null, null, false, pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(products);
         assertThat(result.getModel().get("productPage")).isNotNull();
+        assertThat(result.getModel().get("filter")).isEqualTo(filter);
     }
 
     @Test
     void productsReturnsEmptyCatalogInModel() {
         PageRequest pageable = PageRequest.of(0, 9);
-        when(productService.searchActiveProducts(null, pageable)).thenReturn(new PageImpl<>(List.of()));
+        ProductFilterDto filter = new ProductFilterDto(null, null, null, null, null, false, null);
+        when(productService.filterActiveProducts(filter, pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        ModelAndView result = productsController.products(null, pageable);
+        ModelAndView result = productsController.products(
+                null, null, null, null, null, false, pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(List.of());
@@ -88,12 +94,17 @@ class ProductsControllerTest {
     @Test
     void productsSearchesAndPreservesTrimmedSearchTerm() {
         PageRequest pageable = PageRequest.of(2, 9);
-        when(productService.searchActiveProducts("  lamp  ", pageable)).thenReturn(new PageImpl<>(List.of()));
+        ProductFilterDto filter = new ProductFilterDto(
+                "  lamp  ", "  Brand  ", " Model ", new BigDecimal("10"), new BigDecimal("50"), true, null);
+        when(productService.filterActiveProducts(filter, pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        ModelAndView result = productsController.products("  lamp  ", pageable);
+        ModelAndView result = productsController.products(
+                "  lamp  ", "  Brand  ", " Model ",
+                new BigDecimal("10"), new BigDecimal("50"), true, pageable);
 
         assertThat(result.getModel().get("search")).isEqualTo("lamp");
-        verify(productService).searchActiveProducts("  lamp  ", pageable);
+        assertThat(result.getModel().get("filter")).isEqualTo(filter);
+        verify(productService).filterActiveProducts(filter, pageable);
     }
 
     @Test
@@ -101,15 +112,19 @@ class ProductsControllerTest {
         CategoryViewDto category = new CategoryViewDto(3L, "Звукоизолация");
         PageRequest pageable = PageRequest.of(0, 9);
         PageImpl<ProductViewDto> page = new PageImpl<>(List.of());
+        ProductFilterDto filter = new ProductFilterDto(
+                null, "Brand", "Model", null, new BigDecimal("100"), true, 3L);
         when(categoryService.getById(3L)).thenReturn(Optional.of(category));
-        when(productService.getActiveProductsByCategory(3L, pageable)).thenReturn(page);
+        when(productService.filterActiveProducts(filter, pageable)).thenReturn(page);
 
         ModelAndView result = productsController.productsByCategory(
-                3L, "zvukoizolatsiya", pageable);
+                3L, "zvukoizolatsiya", null, "Brand", "Model",
+                null, new BigDecimal("100"), true, pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("selectedCategory")).isSameAs(category);
         assertThat(result.getModel().get("productPage")).isSameAs(page);
+        assertThat(result.getModel().get("filter")).isEqualTo(filter);
     }
 
     @Test
@@ -118,13 +133,14 @@ class ProductsControllerTest {
         when(categoryService.getById(3L)).thenReturn(Optional.of(category));
 
         ModelAndView result = productsController.productsByCategory(
-                3L, "wrong", PageRequest.of(0, 9));
+                3L, "wrong", null, null, null,
+                null, null, false, PageRequest.of(0, 9));
 
         assertThat(result.getViewName())
                 .isEqualTo("redirect:/products/category/3/zvukoizolatsiya");
         assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
-        verify(productService, never()).getActiveProductsByCategory(
-                org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.any());
+        verify(productService, never()).filterActiveProducts(
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
