@@ -61,6 +61,21 @@ class CanonicalTemplateTest {
     }
 
     @Test
+    void productJsonLdImageRendersWithoutEscapedSlashes() {
+        Context context = new Context();
+        context.setVariable("imagePath", "/images/products/vibrofiltr.webp");
+        String rendered = new SpringTemplateEngine().process(
+                "<script type=\"application/ld+json\" th:inline=\"javascript\">" +
+                        "{\"image\":[(${imagePath == null ? 'null' : '\"https://autosilent.bg' + imagePath + '\"'})]}" +
+                        "</script>",
+                context);
+
+        assertThat(rendered)
+                .contains("\"image\":\"https://autosilent.bg/images/products/vibrofiltr.webp\"")
+                .doesNotContain("\\/");
+    }
+
+    @Test
     void productListingCanonicalSupportsCategoriesAndPagination() throws IOException {
         String template = template("products.html");
 

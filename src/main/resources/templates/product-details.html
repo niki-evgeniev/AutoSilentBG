@@ -29,7 +29,7 @@
             },
             "category": /*[[${product.category()}]]*/ "Category",
             "url": "https://autosilent.bg/products/[(${product.url()})]",
-            "image": /*[[${product.mainImageUrl() == null ? null : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ null,
+            "image": [(${product.mainImageUrl() == null ? 'null' : '"https://autosilent.bg' + product.mainImageUrl() + '"'})],
             "offers": {
                 "@type": "Offer",
                 "url": "https://autosilent.bg/products/[(${product.url()})]",

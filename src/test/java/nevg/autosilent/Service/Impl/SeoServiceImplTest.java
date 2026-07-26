@@ -57,6 +57,26 @@ class SeoServiceImplTest {
     }
 
     @Test
+    void createDefaultsStoresProductValuesAndMainImageUrl() {
+        Product product = new Product();
+        product.setId(4L);
+        product.setNameProduct("Product");
+        product.setModel("Model");
+        product.setDescription("<p>Product <strong>description</strong></p>");
+        when(seoRepository.findByProductId(4L)).thenReturn(Optional.empty());
+
+        service.createDefaults(product, "https://autosilent.bg/ProductImages/Product-Model/main.png");
+
+        ArgumentCaptor<Seo> captor = ArgumentCaptor.forClass(Seo.class);
+        verify(seoRepository).save(captor.capture());
+        assertThat(captor.getValue().getProduct()).isSameAs(product);
+        assertThat(captor.getValue().getTitle()).isEqualTo("Product Model");
+        assertThat(captor.getValue().getDescription()).isEqualTo("Product description");
+        assertThat(captor.getValue().getImageUrl())
+                .isEqualTo("https://autosilent.bg/ProductImages/Product-Model/main.png");
+    }
+
+    @Test
     void saveUpdatesExistingSeoAndTrimsOptionalImageUrl() {
         Product product = new Product();
         product.setNameProduct("Product");

@@ -46,6 +46,9 @@
                     <div class="form-group-custom">
                         <label for="imageUrl" th:text="#{seo.imageUrl}">URL на изображение</label>
                         <input id="imageUrl" type="url" class="form-control" th:errorclass="is-invalid" th:field="*{imageUrl}" maxlength="2048">
+                        <div class="form-hint" th:text="#{seo.imageUrl.hint}">
+                            Автоматично е зададена главната снимка на продукта. Можете да замените URL адреса.
+                        </div>
                         <div class="invalid-feedback d-block" th:errors="*{imageUrl}"></div>
                     </div>
                     <div class="d-flex gap-2">

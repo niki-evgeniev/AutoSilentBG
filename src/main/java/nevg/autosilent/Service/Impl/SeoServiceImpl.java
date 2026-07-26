@@ -43,6 +43,20 @@ public class SeoServiceImpl implements SeoService {
 
     @Override
     @Transactional
+    public void createDefaults(Product product, String imageUrl) {
+        if (seoRepository.findByProductId(product.getId()).isPresent()) return;
+
+        Seo seo = new Seo();
+        seo.setProduct(product);
+        seo.setTitle(truncate(product.getDisplayName(), 70));
+        seo.setDescription(truncate(
+                ProductDescriptionSanitizer.toPlainText(product.getDescription()), 160));
+        seo.setImageUrl(trimToNull(imageUrl));
+        seoRepository.save(seo);
+    }
+
+    @Override
+    @Transactional
     public void save(Long productId, SeoDto request) {
         Product product = findProduct(productId);
         Seo seo = seoRepository.findByProductId(productId).orElseGet(Seo::new);
@@ -80,5 +94,10 @@ public class SeoServiceImpl implements SeoService {
 
     private String trimToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) return value;
+        return value.substring(0, maxLength);
     }
 }

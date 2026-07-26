@@ -16,6 +16,7 @@ import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
+import nevg.autosilent.Service.SeoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -66,6 +68,8 @@ class ProductServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private SeoService seoService;
     @TempDir
     private Path imagesDirectory;
 
@@ -74,7 +78,8 @@ class ProductServiceImplTest {
     @BeforeEach
     void setUp() {
         productService = new ProductServiceImpl(
-                productRepository, productUrlRedirectRepository, userRepository, categoryRepository);
+                productRepository, productUrlRedirectRepository, userRepository, categoryRepository,
+                seoService, "https://autosilent.bg");
         ReflectionTestUtils.setField(productService, "imagesDirectory", imagesDirectory);
         Category category = new Category();
         category.setId(3L);
@@ -108,6 +113,10 @@ class ProductServiceImplTest {
         assertThat(saved.getPictures()).hasSize(3)
                 .allSatisfy(picture -> assertThat(picture.getProduct()).isSameAs(saved));
         assertThat(saved.getPictures()).filteredOn(Picture::isMainImage).hasSize(1);
+        ArgumentCaptor<String> imageUrl = ArgumentCaptor.forClass(String.class);
+        verify(seoService).createDefaults(eq(saved), imageUrl.capture());
+        assertThat(imageUrl.getValue()).matches(
+                "https://autosilent\\.bg/ProductImages/Product-One-Model-One/main-[0-9a-f-]{36}\\.png");
 
         Path productDirectory = imagesDirectory.resolve("Product-One-Model-One");
         assertThat(productDirectory).isDirectory();

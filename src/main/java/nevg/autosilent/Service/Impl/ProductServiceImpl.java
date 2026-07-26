@@ -19,8 +19,10 @@ import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.ProductService;
+import nevg.autosilent.Service.SeoService;
 import nevg.autosilent.Utility.ProductDescriptionSanitizer;
 import nevg.autosilent.Utility.ProductSlugGenerator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,16 +65,22 @@ public class ProductServiceImpl implements ProductService {
     private final ProductUrlRedirectRepository productUrlRedirectRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final SeoService seoService;
+    private final String siteUrl;
     private final Path imagesDirectory;
 
     public ProductServiceImpl(ProductRepository productRepository,
                               ProductUrlRedirectRepository productUrlRedirectRepository,
                               UserRepository userRepository,
-                              CategoryRepository categoryRepository) {
+                              CategoryRepository categoryRepository,
+                              SeoService seoService,
+                              @Value("${AutoSilent.site-url:http://localhost:8080}") String siteUrl) {
         this.productRepository = productRepository;
         this.productUrlRedirectRepository = productUrlRedirectRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.seoService = seoService;
+        this.siteUrl = siteUrl.endsWith("/") ? siteUrl.substring(0, siteUrl.length() - 1) : siteUrl;
         this.imagesDirectory = Path.of("ProductImages").toAbsolutePath().normalize();
     }
 
@@ -120,6 +128,7 @@ public class ProductServiceImpl implements ProductService {
                 product.addPicture(createPicture(fileName, false));
             }
             productRepository.saveAndFlush(product);
+            seoService.createDefaults(product, siteUrl + toImageUrl(product, product.getPictures().getFirst()));
         } catch (DataIntegrityViolationException exception) {
             deleteFiles(storedFiles, productDirectory);
             ProductAlreadyExistsException duplicate = duplicateFrom(exception);
