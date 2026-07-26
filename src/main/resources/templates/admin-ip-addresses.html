@@ -22,8 +22,8 @@
         <div class="alert alert-success" th:if="${ipBanUpdated}"
              th:text="#{admin.ipAddresses.updated}">Статусът на адреса е обновен.</div>
 
-        <div class="admin-table-card">
-            <div class="table-responsive" th:if="${!addresses.isEmpty()}">
+        <div class="admin-table-card admin-ip-addresses-card">
+            <div class="table-responsive ip-addresses-table-wrapper" th:if="${!addresses.isEmpty()}">
                 <table class="table align-middle admin-orders-table ip-addresses-table">
                     <thead>
                     <tr>
@@ -38,30 +38,37 @@
                     </thead>
                     <tbody>
                     <tr th:each="address : ${addresses.content}">
-                        <td>
-                            <strong th:text="${address.address()}"></strong>
-                            <small class="d-block text-muted" th:if="${address.userEmail() != null}"
-                                   th:text="${address.userEmail()}"></small>
+                        <td th:attr="data-label=#{admin.ipAddresses.address}">
+                            <div>
+                                <strong th:text="${address.address()}"></strong>
+                                <small class="d-block text-muted" th:if="${address.userEmail() != null}"
+                                       th:text="${address.userEmail()}"></small>
+                            </div>
                         </td>
-                        <td th:text="${#temporals.format(address.firstSeen(), 'dd.MM.yyyy HH:mm:ss')}"></td>
-                        <td th:text="${#temporals.format(address.lastSeen(), 'dd.MM.yyyy HH:mm:ss')}"></td>
-                        <td><strong th:text="${address.countVisits()}"></strong></td>
-                        <td>
+                        <td th:attr="data-label=#{admin.ipAddresses.firstSeen}"
+                            th:text="${#temporals.format(address.firstSeen(), 'dd.MM.yyyy HH:mm:ss')}"></td>
+                        <td th:attr="data-label=#{admin.ipAddresses.lastSeen}"
+                            th:text="${#temporals.format(address.lastSeen(), 'dd.MM.yyyy HH:mm:ss')}"></td>
+                        <td th:attr="data-label=#{admin.ipAddresses.visits}">
+                            <strong th:text="${address.countVisits()}"></strong>
+                        </td>
+                        <td th:attr="data-label=#{admin.ipAddresses.status}">
                             <span class="order-status status-returned" th:if="${address.banned()}"
                                   th:text="#{admin.ipAddresses.banned}">Баннат</span>
                             <span class="order-status status-delivered" th:unless="${address.banned()}"
                                   th:text="#{admin.ipAddresses.allowed}">Разрешен</span>
                         </td>
-                        <td>
+                        <td th:attr="data-label=#{admin.ipAddresses.bannedUntil}">
                             <span th:if="${address.banned() && address.bannedUntil() == null}"
                                   th:text="#{admin.ipAddresses.forever}">Завинаги</span>
                             <span th:if="${address.bannedUntil() != null}"
                                   th:text="${#temporals.format(address.bannedUntil(), 'dd.MM.yyyy HH:mm')}"></span>
                             <span th:unless="${address.banned()}" aria-hidden="true">—</span>
                         </td>
-                        <td>
+                        <td th:attr="data-label=#{admin.ipAddresses.actions}">
                             <div class="ip-ban-actions" th:unless="${address.banned()}">
                                 <form th:action="@{/admin/ip-addresses/{id}/ban/temporary(id=${address.id()})}" method="post">
+                                    <input name="page" type="hidden" th:value="${addresses.number}">
                                     <label class="visually-hidden" th:for="|banDays-${address.id()}|"
                                            th:text="#{admin.ipAddresses.days}">Дни</label>
                                     <input class="form-control form-control-sm" th:id="|banDays-${address.id()}|"
@@ -70,12 +77,14 @@
                                             th:text="#{admin.ipAddresses.banForDays}">Бан за дни</button>
                                 </form>
                                 <form th:action="@{/admin/ip-addresses/{id}/ban/permanent(id=${address.id()})}" method="post">
+                                    <input name="page" type="hidden" th:value="${addresses.number}">
                                     <button class="btn btn-sm btn-danger" type="submit"
                                             th:text="#{admin.ipAddresses.banForever}">Бан завинаги</button>
                                 </form>
                             </div>
                             <form th:if="${address.banned()}"
                                   th:action="@{/admin/ip-addresses/{id}/unban(id=${address.id()})}" method="post">
+                                <input name="page" type="hidden" th:value="${addresses.number}">
                                 <button class="btn btn-sm btn-outline-success" type="submit"
                                         th:text="#{admin.ipAddresses.unban}">Премахни бан</button>
                             </form>

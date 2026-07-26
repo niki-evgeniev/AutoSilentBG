@@ -1,6 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
 <head>
+    <title th:text="${seo != null ? seo.title : #messages.msg('details.title', product.displayName())}">Детайли за продукт - AutoSilent</title>
     <meta name="robots" content="noindex">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,7 @@
     <meta property="og:type" content="product">
     <meta property="og:url" th:content="|https://autosilent.bg/products/${product.url()}|">
     <link rel="canonical" th:href="|https://autosilent.bg/products/${product.url()}|">
-    <title th:text="${seo != null ? seo.title : #messages.msg('details.title', product.displayName())}">Детайли за продукт - AutoSilent</title>
+
 
     <script type="application/ld+json" th:inline="javascript">
         {
@@ -27,14 +28,14 @@
                 "name": /*[[${product.name()}]]*/ "Brand"
             },
             "category": /*[[${product.category()}]]*/ "Category",
-            "url": /*[[|https://autosilent.bg/products/${product.url()}|]]*/ "https://autosilent.bg/products/product",
+            "url": "https://autosilent.bg/products/[(${product.url()})]",
             "image": /*[[${product.mainImageUrl() == null ? null : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ null,
             "offers": {
                 "@type": "Offer",
-                "url": /*[[|https://autosilent.bg/products/${product.url()}|]]*/ "https://autosilent.bg/products/product",
+                "url": "https://autosilent.bg/products/[(${product.url()})]",
                 "priceCurrency": "EUR",
                 "price": /*[[${product.price()}]]*/ 0,
-                "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
+                "availability": "https://schema.org/[(${product.stock() > 0 ? 'InStock' : 'OutOfStock'})]",
                 "itemCondition": "https://schema.org/NewCondition",
                 "seller": {
                     "@type": "Organization",
@@ -116,6 +117,15 @@
                            th:href="@{/products/{id}/seo(id=${product.id()})}">
                             <i class="bi bi-search me-2"></i><span>SEO</span>
                         </a>
+
+                        <form sec:authorize="hasRole('ADMIN')" class="d-inline-block align-top mb-3" method="post"
+                              th:action="@{/products/{id}/delete(id=${product.id()})}">
+                            <button type="submit" class="btn btn-danger custom-outline"
+                                    onclick="return confirm(this.dataset.confirmMessage)"
+                                    th:data-confirm-message="#{edit.deleteConfirm}">
+                                <i class="bi bi-trash3 me-2"></i><span th:text="#{edit.delete}">Изтрий</span>
+                            </button>
+                        </form>
 
                         <form sec:authorize="isAuthenticated()" class="d-inline-block mb-3" method="post"
                               th:action="@{/favorites/{id}/toggle(id=${product.id()})}">

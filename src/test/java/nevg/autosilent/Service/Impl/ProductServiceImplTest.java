@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -350,6 +351,15 @@ class ProductServiceImplTest {
                 pageable.capture());
         assertThat(pageable.getValue().getPageNumber()).isEqualTo(2);
         assertThat(pageable.getValue().getPageSize()).isEqualTo(9);
+        assertThat(pageable.getValue().getSort().getOrderFor("nameProduct"))
+                .extracting(Sort.Order::getDirection)
+                .isEqualTo(Sort.Direction.ASC);
+        assertThat(pageable.getValue().getSort().getOrderFor("model"))
+                .extracting(Sort.Order::getDirection)
+                .isEqualTo(Sort.Direction.ASC);
+        assertThat(pageable.getValue().getSort().getOrderFor("id"))
+                .extracting(Sort.Order::getDirection)
+                .isEqualTo(Sort.Direction.ASC);
         assertThat(result.getContent()).extracting(ProductViewDto::id).containsExactly(7L);
     }
 

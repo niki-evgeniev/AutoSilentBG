@@ -13,6 +13,7 @@ import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.CategoryService;
 import nevg.autosilent.Service.ProductService;
 import nevg.autosilent.Service.SeoService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -55,11 +56,12 @@ public class ProductsController {
                                  @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
                                  @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
                                  @RequestParam(name = "inStock", defaultValue = "false") boolean inStock,
-                                 @PageableDefault(size = 9, sort = "addDate",
-                                         direction = Sort.Direction.DESC) Pageable pageable) {
+                                 @RequestParam(name = "order", defaultValue = "default") String order,
+                                 @PageableDefault(size = 9, sort = {"nameProduct", "model", "id"},
+                                         direction = Sort.Direction.ASC) Pageable pageable) {
         ProductFilterDto filter = new ProductFilterDto(
                 search, brand, model, minPrice, maxPrice, inStock, null);
-        return catalog(filter, pageable, null);
+        return catalog(filter, catalogPageable(pageable, order), null, normalizeOrder(order));
     }
 
     @GetMapping("/products/category/{categoryId}/{slug}")
@@ -71,8 +73,9 @@ public class ProductsController {
                                            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
                                            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
                                            @RequestParam(name = "inStock", defaultValue = "false") boolean inStock,
-                                           @PageableDefault(size = 9, sort = "addDate",
-                                                   direction = Sort.Direction.DESC) Pageable pageable) {
+                                           @RequestParam(name = "order", defaultValue = "default") String order,
+                                           @PageableDefault(size = 9, sort = {"nameProduct", "model", "id"},
+                                                   direction = Sort.Direction.ASC) Pageable pageable) {
         var category = categoryService.getById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Категорията не е намерена."));
@@ -85,10 +88,13 @@ public class ProductsController {
 
         ProductFilterDto filter = new ProductFilterDto(
                 search, brand, model, minPrice, maxPrice, inStock, categoryId);
-        return catalog(filter, pageable, category);
+        return catalog(filter, catalogPageable(pageable, order), category, normalizeOrder(order));
     }
 
-    private ModelAndView catalog(ProductFilterDto filter, Pageable pageable, CategoryViewDto selectedCategory) {
+    private ModelAndView catalog(ProductFilterDto filter,
+                                 Pageable pageable,
+                                 CategoryViewDto selectedCategory,
+                                 String order) {
         var productPage = productService.filterActiveProducts(filter, pageable);
         ModelAndView modelAndView = new ModelAndView("products");
         modelAndView.addObject("productPage", productPage);
@@ -98,10 +104,32 @@ public class ProductsController {
         modelAndView.addObject("models", productService.getActiveModels());
         modelAndView.addObject("filter", filter);
         modelAndView.addObject("search", filter.search() == null ? "" : filter.search());
+        modelAndView.addObject("sortMode", order);
         if (selectedCategory != null) {
             modelAndView.addObject("selectedCategory", selectedCategory);
         }
         return modelAndView;
+    }
+
+    private Pageable catalogPageable(Pageable pageable, String order) {
+        int page = pageable == null ? 0 : Math.max(pageable.getPageNumber(), 0);
+        int size = pageable == null ? 9 : pageable.getPageSize();
+        Sort brandAndModel = Sort.by(Sort.Direction.ASC, "nameProduct", "model", "id");
+        Sort sort = switch (normalizeOrder(order)) {
+            case "bestSelling" -> Sort.by(Sort.Direction.DESC, "sold").and(brandAndModel);
+            case "priceAsc" -> Sort.by(Sort.Direction.ASC, "price").and(brandAndModel);
+            case "priceDesc" -> Sort.by(Sort.Direction.DESC, "price").and(brandAndModel);
+            case "newest" -> Sort.by(Sort.Direction.DESC, "addDate", "id");
+            default -> brandAndModel;
+        };
+        return PageRequest.of(page, size, sort);
+    }
+
+    private String normalizeOrder(String order) {
+        return switch (order == null ? "" : order) {
+            case "bestSelling", "priceAsc", "priceDesc", "newest" -> order;
+            default -> "default";
+        };
     }
 
     @GetMapping("/products/{url}")

@@ -600,7 +600,7 @@ public class ProductServiceImpl implements ProductService {
                 : filter;
         int pageNumber = pageable == null ? 0 : Math.max(pageable.getPageNumber(), 0);
         Sort sort = pageable == null || pageable.getSort().isUnsorted()
-                ? Sort.by(Sort.Direction.DESC, "addDate")
+                ? Sort.by(Sort.Direction.ASC, "nameProduct", "model", "id")
                 : pageable.getSort();
         PageRequest pageRequest = PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE, sort);
         return productRepository.filterActive(

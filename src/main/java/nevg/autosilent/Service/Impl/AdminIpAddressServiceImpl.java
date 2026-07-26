@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Service
 public class AdminIpAddressServiceImpl implements AdminIpAddressService {
 
-    private static final int PAGE_SIZE = 50;
+    private static final int PAGE_SIZE = 15;
     private static final int MAX_BAN_DAYS = 3650;
 
     private final IpAddressRepository ipAddressRepository;

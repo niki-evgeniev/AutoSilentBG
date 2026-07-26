@@ -6,7 +6,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" th:content="#{products.meta}">
-    <title th:text="#{products.title}">Продукти - AutoSilent</title>
     <link rel="canonical"
           th:href="${selectedCategory == null}
               ? (${productPage.number == 0}
@@ -62,6 +61,7 @@
                         <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice" th:value="${filter.minPrice()}">
                         <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice" th:value="${filter.maxPrice()}">
                         <input th:if="${filter.inStock()}" type="hidden" name="inStock" value="true">
+                        <input type="hidden" name="order" th:value="${sortMode}">
                         <button type="submit" th:text="#{site.search}">Търси</button>
                     </form>
                 </div>
@@ -85,6 +85,7 @@
                               ? @{/products}
                               : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
                         <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
+                        <input type="hidden" name="order" th:value="${sortMode}">
                         <div class="filter-head">
                             <h2><i class="bi bi-sliders"></i> <span th:text="#{products.filters}">Филтри</span></h2>
                             <a th:href="@{/products}" th:text="#{products.clear}">Изчисти</a>
@@ -97,7 +98,8 @@
                                th:href="@{/products/category/{categoryId}/{slug}(
                                    categoryId=${category.id()},slug=${category.slug()},
                                    search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
-                                   minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()})}">
+                                   minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
+                                   order=${sortMode})}">
                                 <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                             </a>
                         </div>
@@ -170,13 +172,30 @@
                             </strong>
                         </div>
                         <div class="toolbar-actions">
-                            <select class="form-select" th:aria-label="#{products.sort}">
-                                <option selected th:text="#{products.sort.newest}">Подреди: Най-нови</option>
-                                <option th:text="#{products.sort.priceAsc}">Цена: ниска към висока</option>
-                                <option th:text="#{products.sort.priceDesc}">Цена: висока към ниска</option>
-                                <option th:text="#{products.sort.bestSelling}">Най-продавани</option>
-                                <option th:text="#{products.sort.rating}">Най-висок рейтинг</option>
-                            </select>
+                            <form class="toolbar-sort-form" method="get"
+                                  th:action="${selectedCategory == null}
+                                      ? @{/products}
+                                      : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                                <input th:if="${filter.search() != null}" type="hidden" name="search" th:value="${filter.search()}">
+                                <input th:if="${filter.brand() != null}" type="hidden" name="brand" th:value="${filter.brand()}">
+                                <input th:if="${filter.model() != null}" type="hidden" name="model" th:value="${filter.model()}">
+                                <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice" th:value="${filter.minPrice()}">
+                                <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice" th:value="${filter.maxPrice()}">
+                                <input th:if="${filter.inStock()}" type="hidden" name="inStock" value="true">
+                                <select class="form-select" name="order" onchange="this.form.submit()"
+                                        th:aria-label="#{products.sort}">
+                                    <option value="default" th:selected="${sortMode == 'default'}"
+                                            th:text="#{products.sort.default}">Марка и модел</option>
+                                    <option value="bestSelling" th:selected="${sortMode == 'bestSelling'}"
+                                            th:text="#{products.sort.bestSelling}">Най-продавани</option>
+                                    <option value="priceAsc" th:selected="${sortMode == 'priceAsc'}"
+                                            th:text="#{products.sort.priceAsc}">Цена: ниска към висока</option>
+                                    <option value="priceDesc" th:selected="${sortMode == 'priceDesc'}"
+                                            th:text="#{products.sort.priceDesc}">Цена: висока към ниска</option>
+                                    <option value="newest" th:selected="${sortMode == 'newest'}"
+                                            th:text="#{products.sort.newest}">Най-нови</option>
+                                </select>
+                            </form>
                             <button class="view-btn active" aria-label="Grid view"><i class="bi bi-grid-3x3-gap"></i>
                             </button>
                             <button class="view-btn" aria-label="List view"><i class="bi bi-list-ul"></i></button>
@@ -267,22 +286,22 @@
                     <nav class="shop-pagination" th:if="${productPage.totalPages > 1}"
                          th:aria-label="#{products.pagination}">
                         <a th:href="${selectedCategory == null}
-                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number - 1})}
-                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number - 1})}"
+                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}
+                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}"
                            th:classappend="${productPage.first} ? ' disabled'"
                            th:aria-label="#{products.previous}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                         <a th:each="pageNumber : ${#numbers.sequence(0, productPage.totalPages - 1)}"
                            th:href="${selectedCategory == null}
-                               ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${pageNumber})}
-                               : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${pageNumber})}"
+                               ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}
+                               : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}"
                            th:classappend="${pageNumber == productPage.number} ? ' active'"
                            th:text="${pageNumber + 1}"
                            th:aria-label="#{products.page(${pageNumber + 1})}">1</a>
                         <a th:href="${selectedCategory == null}
-                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number + 1})}
-                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},page=${productPage.number + 1})}"
+                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}
+                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}"
                            th:classappend="${productPage.last} ? ' disabled'"
                            th:aria-label="#{products.next}">
                             <i class="bi bi-chevron-right"></i>
@@ -305,6 +324,7 @@
                   ? @{/products}
                   : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
             <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
+            <input type="hidden" name="order" th:value="${sortMode}">
             <div class="filter-group">
                 <h3 th:text="#{site.categories}">Категории</h3>
                 <a class="category-filter-link" th:each="category : ${categories}"
@@ -312,7 +332,8 @@
                    th:href="@{/products/category/{categoryId}/{slug}(
                        categoryId=${category.id()},slug=${category.slug()},
                        search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
-                       minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()})}">
+                       minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
+                       order=${sortMode})}">
                     <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                 </a>
             </div>

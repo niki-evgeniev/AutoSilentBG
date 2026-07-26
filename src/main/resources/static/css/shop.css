@@ -210,7 +210,7 @@ a { text-decoration: none; }
 .nav-link:hover {
     color: var(--color-orange);
     background: rgba(255, 255, 255, 0.66);
-    transform: translateY(-2px) translateZ(14px);
+    transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(25, 25, 25, 0.08);
 }
 
@@ -251,7 +251,7 @@ a { text-decoration: none; }
 
 .icon-btn:hover {
     color: var(--color-orange);
-    transform: translateY(-3px) translateZ(16px);
+    transform: translateY(-3px);
     box-shadow: 0 18px 30px rgba(25, 25, 25, 0.12);
 }
 
@@ -274,7 +274,7 @@ a { text-decoration: none; }
 
 .header-3d .cart-btn:hover {
     background: linear-gradient(145deg, #fff8f3, #ffffff);
-    transform: translateY(-3px) translateZ(18px);
+    transform: translateY(-3px);
     box-shadow: 0 20px 34px rgba(255, 106, 0, 0.22);
 }
 
@@ -491,7 +491,7 @@ a { text-decoration: none; }
     column-gap: 26px;
     align-items: center;
     padding: 34px;
-    transform: rotateY(-7deg) rotateX(5deg) translateZ(0);
+    transform: none;
     transform-style: preserve-3d;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -511,7 +511,7 @@ a { text-decoration: none; }
     position: relative;
     z-index: 2;
     min-width: 0;
-    transform: translateZ(42px);
+    transform: none;
 }
 
 .slide-text span {
@@ -647,12 +647,11 @@ a { text-decoration: none; }
     height: 100%;
     transition: 0.25s ease;
     transform-style: preserve-3d;
-    will-change: transform;
 }
 
 .category-card:hover,
 .product-card:hover {
-    transform: translateY(-8px) rotateX(3deg) rotateY(-3deg);
+    transform: translateY(-8px);
     box-shadow: 0 30px 70px rgba(25, 25, 25, 0.15);
 }
 
@@ -742,7 +741,7 @@ a { text-decoration: none; }
 
 .product-content {
     padding: 20px;
-    transform: translateZ(18px);
+    transform: none;
 }
 .product-content h3 { min-height: 42px; }
 
@@ -1240,8 +1239,13 @@ a { text-decoration: none; }
     gap: 10px;
 }
 
-.toolbar-actions .form-select {
+.toolbar-sort-form {
     min-width: 230px;
+    margin: 0;
+}
+
+.toolbar-actions .form-select {
+    width: 100%;
     border-radius: 12px;
     font-weight: 700;
     color: #3f4652;
@@ -1395,9 +1399,13 @@ a { text-decoration: none; }
         justify-content: space-between;
     }
 
+    .toolbar-sort-form {
+        flex: 1;
+        min-width: 0;
+    }
+
     .toolbar-actions .form-select {
         min-width: 0;
-        flex: 1;
     }
 
     .shop-hero-small {
@@ -2177,9 +2185,59 @@ a { text-decoration: none; }
 .admin-customer-note { margin-top: 18px; padding: 13px; border-radius: 11px; background: #fff8f2; }
 .admin-customer-note p { margin: 6px 0 0; white-space: pre-line; }
 @media (max-width: 991px) { .admin-order-grid { grid-template-columns: 1fr; } }
+@media (max-width: 991px) {
+    .admin-ip-addresses-card { padding: 16px; overflow: hidden; }
+    .ip-addresses-table-wrapper { overflow: visible; }
+    .ip-addresses-table { display: block; min-width: 0; width: 100%; white-space: normal; }
+    .ip-addresses-table thead { display: none; }
+    .ip-addresses-table tbody { display: grid; gap: 14px; }
+    .ip-addresses-table tr {
+        display: block;
+        overflow: hidden;
+        border: 1px solid #e4e7eb;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(25,25,25,.06);
+    }
+    .ip-addresses-table td {
+        display: grid;
+        grid-template-columns: minmax(110px, .42fr) minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        width: 100%;
+        padding: 12px 14px;
+        border: 0;
+        border-bottom: 1px solid #edf0f2;
+        overflow-wrap: anywhere;
+    }
+    .ip-addresses-table td:last-child { border-bottom: 0; }
+    .ip-addresses-table td::before {
+        content: attr(data-label);
+        color: var(--color-muted);
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.25;
+        text-transform: uppercase;
+    }
+    .ip-addresses-table td > * { min-width: 0; }
+    .ip-ban-actions { flex-wrap: wrap; }
+    .ip-ban-actions form:first-child { flex-wrap: wrap; }
+    .ip-ban-actions .btn,
+    .ip-addresses-table td:last-child > form .btn { white-space: normal; }
+    .admin-ip-addresses-card .pagination { flex-wrap: wrap; row-gap: 8px; }
+}
 @media (max-width: 575px) {
     .admin-order-item { grid-template-columns: 60px 1fr; }
     .admin-order-item > span, .admin-order-item > strong { grid-column: 2; }
+    .admin-orders-page > .container { padding-right: 12px; padding-left: 12px; }
+    .admin-ip-addresses-card { padding: 10px; border-radius: 14px; }
+    .ip-addresses-table td { grid-template-columns: 96px minmax(0, 1fr); gap: 10px; padding: 11px; }
+    .ip-ban-actions { align-items: stretch; }
+    .ip-ban-actions form { width: 100%; }
+    .ip-ban-actions form:first-child { display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+    .ip-ban-actions input { width: 64px; }
+    .ip-ban-actions .btn,
+    .ip-addresses-table td:last-child > form .btn { width: 100%; }
 }
 @media (max-width: 991px) {
     .product-gallery-main { min-height: 440px; }

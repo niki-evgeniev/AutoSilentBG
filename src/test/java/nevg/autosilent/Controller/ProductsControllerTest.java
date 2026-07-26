@@ -17,10 +17,14 @@ import nevg.autosilent.Service.SeoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -41,6 +45,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class ProductsControllerTest {
@@ -66,11 +71,12 @@ class ProductsControllerTest {
                 "Description", 2, "/image.png"
         ));
         PageRequest pageable = PageRequest.of(0, 9);
+        PageRequest sortedPageable = defaultCatalogPage(0);
         ProductFilterDto filter = new ProductFilterDto(null, null, null, null, null, false, null);
-        when(productService.filterActiveProducts(filter, pageable)).thenReturn(new PageImpl<>(products));
+        when(productService.filterActiveProducts(filter, sortedPageable)).thenReturn(new PageImpl<>(products));
 
         ModelAndView result = productsController.products(
-                null, null, null, null, null, false, pageable);
+                null, null, null, null, null, false, "default", pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(products);
@@ -82,10 +88,11 @@ class ProductsControllerTest {
     void productsReturnsEmptyCatalogInModel() {
         PageRequest pageable = PageRequest.of(0, 9);
         ProductFilterDto filter = new ProductFilterDto(null, null, null, null, null, false, null);
-        when(productService.filterActiveProducts(filter, pageable)).thenReturn(new PageImpl<>(List.of()));
+        when(productService.filterActiveProducts(filter, defaultCatalogPage(0)))
+                .thenReturn(new PageImpl<>(List.of()));
 
         ModelAndView result = productsController.products(
-                null, null, null, null, null, false, pageable);
+                null, null, null, null, null, false, "default", pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(List.of());
@@ -96,15 +103,17 @@ class ProductsControllerTest {
         PageRequest pageable = PageRequest.of(2, 9);
         ProductFilterDto filter = new ProductFilterDto(
                 "  lamp  ", "  Brand  ", " Model ", new BigDecimal("10"), new BigDecimal("50"), true, null);
-        when(productService.filterActiveProducts(filter, pageable)).thenReturn(new PageImpl<>(List.of()));
+        when(productService.filterActiveProducts(filter, defaultCatalogPage(2)))
+                .thenReturn(new PageImpl<>(List.of()));
 
         ModelAndView result = productsController.products(
                 "  lamp  ", "  Brand  ", " Model ",
-                new BigDecimal("10"), new BigDecimal("50"), true, pageable);
+                new BigDecimal("10"), new BigDecimal("50"), true, "default", pageable);
 
         assertThat(result.getModel().get("search")).isEqualTo("lamp");
         assertThat(result.getModel().get("filter")).isEqualTo(filter);
-        verify(productService).filterActiveProducts(filter, pageable);
+        assertThat(result.getModel().get("sortMode")).isEqualTo("default");
+        verify(productService).filterActiveProducts(filter, defaultCatalogPage(2));
     }
 
     @Test
@@ -115,11 +124,11 @@ class ProductsControllerTest {
         ProductFilterDto filter = new ProductFilterDto(
                 null, "Brand", "Model", null, new BigDecimal("100"), true, 3L);
         when(categoryService.getById(3L)).thenReturn(Optional.of(category));
-        when(productService.filterActiveProducts(filter, pageable)).thenReturn(page);
+        when(productService.filterActiveProducts(filter, defaultCatalogPage(0))).thenReturn(page);
 
         ModelAndView result = productsController.productsByCategory(
                 3L, "zvukoizolatsiya", null, "Brand", "Model",
-                null, new BigDecimal("100"), true, pageable);
+                null, new BigDecimal("100"), true, "default", pageable);
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("selectedCategory")).isSameAs(category);
@@ -134,13 +143,35 @@ class ProductsControllerTest {
 
         ModelAndView result = productsController.productsByCategory(
                 3L, "wrong", null, null, null,
-                null, null, false, PageRequest.of(0, 9));
+                null, null, false, "default", PageRequest.of(0, 9));
 
         assertThat(result.getViewName())
                 .isEqualTo("redirect:/products/category/3/zvukoizolatsiya");
         assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
         verify(productService, never()).filterActiveProducts(
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "bestSelling, sold, DESC",
+            "priceAsc, price, ASC",
+            "priceDesc, price, DESC",
+            "newest, addDate, DESC"
+    })
+    void productsAppliesSelectedSortMode(String mode, String property, Sort.Direction direction) {
+        when(productService.filterActiveProducts(any(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        ModelAndView result = productsController.products(
+                null, null, null, null, null, false, mode, PageRequest.of(0, 9));
+
+        var pageable = org.mockito.ArgumentCaptor.forClass(Pageable.class);
+        verify(productService).filterActiveProducts(any(), pageable.capture());
+        assertThat(pageable.getValue().getSort().getOrderFor(property))
+                .extracting(Sort.Order::getDirection)
+                .isEqualTo(direction);
+        assertThat(result.getModel().get("sortMode")).isEqualTo(mode);
     }
 
     @Test
@@ -514,5 +545,10 @@ class ProductsControllerTest {
 
     private BindingResult bindingResult(ProductCreateDto product) {
         return new BeanPropertyBindingResult(product, "product");
+    }
+
+    private PageRequest defaultCatalogPage(int page) {
+        return PageRequest.of(page, 9,
+                Sort.by(Sort.Direction.ASC, "nameProduct", "model", "id"));
     }
 }

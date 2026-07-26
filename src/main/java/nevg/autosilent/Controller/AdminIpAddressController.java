@@ -30,29 +30,34 @@ public class AdminIpAddressController {
     }
 
     @PostMapping("/{id}/ban/permanent")
-    public ModelAndView banPermanently(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public ModelAndView banPermanently(@PathVariable Long id,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       RedirectAttributes redirectAttributes) {
         adminIpAddressService.banPermanently(id);
         redirectAttributes.addFlashAttribute("ipBanUpdated", true);
-        return redirect();
+        return redirect(page);
     }
 
     @PostMapping("/{id}/ban/temporary")
     public ModelAndView banTemporarily(@PathVariable Long id,
                                        @RequestParam int days,
+                                       @RequestParam(defaultValue = "0") int page,
                                        RedirectAttributes redirectAttributes) {
         adminIpAddressService.banForDays(id, days);
         redirectAttributes.addFlashAttribute("ipBanUpdated", true);
-        return redirect();
+        return redirect(page);
     }
 
     @PostMapping("/{id}/unban")
-    public ModelAndView removeBan(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public ModelAndView removeBan(@PathVariable Long id,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  RedirectAttributes redirectAttributes) {
         adminIpAddressService.removeBan(id);
         redirectAttributes.addFlashAttribute("ipBanUpdated", true);
-        return redirect();
+        return redirect(page);
     }
 
-    private ModelAndView redirect() {
-        return new ModelAndView("redirect:/admin/ip-addresses");
+    private ModelAndView redirect(int page) {
+        return new ModelAndView("redirect:/admin/ip-addresses?page=" + Math.max(page, 0));
     }
 }

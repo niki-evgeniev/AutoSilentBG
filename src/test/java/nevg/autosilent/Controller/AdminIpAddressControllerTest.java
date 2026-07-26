@@ -55,17 +55,17 @@ class AdminIpAddressControllerTest {
     void temporaryBanDelegatesToService() {
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        ModelAndView result = controller.banTemporarily(8L, 30, redirectAttributes);
+        ModelAndView result = controller.banTemporarily(8L, 30, 2, redirectAttributes);
 
         verify(service).banForDays(8L, 30);
-        assertThat(result.getViewName()).isEqualTo("redirect:/admin/ip-addresses");
+        assertThat(result.getViewName()).isEqualTo("redirect:/admin/ip-addresses?page=2");
         assertThat(redirectAttributes.getFlashAttributes()).containsKey("ipBanUpdated");
     }
 
     @Test
     void permanentBanAndUnbanDelegateToService() {
-        controller.banPermanently(8L, new RedirectAttributesModelMap());
-        controller.removeBan(8L, new RedirectAttributesModelMap());
+        controller.banPermanently(8L, 0, new RedirectAttributesModelMap());
+        controller.removeBan(8L, 0, new RedirectAttributesModelMap());
 
         verify(service).banPermanently(8L);
         verify(service).removeBan(8L);

@@ -1,6 +1,8 @@
 package nevg.autosilent.Controller;
 
 import org.junit.jupiter.api.Test;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -39,9 +41,23 @@ class CanonicalTemplateTest {
                 .contains("\"sku\": /*[[${product.sku()}]]*/")
                 .contains("\"@type\": \"Offer\"")
                 .contains("\"priceCurrency\": \"EUR\"")
-                .contains("https://schema.org/InStock")
-                .contains("https://schema.org/OutOfStock")
-                .contains("|https://autosilent.bg/products/${product.url()}|");
+                .contains("'InStock'")
+                .contains("'OutOfStock'")
+                .contains("\"url\": \"https://autosilent.bg/products/[(${product.url()})]\"");
+    }
+
+    @Test
+    void productJsonLdUrlRendersWithoutEscapedSlashes() {
+        Context context = new Context();
+        context.setVariable("slug", "vibrofiltr-1-5");
+        String rendered = new SpringTemplateEngine().process(
+                "<script type=\"application/ld+json\" th:inline=\"javascript\">" +
+                        "{\"url\":\"https://autosilent.bg/products/[(${slug})]\"}</script>",
+                context);
+
+        assertThat(rendered)
+                .contains("\"url\":\"https://autosilent.bg/products/vibrofiltr-1-5\"")
+                .doesNotContain("\\/");
     }
 
     @Test

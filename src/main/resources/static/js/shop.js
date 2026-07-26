@@ -395,16 +395,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 const x = (event.clientX - rect.left) / rect.width - 0.5;
                 const y = (event.clientY - rect.top) / rect.height - 0.5;
                 const lift = card.classList.contains('hero-slide-card') ? 18 : 8;
-                const rotateX = y * -8;
-                const rotateY = x * 10;
+                const shadowX = Math.round(x * -18);
+                const shadowY = Math.round(24 + y * 8);
 
                 card.classList.add('is-tilting');
-                card.style.transform = 'translateY(-' + lift + 'px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+                card.style.transform = 'translateY(-' + lift + 'px)';
+                card.style.boxShadow = shadowX + 'px ' + shadowY + 'px 55px rgba(25, 25, 25, 0.18)';
             });
 
             card.addEventListener('mouseleave', function () {
                 card.classList.remove('is-tilting');
                 card.style.transform = '';
+                card.style.boxShadow = '';
             });
         });
     }

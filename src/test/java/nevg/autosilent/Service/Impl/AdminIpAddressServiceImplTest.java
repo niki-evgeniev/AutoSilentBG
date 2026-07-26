@@ -100,7 +100,7 @@ class AdminIpAddressServiceImplTest {
         var captor = org.mockito.ArgumentCaptor.forClass(Pageable.class);
         verify(repository).findAll(captor.capture());
         assertThat(captor.getValue().getPageNumber()).isZero();
-        assertThat(captor.getValue().getPageSize()).isEqualTo(50);
+        assertThat(captor.getValue().getPageSize()).isEqualTo(15);
     }
 
     @Test

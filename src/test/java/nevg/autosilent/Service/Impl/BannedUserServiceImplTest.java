@@ -13,7 +13,11 @@ import java.time.ZoneOffset;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class BannedUserServiceImplTest {
@@ -24,12 +28,16 @@ class BannedUserServiceImplTest {
 
     @Test
     void bansAddressAfterConfiguredRequestLimit() {
-        when(ipAddressRepository.findByAddress("192.0.2.10")).thenReturn(Optional.empty());
+        IpAddress ipAddress = storedAddress("192.0.2.10");
+        when(ipAddressRepository.findByAddressForUpdate(ipAddress.getAddress()))
+                .thenReturn(Optional.of(ipAddress));
         BannedUserServiceImpl service = serviceWithLimit(2);
 
         assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isFalse();
         assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isFalse();
         assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isTrue();
+        verify(ipAddressRepository, times(3))
+                .insertIfAbsent(any(), eq("192.0.2.10"), any());
     }
 
     @Test
@@ -60,8 +68,12 @@ class BannedUserServiceImplTest {
     }
 
     private IpAddress storedAddress() {
+        return storedAddress("192.0.2.11");
+    }
+
+    private IpAddress storedAddress(String address) {
         IpAddress ipAddress = new IpAddress();
-        ipAddress.setAddress("192.0.2.11");
+        ipAddress.setAddress(address);
         ipAddress.setFirstSeen(LocalDateTime.now(clock).minusDays(1));
         ipAddress.setLastSeen(LocalDateTime.now(clock));
         return ipAddress;
