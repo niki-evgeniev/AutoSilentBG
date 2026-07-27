@@ -3,12 +3,14 @@ package nevg.autosilent.Service.Impl;
 import nevg.autosilent.Models.Dto.UserProfileDto;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Repository.UserRepository;
+import nevg.autosilent.Service.Exception.IncorrectPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -22,12 +24,14 @@ class UserProfileServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     private UserProfileServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new UserProfileServiceImpl(userRepository);
+        service = new UserProfileServiceImpl(userRepository, passwordEncoder);
     }
 
     @Test
@@ -83,6 +87,35 @@ class UserProfileServiceImplTest {
 
         assertThatThrownBy(() -> service.getProfile("missing@example.com"))
                 .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    void changePasswordVerifiesCurrentPasswordAndStoresEncodedNewPassword() {
+        User user = user();
+        user.setPassword("encoded-current");
+        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("current-password", "encoded-current")).thenReturn(true);
+        when(passwordEncoder.encode("new-password")).thenReturn("encoded-new");
+
+        service.changePassword("user@example.com", "current-password", "new-password");
+
+        assertThat(user.getPassword()).isEqualTo("encoded-new");
+        assertThat(user.getEditDate()).isNotNull();
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void changePasswordRejectsIncorrectCurrentPassword() {
+        User user = user();
+        user.setPassword("encoded-current");
+        when(userRepository.findByEmailIgnoreCase("user@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong-password", "encoded-current")).thenReturn(false);
+
+        assertThatThrownBy(() ->
+                service.changePassword("user@example.com", "wrong-password", "new-password"))
+                .isInstanceOf(IncorrectPasswordException.class);
+
+        assertThat(user.getPassword()).isEqualTo("encoded-current");
     }
 
     private User user() {

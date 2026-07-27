@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.data.domain.PageImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -40,12 +41,14 @@ class AdminUserControllerTest {
     void usersReturnsSortedServiceResult() {
         var users = List.of(new AdminUserSummaryDto(1L, "a@example.com", "A", "B", null,
                 RoleType.ADMIN, BigDecimal.ZERO, false));
-        when(service.getAll()).thenReturn(users);
+        var page = new PageImpl<>(users);
+        when(service.getAll("ivan", 2)).thenReturn(page);
 
-        var result = controller.users();
+        var result = controller.users("ivan", 2);
 
         assertThat(result.getViewName()).isEqualTo("admin-users");
-        assertThat(result.getModel().get("users")).isSameAs(users);
+        assertThat(result.getModel().get("users")).isSameAs(page);
+        assertThat(result.getModel()).containsEntry("query", "ivan");
     }
 
     @Test

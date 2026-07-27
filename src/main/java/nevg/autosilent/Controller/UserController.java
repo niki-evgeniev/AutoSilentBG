@@ -4,8 +4,10 @@ package nevg.autosilent.Controller;
 import jakarta.validation.Valid;
 import nevg.autosilent.Models.Dto.UserRegistrationDto;
 import nevg.autosilent.Models.Dto.UserProfileDto;
+import nevg.autosilent.Models.Dto.ChangePasswordDto;
 import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.EmailAlreadyExistsException;
+import nevg.autosilent.Service.Exception.IncorrectPasswordException;
 import nevg.autosilent.Service.UserRegistrationService;
 import nevg.autosilent.Service.UserProfileService;
 import nevg.autosilent.Service.UserOrderService;
@@ -76,7 +78,7 @@ public class UserController {
 
     @GetMapping("/user/profile")
     public ModelAndView profile(@AuthenticationPrincipal ShopUserDetails currentUser) {
-        return profileView(userProfileService.getProfile(currentUser.getUsername()));
+        return profileView(userProfileService.getProfile(currentUser.getUsername()), new ChangePasswordDto());
     }
 
     @GetMapping("/user/account")
@@ -112,11 +114,41 @@ public class UserController {
                                       RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             profile.setEmail(currentUser.getUsername());
-            return profileView(profile);
+            return profileView(profile, new ChangePasswordDto());
         }
         userProfileService.updateProfile(currentUser.getUsername(), profile);
         currentUser.setFirstName(profile.getFirstName().trim());
         redirectAttributes.addFlashAttribute("profileUpdated", true);
+        return new ModelAndView("redirect:/user/profile");
+    }
+
+    @PostMapping("/user/profile/password")
+    public ModelAndView changePassword(
+            @Valid @ModelAttribute("changePassword") ChangePasswordDto changePassword,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal ShopUserDetails currentUser,
+            RedirectAttributes redirectAttributes) {
+        if (!Objects.equals(changePassword.getNewPassword(), changePassword.getConfirmPassword())) {
+            bindingResult.rejectValue("confirmPassword", "password.mismatch", "Паролите не съвпадат.");
+        }
+        if (!bindingResult.hasErrors()) {
+            try {
+                userProfileService.changePassword(
+                        currentUser.getUsername(),
+                        changePassword.getCurrentPassword(),
+                        changePassword.getNewPassword());
+            } catch (IncorrectPasswordException exception) {
+                bindingResult.rejectValue(
+                        "currentPassword", "password.incorrect", exception.getMessage());
+            }
+        }
+        if (bindingResult.hasErrors()) {
+            ModelAndView modelAndView = profileView(
+                    userProfileService.getProfile(currentUser.getUsername()), changePassword);
+            modelAndView.addObject("openPasswordModal", true);
+            return modelAndView;
+        }
+        redirectAttributes.addFlashAttribute("passwordChanged", true);
         return new ModelAndView("redirect:/user/profile");
     }
 
@@ -126,9 +158,10 @@ public class UserController {
         return modelAndView;
     }
 
-    private ModelAndView profileView(UserProfileDto profile) {
+    private ModelAndView profileView(UserProfileDto profile, ChangePasswordDto changePassword) {
         ModelAndView modelAndView = new ModelAndView("profile");
         modelAndView.addObject("profile", profile);
+        modelAndView.addObject("changePassword", changePassword);
         return modelAndView;
     }
 }

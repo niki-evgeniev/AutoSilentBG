@@ -3,11 +3,11 @@ package nevg.autosilent.Service;
 import nevg.autosilent.Models.Dto.AdminUserEditDto;
 import nevg.autosilent.Models.Dto.AdminUserSummaryDto;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface AdminUserService {
 
-    List<AdminUserSummaryDto> getAll();
+    Page<AdminUserSummaryDto> getAll(String query, int page);
 
     AdminUserEditDto getForEdit(Long id);
 

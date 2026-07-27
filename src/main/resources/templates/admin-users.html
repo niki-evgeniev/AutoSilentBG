@@ -9,10 +9,27 @@
 <body><div th:replace="~{fragments/top-bar :: topBar}"></div><div th:replace="~{fragments/header :: header}"></div>
 <main class="admin-orders-page"><section class="container py-5">
     <div class="section-title text-start"><span th:text="#{admin.users.eyebrow}">Управление</span><h1 th:text="#{admin.users.heading}">Регистрирани профили</h1></div>
+    <form class="row g-2 mb-4" method="get" th:action="@{/admin/users}" role="search">
+        <div class="col">
+            <div class="input-icon-wrap">
+                <i class="bi bi-search"></i>
+                <input class="form-control" type="search" name="query" th:value="${query}"
+                       th:placeholder="#{admin.users.search.placeholder}"
+                       th:attr="aria-label=#{admin.users.search.label}" autocomplete="off">
+            </div>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-dark h-100 px-4" type="submit" th:text="#{admin.users.search.button}">Търси</button>
+        </div>
+        <div class="col-auto" th:if="${query != null and !query.isBlank()}">
+            <a class="btn btn-outline-secondary h-100 d-flex align-items-center" th:href="@{/admin/users}"
+               th:attr="aria-label=#{admin.users.search.clear}"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </form>
     <div class="admin-table-card">
         <div class="table-responsive" th:if="${!users.isEmpty()}"><table class="table align-middle admin-orders-table">
             <thead><tr><th th:text="#{admin.users.role}">Роля</th><th th:text="#{admin.users.profile}">Профил</th><th th:text="#{form.phone}">Телефон</th><th th:text="#{admin.users.discount}">Отстъпка</th><th th:text="#{admin.users.status}">Статус</th><th></th></tr></thead>
-            <tbody><tr th:each="account : ${users}">
+            <tbody><tr th:each="account : ${users.content}">
                 <td><span class="badge text-bg-dark" th:text="${account.role().name() == 'ADMIN'} ? #{role.ADMIN} : (${account.role().name() == 'MODERATOR'} ? #{role.MODERATOR} : #{role.USER})">USER</span></td>
                 <td><strong th:text="|${account.firstName()} ${account.lastName()}|">Име</strong><small class="d-block text-muted" th:text="${account.email()}">email</small></td>
                 <td th:text="${account.phoneNumber() ?: '—'}">—</td>
@@ -21,6 +38,23 @@
                 <td><a class="btn btn-sm btn-outline-dark" th:href="@{/admin/users/{id}(id=${account.id()})}"><i class="bi bi-person-gear me-1"></i><span th:text="#{admin.users.details}">Детайли</span></a></td>
             </tr></tbody>
         </table></div>
-        <div class="cart-empty" th:if="${users.isEmpty()}"><i class="bi bi-people"></i><h2 th:text="#{admin.users.empty}">Няма профили</h2></div>
+        <div class="cart-empty" th:if="${users.isEmpty()}"><i class="bi bi-people"></i>
+            <h2 th:text="${query != null and !query.isBlank()} ? #{admin.users.search.empty} : #{admin.users.empty}">Няма профили</h2>
+        </div>
+        <nav class="mt-4" th:if="${users.totalPages > 1}" th:aria-label="#{admin.users.pagination}">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item" th:classappend="${users.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/users(query=${query},page=${users.number - 1})}"
+                       th:text="#{admin.users.previous}">Назад</a>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link" th:text="|${users.number + 1} / ${users.totalPages}|"></span>
+                </li>
+                <li class="page-item" th:classappend="${users.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/users(query=${query},page=${users.number + 1})}"
+                       th:text="#{admin.users.next}">Напред</a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </section></main><div th:replace="~{fragments/footer :: footer}"></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script></body></html>

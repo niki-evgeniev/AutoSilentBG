@@ -14,6 +14,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class AdminUserServiceImplTest {
@@ -42,12 +45,12 @@ class AdminUserServiceImplTest {
 
     @Test
     void getAllSortsAdminsThenModeratorsThenUsers() {
-        when(userRepository.findAll()).thenReturn(List.of(
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(
                 user(3L, "user@example.com", RoleType.USER),
                 user(1L, "admin@example.com", RoleType.ADMIN),
-                user(2L, "moderator@example.com", RoleType.MODERATOR)));
+                user(2L, "moderator@example.com", RoleType.MODERATOR))));
 
-        var result = service.getAll();
+        var result = service.getAll("", 0);
 
         assertThat(result).extracting(dto -> dto.role())
                 .containsExactly(RoleType.ADMIN, RoleType.MODERATOR, RoleType.USER);
@@ -66,30 +69,57 @@ class AdminUserServiceImplTest {
         alpha.setLastName("User");
         alpha.setPhoneNumber("0888000001");
         alpha.setDiscountPercent(new BigDecimal("7.50"));
-        when(userRepository.findAll()).thenReturn(List.of(beta, alpha));
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(beta, alpha)));
 
-        var result = service.getAll();
+        var result = service.getAll(null, 0);
 
         assertThat(result).extracting(dto -> dto.email())
                 .containsExactly("Alpha@example.com", "beta@example.com");
-        assertThat(result.get(0).firstName()).isEqualTo("Alpha");
-        assertThat(result.get(0).lastName()).isEqualTo("User");
-        assertThat(result.get(0).phoneNumber()).isEqualTo("0888000001");
-        assertThat(result.get(0).discountPercent()).isEqualByComparingTo("7.50");
-        assertThat(result.get(0).blocked()).isFalse();
-        assertThat(result.get(1).discountPercent()).isEqualByComparingTo("0.00");
-        assertThat(result.get(1).blocked()).isTrue();
+        assertThat(result.getContent().get(0).firstName()).isEqualTo("Alpha");
+        assertThat(result.getContent().get(0).lastName()).isEqualTo("User");
+        assertThat(result.getContent().get(0).phoneNumber()).isEqualTo("0888000001");
+        assertThat(result.getContent().get(0).discountPercent()).isEqualByComparingTo("7.50");
+        assertThat(result.getContent().get(0).blocked()).isFalse();
+        assertThat(result.getContent().get(1).discountPercent()).isEqualByComparingTo("0.00");
+        assertThat(result.getContent().get(1).blocked()).isTrue();
     }
 
     @Test
     void getAllUsesHighestRoleWhenUserHasMultipleRoles() {
         User user = user(7L, "user@example.com", RoleType.USER);
         user.getRoles().add(role(RoleType.ADMIN));
-        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(user)));
 
-        var result = service.getAll();
+        var result = service.getAll("   ", 0);
 
         assertThat(result).singleElement().satisfies(dto -> assertThat(dto.role()).isEqualTo(RoleType.ADMIN));
+    }
+
+    @Test
+    void getAllSearchesByNormalizedEmailOrNameQuery() {
+        User user = user(7L, "ivan@example.com", RoleType.USER);
+        when(userRepository.searchByEmailOrName(
+                org.mockito.ArgumentMatchers.eq("Ivan Ivanov"), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(user)));
+
+        var result = service.getAll("  Ivan   Ivanov  ", 3);
+
+        assertThat(result).hasSize(1);
+        verify(userRepository).searchByEmailOrName(
+                org.mockito.ArgumentMatchers.eq("Ivan Ivanov"), any(Pageable.class));
+        verify(userRepository, never()).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void getAllRequestsTenUsersAndNormalizesNegativePage() {
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+        service.getAll("", -4);
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(userRepository).findAll(pageableCaptor.capture());
+        assertThat(pageableCaptor.getValue().getPageNumber()).isZero();
+        assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(10);
     }
 
     @Test

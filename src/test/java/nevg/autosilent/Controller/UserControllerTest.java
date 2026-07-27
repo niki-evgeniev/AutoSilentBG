@@ -2,10 +2,12 @@ package nevg.autosilent.Controller;
 
 import nevg.autosilent.Models.Dto.UserRegistrationDto;
 import nevg.autosilent.Models.Dto.UserProfileDto;
+import nevg.autosilent.Models.Dto.ChangePasswordDto;
 import nevg.autosilent.Models.Dto.UserOrderDetailDto;
 import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Models.Security.ShopUserDetails;
 import nevg.autosilent.Service.Exception.EmailAlreadyExistsException;
+import nevg.autosilent.Service.Exception.IncorrectPasswordException;
 import nevg.autosilent.Service.UserRegistrationService;
 import nevg.autosilent.Service.UserProfileService;
 import nevg.autosilent.Service.UserOrderService;
@@ -119,6 +121,7 @@ class UserControllerTest {
 
         assertThat(result.getViewName()).isEqualTo("profile");
         assertThat(result.getModel().get("profile")).isSameAs(profile);
+        assertThat(result.getModel().get("changePassword")).isInstanceOf(ChangePasswordDto.class);
     }
 
     @Test
@@ -171,6 +174,52 @@ class UserControllerTest {
         assertThat(userController.userAddresses().getViewName()).isEqualTo("user-addresses");
     }
 
+    @Test
+    void changePasswordSavesAndRedirects() {
+        ChangePasswordDto request = changePassword("old-password", "new-password", "new-password");
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        ModelAndView result = userController.changePassword(
+                request, new BeanPropertyBindingResult(request, "changePassword"),
+                currentUser(), redirectAttributes);
+
+        verify(profileService).changePassword(
+                "user@example.com", "old-password", "new-password");
+        assertThat(result.getViewName()).isEqualTo("redirect:/user/profile");
+        assertThat(redirectAttributes.getFlashAttributes()).containsKey("passwordChanged");
+    }
+
+    @Test
+    void changePasswordKeepsModalOpenWhenPasswordsDoNotMatch() {
+        ChangePasswordDto request = changePassword("old-password", "new-password", "different");
+        when(profileService.getProfile("user@example.com")).thenReturn(new UserProfileDto());
+        BindingResult bindingResult = new BeanPropertyBindingResult(request, "changePassword");
+
+        ModelAndView result = userController.changePassword(
+                request, bindingResult, currentUser(), new RedirectAttributesModelMap());
+
+        assertThat(result.getViewName()).isEqualTo("profile");
+        assertThat(result.getModel()).containsEntry("openPasswordModal", true);
+        assertThat(bindingResult.getFieldError("confirmPassword")).isNotNull();
+        verify(profileService, never()).changePassword(
+                "user@example.com", "old-password", "new-password");
+    }
+
+    @Test
+    void changePasswordAddsFieldErrorForIncorrectCurrentPassword() {
+        ChangePasswordDto request = changePassword("wrong-password", "new-password", "new-password");
+        when(profileService.getProfile("user@example.com")).thenReturn(new UserProfileDto());
+        doThrow(new IncorrectPasswordException()).when(profileService)
+                .changePassword("user@example.com", "wrong-password", "new-password");
+        BindingResult bindingResult = new BeanPropertyBindingResult(request, "changePassword");
+
+        ModelAndView result = userController.changePassword(
+                request, bindingResult, currentUser(), new RedirectAttributesModelMap());
+
+        assertThat(result.getModel()).containsEntry("openPasswordModal", true);
+        assertThat(bindingResult.getFieldError("currentPassword")).isNotNull();
+    }
+
     private UserRegistrationDto registration(String password, String confirmPassword) {
         UserRegistrationDto registration = new UserRegistrationDto();
         registration.setPassword(password);
@@ -180,6 +229,15 @@ class UserControllerTest {
 
     private BindingResult bindingResult(UserRegistrationDto registration) {
         return new BeanPropertyBindingResult(registration, "registration");
+    }
+
+    private ChangePasswordDto changePassword(String currentPassword, String newPassword,
+                                             String confirmPassword) {
+        ChangePasswordDto request = new ChangePasswordDto();
+        request.setCurrentPassword(currentPassword);
+        request.setNewPassword(newPassword);
+        request.setConfirmPassword(confirmPassword);
+        return request;
     }
 
     private ShopUserDetails currentUser() {

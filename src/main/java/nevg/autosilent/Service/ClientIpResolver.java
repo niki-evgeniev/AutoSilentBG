@@ -12,7 +12,8 @@ public class ClientIpResolver {
 
     private final boolean trustForwardedHeaders;
 
-    public ClientIpResolver(@Value("${AutoSilent.security.trust-forwarded-headers:false}") boolean trustForwardedHeaders) {
+    public ClientIpResolver(@Value("${AutoSilent.security.trust-forwarded-headers:false}")
+                            boolean trustForwardedHeaders) {
         this.trustForwardedHeaders = trustForwardedHeaders;
     }
 

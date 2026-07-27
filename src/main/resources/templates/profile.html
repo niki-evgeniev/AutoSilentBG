@@ -26,6 +26,7 @@
                     </div>
 
                     <div th:if="${profileUpdated}" class="alert alert-success" th:text="#{profile.success}"></div>
+                    <div th:if="${passwordChanged}" class="alert alert-success" th:text="#{profile.password.success}"></div>
                     <form th:action="@{/user/profile}" th:object="${profile}" method="post" novalidate>
                         <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" th:text="#{form.correctErrors}"></div>
                         <div class="row">
@@ -63,14 +64,80 @@
                         </div>
                         <button class="btn-auth-primary" type="submit" th:text="#{profile.save}">Запази промените</button>
                     </form>
+                    <button class="btn btn-outline-dark w-100 mt-3" type="button"
+                            data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="bi bi-key me-2"></i><span th:text="#{profile.password.button}">Смени паролата</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </main>
 
+<div class="modal fade" id="changePasswordModal" tabindex="-1"
+     aria-labelledby="changePasswordModalLabel" aria-hidden="true"
+     th:attr="data-open=${openPasswordModal}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content auth-form-card">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="auth-label" th:text="#{profile.password.label}">Сигурност</span>
+                    <h2 class="modal-title h4 mt-2" id="changePasswordModalLabel"
+                        th:text="#{profile.password.heading}">Смяна на парола</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        th:attr="aria-label=#{profile.password.close}"></button>
+            </div>
+            <form th:action="@{/user/profile/password}" th:object="${changePassword}" method="post">
+                <div class="modal-body">
+                    <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger"
+                         th:text="#{form.correctErrors}"></div>
+                    <div class="form-group-custom">
+                        <label for="currentPassword" th:text="#{profile.password.current}">Стара парола</label>
+                        <div class="input-icon-wrap"><i class="bi bi-lock"></i>
+                            <input id="currentPassword" th:field="*{currentPassword}" class="form-control"
+                                   th:errorclass="is-invalid" type="password" autocomplete="current-password"
+                                   maxlength="72" autofocus>
+                        </div>
+                        <div class="invalid-feedback d-block" th:errors="*{currentPassword}"></div>
+                    </div>
+                    <div class="form-group-custom">
+                        <label for="newPassword" th:text="#{profile.password.new}">Нова парола</label>
+                        <div class="input-icon-wrap"><i class="bi bi-shield-lock"></i>
+                            <input id="newPassword" th:field="*{newPassword}" class="form-control"
+                                   th:errorclass="is-invalid" type="password" autocomplete="new-password"
+                                   minlength="8" maxlength="72">
+                        </div>
+                        <div class="invalid-feedback d-block" th:errors="*{newPassword}"></div>
+                    </div>
+                    <div class="form-group-custom mb-0">
+                        <label for="confirmNewPassword" th:text="#{profile.password.confirm}">Повтори новата парола</label>
+                        <div class="input-icon-wrap"><i class="bi bi-shield-check"></i>
+                            <input id="confirmNewPassword" th:field="*{confirmPassword}" class="form-control"
+                                   th:errorclass="is-invalid" type="password" autocomplete="new-password"
+                                   maxlength="72">
+                        </div>
+                        <div class="invalid-feedback d-block" th:errors="*{confirmPassword}"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                            th:text="#{profile.password.cancel}">Отказ</button>
+                    <button type="submit" class="btn-auth-primary flex-grow-1"
+                            th:text="#{profile.password.submit}">Смени паролата</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:if="${openPasswordModal}">
+    document.addEventListener('DOMContentLoaded', function () {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('changePasswordModal')).show();
+    });
+</script>
 <script src="/js/shop.js"></script>
 </body>
 </html>

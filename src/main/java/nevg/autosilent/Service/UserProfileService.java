@@ -7,4 +7,6 @@ public interface UserProfileService {
     UserProfileDto getProfile(String email);
 
     void updateProfile(String email, UserProfileDto profile);
+
+    void changePassword(String email, String currentPassword, String newPassword);
 }

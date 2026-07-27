@@ -10,6 +10,10 @@ import nevg.autosilent.Repository.UserRoleRepository;
 import nevg.autosilent.Service.AdminUserService;
 import nevg.autosilent.Service.Exception.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ import java.util.Locale;
 @Service
 public class AdminUserServiceImpl implements AdminUserService {
 
+    private static final int PAGE_SIZE = 10;
     private final UserRepository userRepository;
     private final UserRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,14 +41,21 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdminUserSummaryDto> getAll() {
-        return userRepository.findAll().stream()
+    public Page<AdminUserSummaryDto> getAll(String query, int page) {
+        String normalizedQuery = normalizeSearchQuery(query);
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), PAGE_SIZE,
+                Sort.by(Sort.Order.asc("email").ignoreCase()));
+        Page<User> users = normalizedQuery.isEmpty()
+                ? userRepository.findAll(pageRequest)
+                : userRepository.searchByEmailOrName(normalizedQuery, pageRequest);
+        List<AdminUserSummaryDto> content = users.stream()
                 .map(user -> new AdminUserSummaryDto(user.getId(), user.getEmail(), user.getFirstName(),
                         user.getLastName(), user.getPhoneNumber(), highestRole(user),
                         discount(user), user.isBlocked()))
                 .sorted(Comparator.comparingInt((AdminUserSummaryDto user) -> roleOrder(user.role()))
                         .thenComparing(AdminUserSummaryDto::email, String.CASE_INSENSITIVE_ORDER))
                 .toList();
+        return new PageImpl<>(content, pageRequest, users.getTotalElements());
     }
 
     @Override
@@ -111,5 +123,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private String normalizeOptional(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private String normalizeSearchQuery(String query) {
+        return query == null ? "" : query.trim().replaceAll("\\s+", " ");
     }
 }
