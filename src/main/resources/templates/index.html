@@ -204,7 +204,7 @@
                             <a class="product-name-link" th:href="@{/products/{url}(url=${product.url()})}">
                                 <h3 th:text="${product.displayName()}">Марка и модел</h3>
                             </a>
-                            <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
+                            <div class="price" th:text="#{product.priceWithLabel(${product.price()})}">Цена: 0.00 €</div>
                             <button class="btn btn-orange w-100 add-cart"
                                     th:disabled="${product.stock() == 0}"
                                     th:text="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('products.soldOut')}">

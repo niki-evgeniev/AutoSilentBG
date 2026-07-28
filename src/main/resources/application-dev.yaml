@@ -4,12 +4,12 @@ spring:
       on-profile: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://192.168.0.120:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia
-#    username: root
-#    password: 12345
-    url: jdbc:mysql://localhost:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia
+    url: "jdbc:mysql://192.168.0.120:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
     username: root
     password: 12345
+#    url: jdbc:mysql://localhost:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia
+#    username: root
+#    password: 12345
   messages:
     cache-duration: 0s
   thymeleaf:

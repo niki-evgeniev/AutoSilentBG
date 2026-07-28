@@ -27,6 +27,7 @@
                 <table class="table align-middle admin-orders-table ip-addresses-table">
                     <thead>
                     <tr>
+                        <th th:text="#{admin.ipAddresses.id}">ID</th>
                         <th th:text="#{admin.ipAddresses.address}">IP адрес</th>
                         <th th:text="#{admin.ipAddresses.firstSeen}">Добавен</th>
                         <th th:text="#{admin.ipAddresses.lastSeen}">Последно видян</th>
@@ -38,6 +39,9 @@
                     </thead>
                     <tbody>
                     <tr th:each="address : ${addresses.content}">
+                        <td th:attr="data-label=#{admin.ipAddresses.id}">
+                            <strong th:text="${address.id()}"></strong>
+                        </td>
                         <td th:attr="data-label=#{admin.ipAddresses.address}">
                             <div>
                                 <strong th:text="${address.address()}"></strong>
@@ -102,6 +106,10 @@
             <nav class="mt-4" th:if="${addresses.totalPages > 1}" th:aria-label="#{admin.ipAddresses.pagination}">
                 <ul class="pagination justify-content-center mb-0">
                     <li class="page-item" th:classappend="${addresses.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/ip-addresses(page=0)}"
+                           th:text="#{admin.ipAddresses.first}">Първа</a>
+                    </li>
+                    <li class="page-item" th:classappend="${addresses.first} ? 'disabled'">
                         <a class="page-link" th:href="@{/admin/ip-addresses(page=${addresses.number - 1})}"
                            th:text="#{admin.ipAddresses.previous}">Назад</a>
                     </li>
@@ -111,6 +119,11 @@
                     <li class="page-item" th:classappend="${addresses.last} ? 'disabled'">
                         <a class="page-link" th:href="@{/admin/ip-addresses(page=${addresses.number + 1})}"
                            th:text="#{admin.ipAddresses.next}">Напред</a>
+                    </li>
+                    <li class="page-item" th:classappend="${addresses.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/ip-addresses(page=${addresses.totalPages - 1})}"
+                           th:text="#{admin.ipAddresses.last}">Последна</a>
                     </li>
                 </ul>
             </nav>

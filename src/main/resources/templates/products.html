@@ -262,7 +262,7 @@
                                        th:text="${product.description()}">
                                         Описание на продукта
                                     </p>
-                                    <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
+                                    <div class="price" th:text="#{product.priceWithLabel(${product.price()})}">Цена: 0.00 €</div>
                                     <div class="product-card-actions">
                                         <a class="btn btn-outline-dark custom-outline"
                                            th:href="@{/products/{url}(url=${product.url()})}">
