@@ -5,7 +5,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: "jdbc:mysql://192.168.0.120:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia"
-    username: root
+    username: test
     password: 12345
 #    url: jdbc:mysql://localhost:3306/autosilent?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=Europe/Sofia
 #    username: root
@@ -24,7 +24,6 @@ spring:
         period: 0
 
 AutoSilent:
-  site-url: http://localhost:8080
   remember.me.key: 1234
   security:
     trust-forwarded-headers: false

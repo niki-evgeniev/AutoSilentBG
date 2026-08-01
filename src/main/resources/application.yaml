@@ -25,6 +25,7 @@ spring:
         format_sql: true
 
 AutoSilent:
+  site-url: ${AUTOSILENT_SITE_URL:https://autosilent.bg}
   security:
     rate-limit:
       enabled: true

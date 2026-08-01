@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,8 +37,23 @@ class BannedUserServiceImplTest {
         assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isFalse();
         assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isFalse();
         assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isTrue();
-        verify(ipAddressRepository, times(3))
+        verify(ipAddressRepository, never())
                 .insertIfAbsent(any(), eq("192.0.2.10"), any());
+    }
+
+    @Test
+    void firstVisitInsertsAddressOnlyAfterLookupShowsItIsMissing() {
+        String address = "192.0.2.12";
+        IpAddress insertedAddress = storedAddress(address);
+        insertedAddress.setCountVisits(0L);
+        when(ipAddressRepository.findByAddressForUpdate(address))
+                .thenReturn(Optional.empty(), Optional.of(insertedAddress));
+
+        assertThat(serviceWithLimit(100).recordVisitAndCheckIfBanned(address, null)).isFalse();
+
+        verify(ipAddressRepository, times(1)).insertIfAbsent(any(), eq(address), any());
+        assertThat(insertedAddress.getCountVisits()).isEqualTo(1);
+        assertThat(insertedAddress.getLastSeen()).isEqualTo(LocalDateTime.now(clock));
     }
 
     @Test

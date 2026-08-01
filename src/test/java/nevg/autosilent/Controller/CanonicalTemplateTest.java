@@ -19,6 +19,14 @@ class CanonicalTemplateTest {
                 .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/\">");
         assertThat(template("contact.html"))
                 .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/contact\">");
+        assertThat(template("product-return.html"))
+                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/returns\">");
+        assertThat(template("delivery.html"))
+                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/delivery\">");
+        assertThat(template("payment.html"))
+                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/payment\">");
+        assertThat(template("privacy-policy.html"))
+                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/privacy-policy\">");
     }
 
     @Test

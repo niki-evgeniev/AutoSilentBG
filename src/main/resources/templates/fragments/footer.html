@@ -27,15 +27,15 @@
             <div class="col-6 col-lg-3">
                 <h3 th:text="#{footer.information}">Информация</h3>
                 <a th:href="@{/contact}" th:text="#{footer.about}">За нас</a>
-                <a href="#" th:text="#{footer.delivery}">Доставка</a>
-                <a href="#" th:text="#{footer.returns}">Връщане и замяна</a>
+                <a th:href="@{/delivery}" th:text="#{footer.delivery}">Доставка</a>
+                <a th:href="@{/returns}" th:text="#{footer.returns}">Връщане и замяна</a>
                 <a href="#" th:text="#{footer.terms}">Общи условия</a>
             </div>
             <div class="col-6 col-lg-3">
                 <h3 th:text="#{footer.help}">Помощ</h3>
                 <a href="#" th:text="#{footer.faq}">Често задавани въпроси</a>
-                <a href="#" th:text="#{footer.sizes}">Размери и съвместимост</a>
-                <a href="#" th:text="#{footer.payment}">Плащане</a>
+                <a th:href="@{/privacy-policy}" th:text="#{footer.privacy}">Политика за личните данни (GDPR)</a>
+                <a th:href="@{/payment}" th:text="#{footer.payment}">Плащане</a>
                 <a th:href="@{/contact}" th:text="#{footer.contacts}">Контакти</a>
             </div>
             <div class="col-lg-3">

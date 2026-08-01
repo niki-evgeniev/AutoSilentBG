@@ -102,9 +102,9 @@
                             <div class="form-group-custom">
                                 <label for="description" th:text="#{add.description}">Информация за продукта</label>
                                 <textarea id="description" th:field="*{description}" class="form-control product-description"
-                                          th:errorclass="is-invalid" rows="7" maxlength="5000"
+                                          th:errorclass="is-invalid" rows="14" maxlength="10000"
                                           th:placeholder="#{add.description.placeholder}"></textarea>
-                                <div class="form-hint" th:text="#{add.description.hint}">Между 10 и 5000 символа.</div>
+                                <div class="form-hint" th:text="#{add.description.hint}">Между 10 и 10000 символа.</div>
                                 <div class="invalid-feedback d-block" th:errors="*{description}"></div>
                             </div>
                         </div>

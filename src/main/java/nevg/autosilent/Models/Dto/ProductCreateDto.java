@@ -31,7 +31,7 @@ public class ProductCreateDto {
     private BigDecimal price;
 
     @NotBlank(message = "{validation.product.description.required}")
-    @Size(min = 10, max = 5000, message = "{validation.product.description.size}")
+    @Size(min = 10, max = 10000, message = "{validation.product.description.size}")
     private String description;
 
     @Min(value = 0, message = "{validation.product.stock.min}")

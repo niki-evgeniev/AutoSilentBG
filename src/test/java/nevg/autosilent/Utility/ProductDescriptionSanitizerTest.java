@@ -10,6 +10,7 @@ class ProductDescriptionSanitizerTest {
     void sanitizeKeepsProductFormattingAndRemovesExecutableHtml() {
         String html = """
                 <h3 onclick="alert(1)">Характеристики</h3>
+                <div>Допълнителна информация</div>
                 <p>Тих <strong>продукт</strong></p>
                 <script>alert('xss')</script>
                 <a href="javascript:alert(1)" style="color:red">Опасен линк</a>
@@ -20,6 +21,7 @@ class ProductDescriptionSanitizerTest {
 
         assertThat(result)
                 .contains("<h3>Характеристики</h3>")
+                .contains("<div>Допълнителна информация</div>")
                 .contains("<p>Тих <strong>продукт</strong></p>")
                 .contains("href=\"https://example.com\"")
                 .contains("rel=\"nofollow noopener noreferrer\"")

@@ -32,7 +32,7 @@ public class SitemapServiceImpl implements SitemapService {
 
     public SitemapServiceImpl(ProductRepository productRepository,
                               CategoryRepository categoryRepository,
-                              @Value("${AutoSilent.site-url:http://localhost:8080}") String siteUrl) {
+                              @Value("${AutoSilent.site-url:https://autosilent.bg}") String siteUrl) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.siteUrl = normalizeSiteUrl(siteUrl);

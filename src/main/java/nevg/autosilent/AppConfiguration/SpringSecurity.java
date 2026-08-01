@@ -42,7 +42,7 @@ public class SpringSecurity {
                         .requestMatchers("/favorites/**").authenticated()
                         .requestMatchers("/products/add", "/products/*/edit", "/products/*/seo").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/products/*/delete").hasRole("ADMIN")
-                        .requestMatchers("/", "/cart", "/contact", "/contact/success", "/user/sign_in", "/user/forgot-password", "/orders/checkout", "/orders/cart", "/orders/promo-code",
+                        .requestMatchers("/", "/cart", "/contact", "/contact/success", "/delivery", "/payment", "/privacy-policy", "/returns", "/returns/success", "/user/sign_in", "/user/forgot-password", "/orders/checkout", "/orders/cart", "/orders/promo-code",
                                 "/orders/quick", "/orders/success/*",
                                 "/api/***", "/user/sign_up",
                                 "/users/login-error", "/users/logout",

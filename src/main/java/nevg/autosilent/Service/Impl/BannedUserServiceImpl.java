@@ -54,9 +54,7 @@ public class BannedUserServiceImpl implements BannedUserService {
     @Transactional
     public synchronized boolean recordVisitAndCheckIfBanned(String address, String username) {
         LocalDateTime now = LocalDateTime.now(clock);
-        ipAddressRepository.insertIfAbsent(UUID.randomUUID(), address, now);
-        IpAddress ipAddress = ipAddressRepository.findByAddressForUpdate(address)
-                .orElseThrow(() -> new IllegalStateException("Failed to load IP address after insert: " + address));
+        IpAddress ipAddress = findOrCreateForUpdate(address, now);
 
         ipAddress.setLastSeen(now);
         ipAddress.setCountVisits(ipAddress.getCountVisits() + 1);
@@ -79,6 +77,16 @@ public class BannedUserServiceImpl implements BannedUserService {
 
         ipAddressRepository.save(ipAddress);
         return ipAddress.isBanned();
+    }
+
+    private IpAddress findOrCreateForUpdate(String address, LocalDateTime now) {
+        return ipAddressRepository.findByAddressForUpdate(address)
+                .orElseGet(() -> {
+                    ipAddressRepository.insertIfAbsent(UUID.randomUUID(), address, now);
+                    return ipAddressRepository.findByAddressForUpdate(address)
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "Failed to load IP address after insert: " + address));
+                });
     }
 
     @Override

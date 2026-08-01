@@ -28,7 +28,7 @@
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-lg-5">
-                    <span class="eyebrow" th:text="#{home.hero.eyebrow}">Модерен онлайн магазин</span>
+                    <span class="eyebrow" th:text="#{home.hero.eyebrow}"></span>
                     <h1 th:text="#{home.hero.title}">Намери правилния продукт за теб</h1>
                     <p th:text="#{home.hero.text}">Качествени продукти, бърза доставка и сигурно плащане.</p>
                     <div class="hero-buttons">
@@ -57,13 +57,12 @@
                                             <span
                                                     th:text="#{home.slide1.label}">Топ продукт</span>
                                             <h2
-                                                    th:text="#{home.slide1.title}">Стойка за телефон</h2>
+                                                    th:text="#{home.slide1.title}"></h2>
                                             <p
-                                                    th:text="#{home.slide1.text}">Стабилна стойка за автомобил с модерен
-                                                дизайн.</p>
+                                                    th:text="#{home.slide1.text}">Намалява вибрациите и резонанса в металните панели.</p>
                                         </div>
                                         <img src="/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png"
-                                             alt="Стойка за телефон за автомобил">
+                                             alt="Звукоизолация и шумоизолация">
                                     </article>
                                 </div>
                                 <div class="swiper-slide">
@@ -78,7 +77,7 @@
                                                 пътуване.</p>
                                         </div>
                                         <img src="/images/ba6495b3-73f9-4d94-ae0a-7ef317cbd0de.png"
-                                             alt="Бързо зарядно за автомобил">
+                                             alt="Звукоизолация и шумоизолация">
                                     </article>
                                 </div>
                                 <div class="swiper-slide">
@@ -93,7 +92,7 @@
                                                 акцент.</p>
                                         </div>
                                         <img src="/images/fe4d53b7-608e-424f-b4b4-6444d1e027d4.png"
-                                             alt="Стелки за автомобил">
+                                             alt="Звукоизолация и шумоизолация">
                                     </article>
                                 </div>
                             </div>
@@ -204,7 +203,7 @@
                             <a class="product-name-link" th:href="@{/products/{url}(url=${product.url()})}">
                                 <h3 th:text="${product.displayName()}">Марка и модел</h3>
                             </a>
-                            <div class="price" th:text="#{product.priceWithLabel(${product.price()})}">Цена: 0.00 €</div>
+                            <div class="price" th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">Цена: 0.00 €</div>
                             <button class="btn btn-orange w-100 add-cart"
                                     th:disabled="${product.stock() == 0}"
                                     th:text="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('products.soldOut')}">
