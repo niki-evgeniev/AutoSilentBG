@@ -33,7 +33,7 @@ public class SpringSecurity {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/ProductImages/**").permitAll()
-                        .requestMatchers("/robots.txt", "/sitemap.xml", "/error").permitAll()
+                        .requestMatchers("/robots.txt", "/sitemap.xml", "/llms.txt", "/error").permitAll()
                         .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/inquiries/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/ip-addresses/**").hasRole("ADMIN")

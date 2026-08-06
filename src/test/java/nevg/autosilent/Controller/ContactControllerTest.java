@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -32,10 +33,21 @@ class ContactControllerTest {
 
     @Test
     void contactReturnsEmptyForm() {
-        ModelAndView result = controller.contact();
+        ModelAndView result = controller.contact(new MockHttpServletRequest());
 
         assertThat(result.getViewName()).isEqualTo("contact");
         assertThat(result.getModel().get("inquiry")).isInstanceOf(ContactInquiryDto.class);
+    }
+
+    @Test
+    void contactInitializesCsrfTokenBeforeRenderingForm() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        CsrfToken csrfToken = org.mockito.Mockito.mock(CsrfToken.class);
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+
+        controller.contact(request);
+
+        verify(csrfToken).getToken();
     }
 
     @Test

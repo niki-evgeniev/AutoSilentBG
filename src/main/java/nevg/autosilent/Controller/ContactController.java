@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import nevg.autosilent.Models.Dto.ContactInquiryDto;
 import nevg.autosilent.Service.ClientIpResolver;
 import nevg.autosilent.Service.ContactInquiryService;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,8 @@ public class ContactController {
     }
 
     @GetMapping("/contact")
-    public ModelAndView contact() {
+    public ModelAndView contact(HttpServletRequest request) {
+        initializeCsrfToken(request);
         return form(new ContactInquiryDto());
     }
 
@@ -38,6 +40,7 @@ public class ContactController {
                                BindingResult bindingResult,
                                HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
+            initializeCsrfToken(request);
             return form(inquiry);
         }
         contactInquiryService.create(inquiry, clientIpResolver.resolve(request));
@@ -48,5 +51,12 @@ public class ContactController {
         ModelAndView result = new ModelAndView("contact");
         result.addObject("inquiry", inquiry);
         return result;
+    }
+
+    private void initializeCsrfToken(HttpServletRequest request) {
+        Object csrfAttribute = request.getAttribute(CsrfToken.class.getName());
+        if (csrfAttribute instanceof CsrfToken csrfToken) {
+            csrfToken.getToken();
+        }
     }
 }
