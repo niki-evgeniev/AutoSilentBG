@@ -1092,8 +1092,16 @@ a { text-decoration: none; }
 }
 
 .products-page-section {
-    background: #fff;
+    background: transparent;
     padding: 54px 0 76px;
+}
+
+.products-page {
+    background: #f7f7f7;
+}
+
+.home-page {
+    background: #f7f7f7;
 }
 
 .filter-sidebar {
