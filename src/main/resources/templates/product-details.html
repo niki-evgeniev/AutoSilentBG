@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
 <head>
     <title th:text="${seo != null ? seo.title : #messages.msg('details.title', product.displayName())}">Детайли за продукт - AutoSilent</title>
-    <meta name="robots" content="noindex">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="description" th:content="${seo != null ? seo.description : product.plainDescription()}">
     <meta name="keywords" th:if="${seo != null and seo.keywords != null}" th:content="${seo.keywords}">
     <meta property="og:title" th:content="${seo != null ? seo.title : product.displayName()}">
@@ -14,14 +14,13 @@
     <meta property="og:type" content="product">
     <meta property="og:url" th:content="|https://autosilent.bg/products/${product.url()}|">
     <link rel="canonical" th:href="|https://autosilent.bg/products/${product.url()}|">
-
-
     <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": /*[[${product.displayName()}]]*/ "Product",
-            "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/ "Product description",
+            "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/
+            "Product description",
             "sku": /*[[${product.sku()}]]*/ "SKU",
             "brand": {
                 "@type": "Brand",
@@ -29,7 +28,8 @@
             },
             "category": /*[[${product.category()}]]*/ "Category",
             "url": "https://autosilent.bg/products/[(${product.url()})]",
-            "image": [(${product.mainImageUrl() == null ? 'null' : '"https://autosilent.bg' + product.mainImageUrl() + '"'})],
+            "image": [(${product.mainImageUrl() == null ? 'null' : '"https://autosilent.bg',
+                + product.mainImageUrl() + '"'})],
             "offers": {
                 "@type": "Offer",
                 "url": "https://autosilent.bg/products/[(${product.url()})]",
