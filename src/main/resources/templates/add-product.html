@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:lang="${#locale.language}">
 <head>
     <meta name="robots" content="noindex">
     <meta charset="UTF-8">
@@ -21,7 +22,8 @@
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
                     <li class="breadcrumb-item"><a th:href="@{/products}" th:text="#{site.products}">Продукти</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" th:text="#{site.addProduct}">Добави продукт</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{site.addProduct}">Добави продукт
+                    </li>
                 </ol>
             </nav>
             <span class="eyebrow" th:text="#{add.catalog}">Управление на каталога</span>
@@ -36,7 +38,8 @@
                 <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{add.success}"></span>
             </div>
 
-            <form th:action="${editMode} ? @{/products/{id}/edit(id=${productId})} : @{/products/add}" th:object="${product}" method="post"
+            <form th:action="${editMode} ? @{/products/{id}/edit(id=${productId})} : @{/products/add}"
+                  th:object="${product}" method="post"
                   enctype="multipart/form-data" class="product-editor" novalidate>
                 <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
                     <i class="bi bi-exclamation-circle-fill me-2"></i>
@@ -50,7 +53,8 @@
                         <div class="product-editor-card tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-box-seam"></i></div>
-                                <div><h2 th:text="#{add.basic}">Основна информация</h2><p th:text="#{add.basic.text}">Данните, които клиентите ще виждат.</p></div>
+                                <div><h2 th:text="#{add.basic}">Основна информация</h2>
+                                    <p th:text="#{add.basic.text}">Данните, които клиентите ще виждат.</p></div>
                             </div>
 
                             <div class="row">
@@ -88,10 +92,12 @@
                                             <i class="bi bi-grid"></i>
                                             <select id="categoryId" th:field="*{categoryId}" class="form-select"
                                                     th:errorclass="is-invalid">
-                                                <option value="" th:text="#{add.category.choose}">Избери категория</option>
+                                                <option value="" th:text="#{add.category.choose}">Избери категория
+                                                </option>
                                                 <option th:each="category : ${categories}"
                                                         th:value="${category.id()}"
-                                                        th:text="${category.name()}">Категория</option>
+                                                        th:text="${category.name()}">Категория
+                                                </option>
                                             </select>
                                         </div>
                                         <div class="invalid-feedback d-block" th:errors="*{categoryId}"></div>
@@ -101,7 +107,8 @@
 
                             <div class="form-group-custom">
                                 <label for="description" th:text="#{add.description}">Информация за продукта</label>
-                                <textarea id="description" th:field="*{description}" class="form-control product-description"
+                                <textarea id="description" th:field="*{description}"
+                                          class="form-control product-description"
                                           th:errorclass="is-invalid" rows="14" maxlength="10000"
                                           th:placeholder="#{add.description.placeholder}"></textarea>
                                 <div class="form-hint" th:text="#{add.description.hint}">Между 10 и 10000 символа.</div>
@@ -114,14 +121,16 @@
                         <div class="product-editor-card mb-4 tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-cash-coin"></i></div>
-                                <div><h2 th:text="#{add.priceStock}">Цена и наличност</h2><p th:text="#{add.priceStock.text}">Търговски данни за продукта.</p></div>
+                                <div><h2 th:text="#{add.priceStock}">Цена и наличност</h2>
+                                    <p th:text="#{add.priceStock.text}">Търговски данни за продукта.</p></div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group-custom">
                                         <label for="price" th:text="#{add.price}">Цена (€)</label>
                                         <input id="price" th:field="*{price}" type="number" min="0.01" step="0.01"
-                                               class="form-control product-plain-input" th:errorclass="is-invalid" placeholder="19.99">
+                                               class="form-control product-plain-input" th:errorclass="is-invalid"
+                                               placeholder="19.99">
                                         <div class="invalid-feedback d-block" th:errors="*{price}"></div>
                                     </div>
                                 </div>
@@ -136,17 +145,20 @@
                             </div>
                             <div class="form-check product-active-check">
                                 <input id="active" th:field="*{active}" class="form-check-input" type="checkbox">
-                                <label class="form-check-label" for="active" th:text="#{add.active}">Покажи продукта в магазина</label>
+                                <label class="form-check-label" for="active" th:text="#{add.active}">Покажи продукта в
+                                    магазина</label>
                             </div>
                         </div>
 
                         <div class="product-editor-card tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-images"></i></div>
-                                <div><h2 th:text="#{add.images}">Снимки</h2><p th:text="#{add.images.text}">JPG, PNG или WEBP, до 5 MB всяка.</p></div>
+                                <div><h2 th:text="#{add.images}">Снимки</h2>
+                                    <p th:text="#{add.images.text}">JPG, PNG или WEBP, до 5 MB всяка.</p></div>
                             </div>
 
-                            <div th:if="${editMode and !product.existingImages.isEmpty()}" class="existing-product-images mb-4">
+                            <div th:if="${editMode and !product.existingImages.isEmpty()}"
+                                 class="existing-product-images mb-4">
                                 <div class="existing-product-image" th:each="image : ${product.existingImages}">
                                     <img th:src="${image.url()}" th:alt="#{edit.existingImage}">
                                     <label>
@@ -162,7 +174,8 @@
 
                             <label for="mainImage" class="product-upload-box">
                                 <i class="bi bi-cloud-arrow-up"></i>
-                                <strong th:text="${editMode} ? #{edit.newMainImage} : #{add.mainImage}">Главна снимка</strong>
+                                <strong th:text="${editMode} ? #{edit.newMainImage} : #{add.mainImage}">Главна
+                                    снимка</strong>
                                 <span th:text="${editMode} ? #{edit.newMainImage.text} : #{add.mainImage.text}">Задължителна, точно 1 снимка</span>
                                 <input id="mainImage" th:field="*{mainImage}" type="file"
                                        accept="image/jpeg,image/png,image/webp" th:required="${!editMode}">
@@ -189,9 +202,11 @@
                             th:data-confirm-message="#{edit.deleteConfirm}">
                         <i class="bi bi-trash3 me-2"></i><span th:text="#{edit.delete}">Изтрий</span>
                     </button>
-                    <a th:href="${editMode} ? @{/products/{id}(id=${productId})} : @{/products}" class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
+                    <a th:href="${editMode} ? @{/products/{id}(id=${productId})} : @{/products}"
+                       class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
-                        <i class="bi me-2" th:classappend="${editMode} ? 'bi-check-circle' : 'bi-plus-circle'"></i><span th:text="${editMode} ? #{edit.submit} : #{add.submit}">Добави продукта</span>
+                        <i class="bi me-2" th:classappend="${editMode} ? 'bi-check-circle' : 'bi-plus-circle'"></i><span
+                            th:text="${editMode} ? #{edit.submit} : #{add.submit}">Добави продукта</span>
                     </button>
                 </div>
             </form>

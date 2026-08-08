@@ -21,39 +21,53 @@
         <div class="admin-table-card">
             <div class="table-responsive" th:if="${!inquiries.isEmpty()}">
                 <table class="table align-middle admin-orders-table">
-                    <thead><tr>
+                    <thead>
+                    <tr>
                         <th th:text="#{admin.inquiries.status}">Статус</th>
                         <th th:text="#{admin.inquiries.sender}">Подател</th>
                         <th th:text="#{contact.subject}">Тема</th>
                         <th th:text="#{admin.inquiries.date}">Дата</th>
                         <th th:text="#{admin.inquiries.action}">Действие</th>
-                    </tr></thead>
+                    </tr>
+                    </thead>
                     <tbody>
-                    <tr th:each="inquiry : ${inquiries.content}" th:classappend="${!inquiry.read()} ? 'table-light fw-semibold'">
+                    <tr th:each="inquiry : ${inquiries.content}"
+                        th:classappend="${!inquiry.read()} ? 'table-light fw-semibold'">
                         <td>
-                            <span th:if="${inquiry.read()}" class="badge text-bg-secondary" th:text="#{admin.inquiries.read}">Прочетено</span>
-                            <span th:unless="${inquiry.read()}" class="badge text-bg-danger" th:text="#{admin.inquiries.unread}">Ново</span>
+                            <span th:if="${inquiry.read()}" class="badge text-bg-secondary"
+                                  th:text="#{admin.inquiries.read}">Прочетено</span>
+                            <span th:unless="${inquiry.read()}" class="badge text-bg-danger"
+                                  th:text="#{admin.inquiries.unread}">Ново</span>
                         </td>
-                        <td><strong th:text="${inquiry.name()}">Име</strong><small class="d-block text-muted" th:text="${inquiry.email()}">email</small></td>
+                        <td><strong th:text="${inquiry.name()}">Име</strong><small class="d-block text-muted"
+                                                                                   th:text="${inquiry.email()}">email</small>
+                        </td>
                         <td th:text="${inquiry.subject()}">Тема</td>
                         <td th:text="${#temporals.format(inquiry.createdAt(), 'dd.MM.yyyy HH:mm')}">Дата</td>
-                        <td><a class="btn btn-sm btn-outline-dark" th:href="@{/admin/inquiries/{id}(id=${inquiry.id()})}">
-                            <i class="bi bi-envelope-open me-1"></i><span th:text="#{admin.inquiries.open}">Отвори</span></a></td>
+                        <td><a class="btn btn-sm btn-outline-dark"
+                               th:href="@{/admin/inquiries/{id}(id=${inquiry.id()})}">
+                            <i class="bi bi-envelope-open me-1"></i><span
+                                th:text="#{admin.inquiries.open}">Отвори</span></a></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <div class="cart-empty" th:if="${inquiries.isEmpty()}">
-                <i class="bi bi-inbox"></i><h2 th:text="#{admin.inquiries.empty}">Няма запитвания</h2>
+                <i class="bi bi-inbox"></i>
+                <h2 th:text="#{admin.inquiries.empty}">Няма запитвания</h2>
             </div>
             <nav class="mt-4" th:if="${inquiries.totalPages > 1}" th:aria-label="#{admin.inquiries.pagination}">
                 <ul class="pagination justify-content-center mb-0">
                     <li class="page-item" th:classappend="${inquiries.first} ? 'disabled'">
-                        <a class="page-link" th:href="@{/admin/inquiries(page=${inquiries.number - 1})}" th:text="#{admin.inquiries.previous}">Назад</a>
+                        <a class="page-link" th:href="@{/admin/inquiries(page=${inquiries.number - 1})}"
+                           th:text="#{admin.inquiries.previous}">Назад</a>
                     </li>
-                    <li class="page-item disabled"><span class="page-link" th:text="|${inquiries.number + 1} / ${inquiries.totalPages}|"></span></li>
+                    <li class="page-item disabled"><span class="page-link"
+                                                         th:text="|${inquiries.number + 1} / ${inquiries.totalPages}|"></span>
+                    </li>
                     <li class="page-item" th:classappend="${inquiries.last} ? 'disabled'">
-                        <a class="page-link" th:href="@{/admin/inquiries(page=${inquiries.number + 1})}" th:text="#{admin.inquiries.next}">Напред</a>
+                        <a class="page-link" th:href="@{/admin/inquiries(page=${inquiries.number + 1})}"
+                           th:text="#{admin.inquiries.next}">Напред</a>
                     </li>
                 </ul>
             </nav>

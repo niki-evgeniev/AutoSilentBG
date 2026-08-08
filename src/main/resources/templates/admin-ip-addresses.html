@@ -20,7 +20,8 @@
         </div>
 
         <div class="alert alert-success" th:if="${ipBanUpdated}"
-             th:text="#{admin.ipAddresses.updated}">Статусът на адреса е обновен.</div>
+             th:text="#{admin.ipAddresses.updated}">Статусът на адреса е обновен.
+        </div>
 
         <div class="admin-table-card admin-ip-addresses-card">
             <div class="table-responsive ip-addresses-table-wrapper" th:if="${!addresses.isEmpty()}">
@@ -71,26 +72,31 @@
                         </td>
                         <td th:attr="data-label=#{admin.ipAddresses.actions}">
                             <div class="ip-ban-actions" th:unless="${address.banned()}">
-                                <form th:action="@{/admin/ip-addresses/{id}/ban/temporary(id=${address.id()})}" method="post">
+                                <form th:action="@{/admin/ip-addresses/{id}/ban/temporary(id=${address.id()})}"
+                                      method="post">
                                     <input name="page" type="hidden" th:value="${addresses.number}">
                                     <label class="visually-hidden" th:for="|banDays-${address.id()}|"
                                            th:text="#{admin.ipAddresses.days}">Дни</label>
                                     <input class="form-control form-control-sm" th:id="|banDays-${address.id()}|"
                                            name="days" type="number" min="1" max="3650" value="7" required>
                                     <button class="btn btn-sm btn-outline-danger" type="submit"
-                                            th:text="#{admin.ipAddresses.banForDays}">Бан за дни</button>
+                                            th:text="#{admin.ipAddresses.banForDays}">Бан за дни
+                                    </button>
                                 </form>
-                                <form th:action="@{/admin/ip-addresses/{id}/ban/permanent(id=${address.id()})}" method="post">
+                                <form th:action="@{/admin/ip-addresses/{id}/ban/permanent(id=${address.id()})}"
+                                      method="post">
                                     <input name="page" type="hidden" th:value="${addresses.number}">
                                     <button class="btn btn-sm btn-danger" type="submit"
-                                            th:text="#{admin.ipAddresses.banForever}">Бан завинаги</button>
+                                            th:text="#{admin.ipAddresses.banForever}">Бан завинаги
+                                    </button>
                                 </form>
                             </div>
                             <form th:if="${address.banned()}"
                                   th:action="@{/admin/ip-addresses/{id}/unban(id=${address.id()})}" method="post">
                                 <input name="page" type="hidden" th:value="${addresses.number}">
                                 <button class="btn btn-sm btn-outline-success" type="submit"
-                                        th:text="#{admin.ipAddresses.unban}">Премахни бан</button>
+                                        th:text="#{admin.ipAddresses.unban}">Премахни бан
+                                </button>
                             </form>
                         </td>
                     </tr>

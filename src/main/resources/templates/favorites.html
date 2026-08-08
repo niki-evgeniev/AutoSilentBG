@@ -16,7 +16,8 @@
 <main>
     <section class="shop-hero-small page-3d-hero">
         <div class="container">
-            <span class="eyebrow"><i class="bi bi-heart-fill me-2"></i><span th:text="#{favorites.eyebrow}">Моят списък</span></span>
+            <span class="eyebrow"><i class="bi bi-heart-fill me-2"></i><span
+                    th:text="#{favorites.eyebrow}">Моят списък</span></span>
             <h1 th:text="#{favorites.heading}">Любими продукти</h1>
             <p th:text="#{favorites.intro}">Запазените от вас продукти.</p>
         </div>
@@ -27,7 +28,8 @@
                 <div class="col-12 col-sm-6 col-lg-4 col-xl-3" th:each="product : ${products}">
                     <article class="product-card shop-product-card tilt-card"
                              th:data-product-id="${product.id()}" th:data-product-name="${product.displayName()}"
-                             th:data-product-price="${product.price()}" th:data-product-image="${product.mainImageUrl()}"
+                             th:data-product-price="${product.price()}"
+                             th:data-product-image="${product.mainImageUrl()}"
                              th:data-product-url="@{/products/{url}(url=${product.url()})}">
                         <form method="post" th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
                             <input type="hidden" name="source" value="favorites">
@@ -36,18 +38,28 @@
                             </button>
                         </form>
                         <div class="product-image">
-                            <img th:if="${product.mainImageUrl() != null}" th:src="${product.mainImageUrl()}" th:alt="${product.displayName()}">
-                            <i th:unless="${product.mainImageUrl() != null}" class="bi bi-box-seam product-placeholder-icon"></i>
+                            <img th:if="${product.mainImageUrl() != null}" th:src="${product.mainImageUrl()}"
+                                 th:alt="${product.displayName()}">
+                            <i th:unless="${product.mainImageUrl() != null}"
+                               class="bi bi-box-seam product-placeholder-icon"></i>
                         </div>
                         <div class="product-content">
-                            <div class="product-meta"><span th:text="|#{products.brand}: ${product.name()}|">Марка</span><span th:text="|#{products.model}: ${product.model()}|">Модел</span></div>
-                            <div class="product-meta"><span th:text="${product.category()}">Категория</span><span th:text="${product.sku()}">Код</span></div>
-                            <h3 class="text-center"><a class="product-name-link" th:href="@{/products/{url}(url=${product.url()})}" th:text="${product.displayName()}">Марка и модел</a></h3>
+                            <div class="product-meta"><span
+                                    th:text="|#{products.brand}: ${product.name()}|">Марка</span><span
+                                    th:text="|#{products.model}: ${product.model()}|">Модел</span></div>
+                            <div class="product-meta"><span th:text="${product.category()}">Категория</span><span
+                                    th:text="${product.sku()}">Код</span></div>
+                            <h3 class="text-center"><a class="product-name-link"
+                                                       th:href="@{/products/{url}(url=${product.url()})}"
+                                                       th:text="${product.displayName()}">Марка и модел</a></h3>
                             <p class="product-card-description" th:text="${product.description()}">Описание</p>
                             <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
                             <div class="product-card-actions">
-                                <a class="btn btn-outline-dark custom-outline" th:href="@{/products/{url}(url=${product.url()})}" th:text="#{products.more}">Виж повече</a>
-                                <button class="btn btn-orange add-cart" th:disabled="${product.stock() == 0}"><i class="bi bi-cart-plus"></i></button>
+                                <a class="btn btn-outline-dark custom-outline"
+                                   th:href="@{/products/{url}(url=${product.url()})}" th:text="#{products.more}">Виж
+                                    повече</a>
+                                <button class="btn btn-orange add-cart" th:disabled="${product.stock() == 0}"><i
+                                        class="bi bi-cart-plus"></i></button>
                             </div>
                         </div>
                     </article>
@@ -56,7 +68,8 @@
             <div class="alert alert-light text-center py-5" th:if="${products.isEmpty()}">
                 <i class="bi bi-heart display-5 d-block mb-3"></i>
                 <h2 class="h4" th:text="#{favorites.empty}">Нямате любими продукти.</h2>
-                <a class="btn btn-orange mt-3" th:href="@{/products}" th:text="#{favorites.browse}">Разгледай продуктите</a>
+                <a class="btn btn-orange mt-3" th:href="@{/products}" th:text="#{favorites.browse}">Разгледай
+                    продуктите</a>
             </div>
         </div>
     </section>

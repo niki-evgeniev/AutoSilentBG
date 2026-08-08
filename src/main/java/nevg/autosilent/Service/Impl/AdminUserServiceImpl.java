@@ -105,7 +105,8 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private RoleType highestRole(User user) {
         if (user.getRoles().stream().anyMatch(role -> role.getRoleType() == RoleType.ADMIN)) return RoleType.ADMIN;
-        if (user.getRoles().stream().anyMatch(role -> role.getRoleType() == RoleType.MODERATOR)) return RoleType.MODERATOR;
+        if (user.getRoles().stream().anyMatch(role -> role.getRoleType() == RoleType.MODERATOR))
+            return RoleType.MODERATOR;
         return RoleType.USER;
     }
 

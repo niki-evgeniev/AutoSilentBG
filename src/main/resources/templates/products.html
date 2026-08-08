@@ -47,12 +47,12 @@
 
     <script type="application/ld+json">
         {
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "name": "Автомобилна шумоизолация и виброизолация",
-          "url": "https://autosilent.bg/products",
-          "inLanguage": "bg-BG",
-          "description": "Каталог с материали за автомобилна шумоизолация, звукоизолация и виброизолация."
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Автомобилна шумоизолация и виброизолация",
+            "url": "https://autosilent.bg/products",
+            "inLanguage": "bg-BG",
+            "description": "Каталог с материали за автомобилна шумоизолация, звукоизолация и виброизолация."
         }
     </script>
 
@@ -73,7 +73,9 @@
 <main class="products-page page-3d">
     <section class="shop-hero-small page-3d-hero">
         <div class="container">
-            <div th:if="${productDeleted}" class="alert alert-success" th:text="#{edit.deleted}">Продуктът е изтрит успешно.</div>
+            <div th:if="${productDeleted}" class="alert alert-success" th:text="#{edit.deleted}">Продуктът е изтрит
+                успешно.
+            </div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
@@ -97,10 +99,14 @@
                         <label class="visually-hidden" for="productsSearch" th:text="#{site.search}">Търси</label>
                         <input id="productsSearch" name="search" type="search" maxlength="150"
                                th:value="${search}" th:placeholder="#{products.search.placeholder}">
-                        <input th:if="${filter.brand() != null}" type="hidden" name="brand" th:value="${filter.brand()}">
-                        <input th:if="${filter.model() != null}" type="hidden" name="model" th:value="${filter.model()}">
-                        <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice" th:value="${filter.minPrice()}">
-                        <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice" th:value="${filter.maxPrice()}">
+                        <input th:if="${filter.brand() != null}" type="hidden" name="brand"
+                               th:value="${filter.brand()}">
+                        <input th:if="${filter.model() != null}" type="hidden" name="model"
+                               th:value="${filter.model()}">
+                        <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice"
+                               th:value="${filter.minPrice()}">
+                        <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice"
+                               th:value="${filter.maxPrice()}">
                         <input th:if="${filter.inStock()}" type="hidden" name="inStock" value="true">
                         <input type="hidden" name="order" th:value="${sortMode}">
                         <button type="submit" th:text="#{site.search}">Търси</button>
@@ -115,7 +121,8 @@
             <div class="mobile-filter-button d-lg-none mb-3">
                 <button class="btn btn-orange w-100" type="button" data-bs-toggle="offcanvas"
                         data-bs-target="#mobileFilters" aria-controls="mobileFilters">
-                    <i class="bi bi-sliders me-2"></i> <span th:text="#{products.filter.mobile}">Филтрирай продуктите</span>
+                    <i class="bi bi-sliders me-2"></i> <span
+                        th:text="#{products.filter.mobile}">Филтрирай продуктите</span>
                 </button>
             </div>
 
@@ -150,11 +157,13 @@
                                 <span th:text="#{products.brand}">Марка</span>
                                 <select id="brandDesktop" class="form-select" name="brand">
                                     <option value="" th:selected="${filter.brand() == null}"
-                                            th:text="#{products.allBrands}">Всички марки</option>
+                                            th:text="#{products.allBrands}">Всички марки
+                                    </option>
                                     <option th:each="brandOption : ${brands}"
                                             th:value="${brandOption}"
                                             th:text="${brandOption}"
-                                            th:selected="${brandOption == filter.brand()}">Марка</option>
+                                            th:selected="${brandOption == filter.brand()}">Марка
+                                    </option>
                                 </select>
                             </label>
                         </div>
@@ -164,11 +173,13 @@
                                 <span th:text="#{products.model}">Модел</span>
                                 <select id="modelDesktop" class="form-select" name="model">
                                     <option value="" th:selected="${filter.model() == null}"
-                                            th:text="#{products.allModels}">Всички модели</option>
+                                            th:text="#{products.allModels}">Всички модели
+                                    </option>
                                     <option th:each="modelOption : ${models}"
                                             th:value="${modelOption}"
                                             th:text="${modelOption}"
-                                            th:selected="${modelOption == filter.model()}">Модел</option>
+                                            th:selected="${modelOption == filter.model()}">Модел
+                                    </option>
                                 </select>
                             </label>
                         </div>
@@ -200,7 +211,8 @@
                         </div>
 
                         <button type="submit" class="btn btn-orange w-100"
-                                th:text="#{products.apply}">Приложи филтрите</button>
+                                th:text="#{products.apply}">Приложи филтрите
+                        </button>
                     </form>
                 </aside>
 
@@ -217,24 +229,34 @@
                                   th:action="${selectedCategory == null}
                                       ? @{/products}
                                       : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
-                                <input th:if="${filter.search() != null}" type="hidden" name="search" th:value="${filter.search()}">
-                                <input th:if="${filter.brand() != null}" type="hidden" name="brand" th:value="${filter.brand()}">
-                                <input th:if="${filter.model() != null}" type="hidden" name="model" th:value="${filter.model()}">
-                                <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice" th:value="${filter.minPrice()}">
-                                <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice" th:value="${filter.maxPrice()}">
+                                <input th:if="${filter.search() != null}" type="hidden" name="search"
+                                       th:value="${filter.search()}">
+                                <input th:if="${filter.brand() != null}" type="hidden" name="brand"
+                                       th:value="${filter.brand()}">
+                                <input th:if="${filter.model() != null}" type="hidden" name="model"
+                                       th:value="${filter.model()}">
+                                <input th:if="${filter.minPrice() != null}" type="hidden" name="minPrice"
+                                       th:value="${filter.minPrice()}">
+                                <input th:if="${filter.maxPrice() != null}" type="hidden" name="maxPrice"
+                                       th:value="${filter.maxPrice()}">
                                 <input th:if="${filter.inStock()}" type="hidden" name="inStock" value="true">
                                 <select class="form-select" name="order" onchange="this.form.submit()"
                                         th:aria-label="#{products.sort}">
                                     <option value="default" th:selected="${sortMode == 'default'}"
-                                            th:text="#{products.sort.default}">Марка и модел</option>
+                                            th:text="#{products.sort.default}">Марка и модел
+                                    </option>
                                     <option value="bestSelling" th:selected="${sortMode == 'bestSelling'}"
-                                            th:text="#{products.sort.bestSelling}">Най-продавани</option>
+                                            th:text="#{products.sort.bestSelling}">Най-продавани
+                                    </option>
                                     <option value="priceAsc" th:selected="${sortMode == 'priceAsc'}"
-                                            th:text="#{products.sort.priceAsc}">Цена: ниска към висока</option>
+                                            th:text="#{products.sort.priceAsc}">Цена: ниска към висока
+                                    </option>
                                     <option value="priceDesc" th:selected="${sortMode == 'priceDesc'}"
-                                            th:text="#{products.sort.priceDesc}">Цена: висока към ниска</option>
+                                            th:text="#{products.sort.priceDesc}">Цена: висока към ниска
+                                    </option>
                                     <option value="newest" th:selected="${sortMode == 'newest'}"
-                                            th:text="#{products.sort.newest}">Най-нови</option>
+                                            th:text="#{products.sort.newest}">Най-нови
+                                    </option>
                                 </select>
                             </form>
                             <button class="view-btn active" aria-label="Grid view"><i class="bi bi-grid-3x3-gap"></i>
@@ -303,7 +325,10 @@
                                        th:text="${product.description()}">
                                         Описание на продукта
                                     </p>
-                                    <div class="price" th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">Цена: 0.00 €</div>
+                                    <div class="price"
+                                         th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">
+                                        Цена: 0.00 €
+                                    </div>
                                     <div class="product-card-actions">
                                         <a class="btn btn-outline-dark custom-outline"
                                            th:href="@{/products/{url}(url=${product.url()})}">
@@ -383,9 +408,11 @@
                     <span th:text="#{products.brand}">Марка</span>
                     <select id="brandMobile" class="form-select" name="brand">
                         <option value="" th:selected="${filter.brand() == null}"
-                                th:text="#{products.allBrands}">Всички марки</option>
+                                th:text="#{products.allBrands}">Всички марки
+                        </option>
                         <option th:each="brandOption : ${brands}" th:value="${brandOption}"
-                                th:text="${brandOption}" th:selected="${brandOption == filter.brand()}">Марка</option>
+                                th:text="${brandOption}" th:selected="${brandOption == filter.brand()}">Марка
+                        </option>
                     </select>
                 </label>
             </div>
@@ -394,9 +421,11 @@
                     <span th:text="#{products.model}">Модел</span>
                     <select id="modelMobile" class="form-select" name="model">
                         <option value="" th:selected="${filter.model() == null}"
-                                th:text="#{products.allModels}">Всички модели</option>
+                                th:text="#{products.allModels}">Всички модели
+                        </option>
                         <option th:each="modelOption : ${models}" th:value="${modelOption}"
-                                th:text="${modelOption}" th:selected="${modelOption == filter.model()}">Модел</option>
+                                th:text="${modelOption}" th:selected="${modelOption == filter.model()}">Модел
+                        </option>
                     </select>
                 </label>
             </div>
@@ -425,7 +454,8 @@
                     <span th:text="#{products.inStock}">В наличност</span></label>
             </div>
             <button type="submit" class="btn btn-orange w-100"
-                    th:text="#{products.apply}">Приложи филтрите</button>
+                    th:text="#{products.apply}">Приложи филтрите
+            </button>
         </form>
     </div>
 </div>

@@ -44,12 +44,12 @@
 
     <script type="application/ld+json">
         {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": "AutoSilent.bg",
-          "url": "https://autosilent.bg/",
-          "inLanguage": "bg-BG",
-          "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони."
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "AutoSilent.bg",
+            "url": "https://autosilent.bg/",
+            "inLanguage": "bg-BG",
+            "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони."
         }
     </script>
 
@@ -86,13 +86,13 @@
 
                 <div class="col-lg-7">
                     <div class="hero-slider-wrap home-3d-scene">
-<!--                        <div class="scene-orbit" aria-hidden="true"></div>-->
-<!--                        <div class="scene-chip chip-fast" aria-hidden="true">-->
-<!--                            <i class="bi bi-lightning-charge-fill"></i></div>-->
-<!--                        <div class="scene-chip chip-secure" aria-hidden="true">-->
-<!--                            <i class="bi bi-shield-lock-fill"></i></div>-->
-<!--                        <div class="scene-chip chip-delivery" aria-hidden="true">-->
-<!--                            <i class="bi bi-truck"></i></div>-->
+                        <!--                        <div class="scene-orbit" aria-hidden="true"></div>-->
+                        <!--                        <div class="scene-chip chip-fast" aria-hidden="true">-->
+                        <!--                            <i class="bi bi-lightning-charge-fill"></i></div>-->
+                        <!--                        <div class="scene-chip chip-secure" aria-hidden="true">-->
+                        <!--                            <i class="bi bi-shield-lock-fill"></i></div>-->
+                        <!--                        <div class="scene-chip chip-delivery" aria-hidden="true">-->
+                        <!--                            <i class="bi bi-truck"></i></div>-->
                         <div class="swiper hero-swiper">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide">
@@ -103,7 +103,8 @@
                                             <h2
                                                     th:text="#{home.slide1.title}"></h2>
                                             <p
-                                                    th:text="#{home.slide1.text}">Намалява вибрациите и резонанса в металните панели.</p>
+                                                    th:text="#{home.slide1.text}">Намалява вибрациите и резонанса в
+                                                металните панели.</p>
                                         </div>
                                         <img src="/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png"
                                              alt="Звукоизолация и шумоизолация">
@@ -247,7 +248,10 @@
                             <a class="product-name-link" th:href="@{/products/{url}(url=${product.url()})}">
                                 <h3 th:text="${product.displayName()}">Марка и модел</h3>
                             </a>
-                            <div class="price" th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">Цена: 0.00 €</div>
+                            <div class="price"
+                                 th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">
+                                Цена: 0.00 €
+                            </div>
                             <button class="btn btn-orange w-100 add-cart"
                                     th:disabled="${product.stock() == 0}"
                                     th:text="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('products.soldOut')}">

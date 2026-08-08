@@ -18,7 +18,9 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb custom-breadcrumb">
                 <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                <li class="breadcrumb-item active" aria-current="page" th:text="#{admin.promoCodes.heading}">Промокодове</li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="#{admin.promoCodes.heading}">
+                    Промокодове
+                </li>
             </ol>
         </nav>
 
@@ -27,7 +29,9 @@
             <h1 th:text="#{admin.promoCodes.heading}">Промокодове</h1>
         </div>
 
-        <div th:if="${promoCodeCreated}" class="alert alert-success" th:text="#{admin.promoCodes.created}">Промокодът е добавен.</div>
+        <div th:if="${promoCodeCreated}" class="alert alert-success" th:text="#{admin.promoCodes.created}">Промокодът е
+            добавен.
+        </div>
 
         <div class="admin-order-grid">
             <section class="admin-detail-card">
@@ -50,7 +54,8 @@
                         </select>
                         <div class="invalid-feedback d-block" th:errors="*{discountPercent}"></div>
                     </div>
-                    <button class="btn btn-orange w-100" type="submit" th:text="#{admin.promoCodes.save}">Запази</button>
+                    <button class="btn btn-orange w-100" type="submit" th:text="#{admin.promoCodes.save}">Запази
+                    </button>
                 </form>
             </section>
 

@@ -13,14 +13,10 @@
     <link href="/css/shop.css" rel="stylesheet">
 </head>
 <body>
-
-<!-- Top Bar -->
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 
-<!-- Header -->
 <div th:replace="~{fragments/header :: header}"></div>
 
-<!-- Login Section -->
 <main class="auth-page page-3d">
     <div class="container">
         <div class="row align-items-center justify-content-center g-5">
@@ -48,8 +44,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Login form -->
             <div class="col-lg-5 col-md-8">
                 <div class="auth-form-card auth-3d-card tilt-card">
                     <div class="auth-form-header">
@@ -71,7 +65,6 @@
                             <label for="email" th:text="#{form.email}">Имейл адрес</label>
                             <div class="input-icon-wrap">
                                 <i class="bi bi-envelope"></i>
-<!--                                 value="info@carpmap.bg"-->
                                 <input id="email"
 
                                        name="email"
@@ -86,9 +79,7 @@
                             <label for="password" th:text="#{form.password}">Парола</label>
                             <div class="input-icon-wrap">
                                 <i class="bi bi-lock"></i>
-<!--                            value="12345"     -->
                                 <input id="password"
-
                                        name="password"
                                        type="password"
                                        class="form-control"
@@ -104,17 +95,14 @@
                                     <span th:text="#{login.remember}">Запомни ме</span>
                                 </label>
                             </div>
-
-                            <a th:href="@{/user/forgot-password}" class="forgot-link" th:text="#{login.forgot}">Забравена парола?</a>
+                            <a th:href="@{/user/forgot-password}" class="forgot-link" th:text="#{login.forgot}">Забравена
+                                парола?</a>
                         </div>
-
                         <button type="submit" class="btn-auth-primary" th:text="#{login.submit}">Влез в профила</button>
                     </form>
-
                     <div class="auth-divider">
                         <span th:text="#{site.or}">или</span>
                     </div>
-
                     <a th:href="@{/user/sign_up}" class="btn-auth-secondary">
                         <span th:text="#{login.create}">Създай нов профил</span>
                     </a>

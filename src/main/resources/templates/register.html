@@ -7,28 +7,18 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <title th:text="#{register.title}">Регистрация - AutoSilent</title>
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <link href="/css/shop.css" rel="stylesheet">
 </head>
 <body>
 
-<!-- Top Bar -->
+
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
-
-<!-- Header -->
 <div th:replace="~{fragments/header :: header}"></div>
-
-<!-- Register Section -->
 <main class="auth-page page-3d">
     <div class="container">
         <div class="row align-items-center justify-content-center g-5">
-
-            <!-- Register form -->
             <div class="col-lg-6 col-md-9">
                 <div class="auth-form-card register-card auth-3d-card tilt-card">
                     <div class="auth-form-header">
@@ -57,7 +47,6 @@
                                     <div class="invalid-feedback d-block" th:errors="*{firstName}"></div>
                                 </div>
                             </div>
-
                             <div class="col-md-6">
                                 <div class="form-group-custom">
                                     <label for="lastName" th:text="#{form.lastName}">Фамилия</label>
@@ -75,7 +64,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-group-custom">
                             <label for="email" th:text="#{form.email}">Имейл адрес</label>
                             <div class="input-icon-wrap">
@@ -90,9 +78,9 @@
                             </div>
                             <div class="invalid-feedback d-block" th:errors="*{email}"></div>
                         </div>
-
                         <div class="form-group-custom">
-                            <label for="phoneNumber"><span th:text="#{form.phone}">Телефон</span> <span class="text-muted" th:text="#{form.optional}">(незадължително)</span></label>
+                            <label for="phoneNumber"><span th:text="#{form.phone}">Телефон</span> <span
+                                    class="text-muted" th:text="#{form.optional}">(незадължително)</span></label>
                             <div class="input-icon-wrap">
                                 <i class="bi bi-telephone"></i>
                                 <input id="phoneNumber"
@@ -104,7 +92,6 @@
                             </div>
                             <div class="invalid-feedback d-block" th:errors="*{phoneNumber}"></div>
                         </div>
-
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group-custom">
@@ -122,10 +109,10 @@
                                     <div class="invalid-feedback d-block" th:errors="*{password}"></div>
                                 </div>
                             </div>
-
                             <div class="col-md-6">
                                 <div class="form-group-custom">
-                                    <label for="confirmPassword" th:text="#{form.password.repeat}">Повтори парола</label>
+                                    <label for="confirmPassword" th:text="#{form.password.repeat}">Повтори
+                                        парола</label>
                                     <div class="input-icon-wrap">
                                         <i class="bi bi-lock-fill"></i>
                                         <input id="confirmPassword"
@@ -140,7 +127,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="terms-check">
                             <label class="form-check-label terms-label" for="termsAccepted">
                                 <input id="termsAccepted" th:field="*{termsAccepted}" class="form-check-input"
@@ -154,10 +140,9 @@
                             </label>
                             <div class="invalid-feedback d-block" th:errors="*{termsAccepted}"></div>
                         </div>
-
-                        <button type="submit" class="btn-auth-primary" th:text="#{register.submit}">Създай профил</button>
+                        <button type="submit" class="btn-auth-primary" th:text="#{register.submit}">Създай профил
+                        </button>
                     </form>
-
                     <div class="auth-divider">
                         <span th:text="#{site.or}">или</span>
                     </div>
@@ -167,8 +152,6 @@
                     </a>
                 </div>
             </div>
-
-            <!-- Right visual/text -->
             <div class="col-lg-5 d-none d-lg-block">
                 <div class="auth-info-card register-info-card auth-3d-card tilt-card">
                     <span class="auth-label" th:text="#{register.label}">AutoSilent профил</span>
@@ -191,7 +174,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </main>

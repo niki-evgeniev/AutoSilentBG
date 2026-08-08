@@ -26,15 +26,18 @@
                     </div>
 
                     <div th:if="${profileUpdated}" class="alert alert-success" th:text="#{profile.success}"></div>
-                    <div th:if="${passwordChanged}" class="alert alert-success" th:text="#{profile.password.success}"></div>
+                    <div th:if="${passwordChanged}" class="alert alert-success"
+                         th:text="#{profile.password.success}"></div>
                     <form th:action="@{/user/profile}" th:object="${profile}" method="post" novalidate>
-                        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" th:text="#{form.correctErrors}"></div>
+                        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger"
+                             th:text="#{form.correctErrors}"></div>
                         <div class="row">
                             <div class="col-md-6 form-group-custom">
                                 <label for="profileFirstName" th:text="#{form.firstName}">Име</label>
                                 <div class="input-icon-wrap"><i class="bi bi-person"></i>
                                     <input id="profileFirstName" th:field="*{firstName}" class="form-control"
-                                           th:errorclass="is-invalid" type="text" autocomplete="given-name" maxlength="50">
+                                           th:errorclass="is-invalid" type="text" autocomplete="given-name"
+                                           maxlength="50">
                                 </div>
                                 <div class="invalid-feedback d-block" th:errors="*{firstName}"></div>
                             </div>
@@ -42,7 +45,8 @@
                                 <label for="profileLastName" th:text="#{form.lastName}">Фамилия</label>
                                 <div class="input-icon-wrap"><i class="bi bi-person"></i>
                                     <input id="profileLastName" th:field="*{lastName}" class="form-control"
-                                           th:errorclass="is-invalid" type="text" autocomplete="family-name" maxlength="50">
+                                           th:errorclass="is-invalid" type="text" autocomplete="family-name"
+                                           maxlength="50">
                                 </div>
                                 <div class="invalid-feedback d-block" th:errors="*{lastName}"></div>
                             </div>
@@ -52,17 +56,20 @@
                             <div class="input-icon-wrap"><i class="bi bi-envelope"></i>
                                 <input id="profileEmail" th:field="*{email}" class="form-control" type="email" readonly>
                             </div>
-                            <div class="form-hint" th:text="#{profile.emailHint}">Email адресът се използва за вход.</div>
+                            <div class="form-hint" th:text="#{profile.emailHint}">Email адресът се използва за вход.
+                            </div>
                         </div>
                         <div class="form-group-custom">
-                            <label for="profilePhone"><span th:text="#{form.phone}">Телефон</span> <span class="text-muted" th:text="#{form.optional}">(незадължително)</span></label>
+                            <label for="profilePhone"><span th:text="#{form.phone}">Телефон</span> <span
+                                    class="text-muted" th:text="#{form.optional}">(незадължително)</span></label>
                             <div class="input-icon-wrap"><i class="bi bi-telephone"></i>
                                 <input id="profilePhone" th:field="*{phoneNumber}" class="form-control"
                                        th:errorclass="is-invalid" type="tel" autocomplete="tel" maxlength="20">
                             </div>
                             <div class="invalid-feedback d-block" th:errors="*{phoneNumber}"></div>
                         </div>
-                        <button class="btn-auth-primary" type="submit" th:text="#{profile.save}">Запази промените</button>
+                        <button class="btn-auth-primary" type="submit" th:text="#{profile.save}">Запази промените
+                        </button>
                     </form>
                     <button class="btn btn-outline-dark w-100 mt-3" type="button"
                             data-bs-toggle="modal" data-bs-target="#changePasswordModal">
@@ -111,7 +118,8 @@
                         <div class="invalid-feedback d-block" th:errors="*{newPassword}"></div>
                     </div>
                     <div class="form-group-custom mb-0">
-                        <label for="confirmNewPassword" th:text="#{profile.password.confirm}">Повтори новата парола</label>
+                        <label for="confirmNewPassword" th:text="#{profile.password.confirm}">Повтори новата
+                            парола</label>
                         <div class="input-icon-wrap"><i class="bi bi-shield-check"></i>
                             <input id="confirmNewPassword" th:field="*{confirmPassword}" class="form-control"
                                    th:errorclass="is-invalid" type="password" autocomplete="new-password"
@@ -122,9 +130,11 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
-                            th:text="#{profile.password.cancel}">Отказ</button>
+                            th:text="#{profile.password.cancel}">Отказ
+                    </button>
                     <button type="submit" class="btn-auth-primary flex-grow-1"
-                            th:text="#{profile.password.submit}">Смени паролата</button>
+                            th:text="#{profile.password.submit}">Смени паролата
+                    </button>
                 </div>
             </form>
         </div>

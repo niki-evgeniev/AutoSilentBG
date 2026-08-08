@@ -11,10 +11,7 @@
     <meta name="keywords"
           content="контакти AutoSilent, AutoSilent телефон, AutoSilent имейл, консултация за звукоизолация, поръчка на шумоизолация">
     <meta name="author" content="AutoSilent.bg">
-
-
     <link rel="canonical" href="https://autosilent.bg/contact">
-
     <meta property="og:locale" content="bg_BG">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AutoSilent.bg">
@@ -30,7 +27,6 @@
     <meta property="og:image:width" content="1672">
     <meta property="og:image:height" content="941">
     <meta property="og:image:alt" content="Контакти с AutoSilent.bg">
-
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Контакти с AutoSilent.bg">
     <meta name="twitter:description"
@@ -41,12 +37,12 @@
 
     <script type="application/ld+json">
         {
-          "@context": "https://schema.org",
-          "@type": "ContactPage",
-          "name": "Контакти с AutoSilent.bg",
-          "url": "https://autosilent.bg/contact",
-          "inLanguage": "bg-BG",
-          "description": "Контактна страница за въпроси, поръчки и консултация при избор на автомобилна звукоизолация."
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            "name": "Контакти с AutoSilent.bg",
+            "url": "https://autosilent.bg/contact",
+            "inLanguage": "bg-BG",
+            "description": "Контактна страница за въпроси, поръчки и консултация при избор на автомобилна звукоизолация."
         }
     </script>
 
@@ -77,13 +73,16 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-12">
-                    <form class="product-editor h-100" method="post" th:action="@{/contact}" th:object="${inquiry}" novalidate>
+                    <form class="product-editor h-100" method="post" th:action="@{/contact}" th:object="${inquiry}"
+                          novalidate>
                         <div class="product-editor-card tilt-card h-100">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-chat-dots"></i></div>
-                                <div><h2 th:text="#{contact.form.heading}">Изпратете запитване</h2><p th:text="#{contact.form.intro}">Ще разгледаме съобщението ви.</p></div>
+                                <div><h2 th:text="#{contact.form.heading}">Изпратете запитване</h2>
+                                    <p th:text="#{contact.form.intro}">Ще разгледаме съобщението ви.</p></div>
                             </div>
-                            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" th:text="#{form.correctErrors}"></div>
+                            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger"
+                                 th:text="#{form.correctErrors}"></div>
                             <div class="form-group-custom">
                                 <label for="contactName" th:text="#{contact.name}">Име</label>
                                 <div class="input-icon-wrap">
@@ -97,7 +96,8 @@
                                 <label for="contactEmail" th:text="#{contact.email}">Email адрес</label>
                                 <div class="input-icon-wrap">
                                     <i class="bi bi-envelope"></i>
-                                    <input id="contactEmail" type="email" class="form-control" th:errorclass="is-invalid"
+                                    <input id="contactEmail" type="email" class="form-control"
+                                           th:errorclass="is-invalid"
                                            th:field="*{email}" maxlength="254" autocomplete="email">
                                 </div>
                                 <div class="invalid-feedback d-block" th:errors="*{email}"></div>
@@ -113,7 +113,8 @@
                             </div>
                             <div class="form-group-custom">
                                 <label for="contactMessage" th:text="#{contact.message}">Съобщение</label>
-                                <textarea id="contactMessage" class="form-control product-description" th:errorclass="is-invalid"
+                                <textarea id="contactMessage" class="form-control product-description"
+                                          th:errorclass="is-invalid"
                                           th:field="*{message}" maxlength="5000" rows="8"></textarea>
                                 <div class="invalid-feedback d-block" th:errors="*{message}"></div>
                             </div>
@@ -135,9 +136,13 @@
                             </div>
                             <div class="col-lg-5">
                                 <div class="border-start border-2 ps-lg-4">
-                                    <p><i class="bi bi-telephone me-2"></i><a class="fw-bold ms-1" href="tel:+359895020304">+359 895 02 03 04</a></p>
-                                    <p><i class="bi bi-envelope me-2"></i><a href="mailto:autosilentbg@gmail.com">autosilentbg@gmail.com</a></p>
-                                    <p class="mb-0"><i class="bi bi-geo-alt me-2"></i><span th:text="#{contact.address}">гр. Горна Оряховица, България</span></p>
+                                    <p><i class="bi bi-telephone me-2"></i><a class="fw-bold ms-1"
+                                                                              href="tel:+359895020304">+359 895 02 03
+                                        04</a></p>
+                                    <p><i class="bi bi-envelope me-2"></i><a href="mailto:autosilentbg@gmail.com">autosilentbg@gmail.com</a>
+                                    </p>
+                                    <p class="mb-0"><i class="bi bi-geo-alt me-2"></i><span
+                                            th:text="#{contact.address}">гр. Горна Оряховица, България</span></p>
                                 </div>
                             </div>
                         </div>

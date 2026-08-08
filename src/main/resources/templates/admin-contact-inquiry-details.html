@@ -14,16 +14,23 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <main class="admin-orders-page">
     <section class="container py-5">
-        <a class="btn btn-outline-dark mb-4" th:href="@{/admin/inquiries}"><i class="bi bi-arrow-left me-2"></i><span th:text="#{admin.inquiries.back}">Назад</span></a>
+        <a class="btn btn-outline-dark mb-4" th:href="@{/admin/inquiries}"><i class="bi bi-arrow-left me-2"></i><span
+                th:text="#{admin.inquiries.back}">Назад</span></a>
         <article class="product-editor-card tilt-card">
             <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
-                <div><span class="eyebrow" th:text="#{admin.inquiries.details.eyebrow}">Запитване</span><h1 th:text="${inquiry.subject()}">Тема</h1></div>
-                <time class="text-muted" th:text="${#temporals.format(inquiry.createdAt(), 'dd.MM.yyyy HH:mm:ss')}">Дата</time>
+                <div><span class="eyebrow" th:text="#{admin.inquiries.details.eyebrow}">Запитване</span>
+                    <h1 th:text="${inquiry.subject()}">Тема</h1></div>
+                <time class="text-muted" th:text="${#temporals.format(inquiry.createdAt(), 'dd.MM.yyyy HH:mm:ss')}">
+                    Дата
+                </time>
             </div>
             <div class="row g-3 mb-4">
-                <div class="col-md-4"><strong th:text="#{contact.name}">Име</strong><p th:text="${inquiry.name()}"></p></div>
-                <div class="col-md-4"><strong th:text="#{contact.email}">Email</strong><p><a th:href="|mailto:${inquiry.email()}|" th:text="${inquiry.email()}"></a></p></div>
-                <div class="col-md-4"><strong>IP</strong><p th:text="${inquiry.ipAddress()}"></p></div>
+                <div class="col-md-4"><strong th:text="#{contact.name}">Име</strong>
+                    <p th:text="${inquiry.name()}"></p></div>
+                <div class="col-md-4"><strong th:text="#{contact.email}">Email</strong>
+                    <p><a th:href="|mailto:${inquiry.email()}|" th:text="${inquiry.email()}"></a></p></div>
+                <div class="col-md-4"><strong>IP</strong>
+                    <p th:text="${inquiry.ipAddress()}"></p></div>
             </div>
             <hr>
             <h2 class="h5" th:text="#{contact.message}">Съобщение</h2>

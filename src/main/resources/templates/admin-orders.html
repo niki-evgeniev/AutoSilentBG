@@ -43,7 +43,8 @@
         <div class="admin-table-card">
             <div class="table-responsive" th:if="${!orders.isEmpty()}">
                 <table class="table align-middle admin-orders-table">
-                    <thead><tr>
+                    <thead>
+                    <tr>
                         <th th:text="#{admin.order.number}">Номер</th>
                         <th th:text="#{admin.order.customer}">Клиент</th>
                         <th th:text="#{form.phone}">Телефон</th>
@@ -52,14 +53,16 @@
                         <th th:text="#{cart.total}">Общо</th>
                         <th th:text="#{admin.order.date}">Дата</th>
                         <th></th>
-                    </tr></thead>
+                    </tr>
+                    </thead>
                     <tbody>
                     <tr th:each="order : ${orders}">
                         <td><strong th:text="${order.orderNumber()}"></strong></td>
                         <td th:text="${order.customerName()}"></td>
                         <td th:text="${order.customerPhone()}"></td>
                         <td th:text="${order.guestOrder() ? #messages.msg('admin.order.guest') : #messages.msg('admin.order.registered')}"></td>
-                        <td><span class="order-status" th:classappend="| status-${#strings.toLowerCase(order.status().name())}|"
+                        <td><span class="order-status"
+                                  th:classappend="| status-${#strings.toLowerCase(order.status().name())}|"
                                   th:text="${#messages.msg('order.status.' + order.status().name())}"></span></td>
                         <td><strong th:text="#{product.price(${order.totalPrice()})}"></strong></td>
                         <td th:text="${#temporals.format(order.createdAt(), 'dd.MM.yyyy HH:mm')}"></td>

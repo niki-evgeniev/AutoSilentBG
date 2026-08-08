@@ -21,7 +21,9 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" th:text="#{return.heading}">Връщане на стока</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{return.heading}">Връщане на
+                        стока
+                    </li>
                 </ol>
             </nav>
             <span class="eyebrow" th:text="#{return.eyebrow}">Заявка за връщане</span>
@@ -139,16 +141,19 @@
                         </div>
                         <div class="col-md-8 form-group-custom">
                             <label for="returnResolution" th:text="#{return.resolution}">Желано решение</label>
-                            <select id="returnResolution" class="form-select" th:errorclass="is-invalid" th:field="*{resolution}">
+                            <select id="returnResolution" class="form-select" th:errorclass="is-invalid"
+                                    th:field="*{resolution}">
                                 <option value="" th:text="#{return.resolution.choose}">Изберете</option>
-                                <option value="REFUND" th:text="#{return.resolution.refund}">Възстановяване на сумата</option>
+                                <option value="REFUND" th:text="#{return.resolution.refund}">Възстановяване на сумата
+                                </option>
                                 <option value="EXCHANGE" th:text="#{return.resolution.exchange}">Замяна</option>
                             </select>
                             <div class="invalid-feedback d-block" th:errors="*{resolution}"></div>
                         </div>
                         <div class="col-12 form-group-custom">
                             <label for="returnReason" th:text="#{return.reason}">Причина за връщане</label>
-                            <textarea id="returnReason" class="form-control product-description" th:errorclass="is-invalid"
+                            <textarea id="returnReason" class="form-control product-description"
+                                      th:errorclass="is-invalid"
                                       th:field="*{reason}" th:placeholder="#{return.reason.placeholder}"
                                       maxlength="2000" rows="6"></textarea>
                             <div class="form-text" th:text="#{return.reason.help}">Опишете състоянието и проблема.</div>

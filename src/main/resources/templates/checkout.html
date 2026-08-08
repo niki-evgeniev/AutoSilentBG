@@ -84,19 +84,24 @@
                     <input class="form-control" id="checkoutPromoCode" type="text" maxlength="40"
                            autocomplete="off" th:placeholder="#{checkout.promoCode.placeholder}">
                     <button id="checkoutPromoApply" class="btn btn-outline-dark" type="button"
-                            th:text="#{checkout.promo.apply}">Приложи</button>
+                            th:text="#{checkout.promo.apply}">Приложи
+                    </button>
                 </div>
                 <small id="checkoutPromoMessage" class="d-block mb-3"></small>
-                <div class="checkout-payment-note"><i class="bi bi-cash-coin"></i><span th:text="#{checkout.cashOnly}">Плащане с наложен платеж</span></div>
+                <div class="checkout-payment-note"><i class="bi bi-cash-coin"></i><span th:text="#{checkout.cashOnly}">Плащане с наложен платеж</span>
+                </div>
                 <div><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
-                <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong id="cartSummaryTotal">0.00 €</strong></div>
+                <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong
+                        id="cartSummaryTotal">0.00 €</strong></div>
                 <div class="checkout-discount-row">
-                    <span><span th:text="#{checkout.discount}">Отстъпки</span> <strong id="checkoutDiscountPercent">0%</strong></span>
+                    <span><span th:text="#{checkout.discount}">Отстъпки</span> <strong
+                            id="checkoutDiscountPercent">0%</strong></span>
                     <strong id="checkoutDiscountAmount">-0.00 €</strong>
                 </div>
                 <div id="checkoutError" class="alert alert-danger" hidden></div>
                 <button id="cartCheckoutButton" class="btn btn-orange w-100" type="button"
-                        th:text="#{checkout.confirm}">Потвърди поръчката</button>
+                        th:text="#{checkout.confirm}">Потвърди поръчката
+                </button>
             </aside>
         </div>
     </section>

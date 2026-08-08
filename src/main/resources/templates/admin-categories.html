@@ -18,7 +18,8 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb custom-breadcrumb">
                 <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                <li class="breadcrumb-item active" aria-current="page" th:text="#{admin.categories.heading}">Категории</li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="#{admin.categories.heading}">Категории
+                </li>
             </ol>
         </nav>
 
@@ -27,7 +28,9 @@
             <h1 th:text="#{admin.categories.heading}">Категории</h1>
         </div>
 
-        <div th:if="${categoryCreated}" class="alert alert-success" th:text="#{admin.categories.created}">Категорията е добавена.</div>
+        <div th:if="${categoryCreated}" class="alert alert-success" th:text="#{admin.categories.created}">Категорията е
+            добавена.
+        </div>
 
         <div class="admin-order-grid">
             <section class="admin-detail-card">
@@ -40,7 +43,8 @@
                                th:placeholder="#{admin.categories.placeholder}">
                         <div class="invalid-feedback d-block" th:errors="*{name}"></div>
                     </div>
-                    <button class="btn btn-orange w-100" type="submit" th:text="#{admin.categories.save}">Запази</button>
+                    <button class="btn btn-orange w-100" type="submit" th:text="#{admin.categories.save}">Запази
+                    </button>
                 </form>
             </section>
 
@@ -48,7 +52,11 @@
                 <h2 th:text="#{admin.categories.list}">Добавени категории</h2>
                 <div class="table-responsive" th:if="${!categories.isEmpty()}">
                     <table class="table align-middle admin-orders-table">
-                        <thead><tr><th th:text="#{admin.categories.name}">Име</th></tr></thead>
+                        <thead>
+                        <tr>
+                            <th th:text="#{admin.categories.name}">Име</th>
+                        </tr>
+                        </thead>
                         <tbody>
                         <tr th:each="item : ${categories}">
                             <td><strong th:text="${item.name()}">Категория</strong></td>

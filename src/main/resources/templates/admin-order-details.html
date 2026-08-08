@@ -14,17 +14,21 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <main class="admin-orders-page">
     <section class="container py-5">
-        <nav aria-label="breadcrumb"><ol class="breadcrumb custom-breadcrumb">
-            <li class="breadcrumb-item"><a th:href="@{/admin/orders}" th:text="#{admin.orders}">Поръчки</a></li>
-            <li class="breadcrumb-item active" th:text="${order.orderNumber()}"></li>
-        </ol></nav>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb custom-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/admin/orders}" th:text="#{admin.orders}">Поръчки</a></li>
+                <li class="breadcrumb-item active" th:text="${order.orderNumber()}"></li>
+            </ol>
+        </nav>
 
         <div class="admin-order-heading">
-            <div><span th:text="#{admin.order.number}">Номер</span><h1 th:text="${order.orderNumber()}"></h1></div>
+            <div><span th:text="#{admin.order.number}">Номер</span>
+                <h1 th:text="${order.orderNumber()}"></h1></div>
             <span class="order-status" th:classappend="| status-${#strings.toLowerCase(order.orderStatus().name())}|"
                   th:text="${#messages.msg('order.status.' + order.orderStatus().name())}"></span>
         </div>
-        <div class="alert alert-success" th:if="${statusUpdated}" th:text="#{admin.order.updated}">Статусът е обновен.</div>
+        <div class="alert alert-success" th:if="${statusUpdated}" th:text="#{admin.order.updated}">Статусът е обновен.
+        </div>
 
         <div class="admin-order-grid">
             <div>
@@ -32,25 +36,32 @@
                     <h2 th:text="#{checkout.products}">Продукти</h2>
                     <article class="admin-order-item" th:each="item : ${order.items()}">
                         <div class="admin-order-item-image">
-                            <img th:if="${item.productImageUrl() != null}" th:src="${item.productImageUrl()}" th:alt="${item.productName()}">
+                            <img th:if="${item.productImageUrl() != null}" th:src="${item.productImageUrl()}"
+                                 th:alt="${item.productName()}">
                             <i th:unless="${item.productImageUrl() != null}" class="bi bi-box-seam"></i>
                         </div>
-                        <div><strong th:text="${item.productName()}"></strong><small th:text="${item.productSku()}"></small></div>
+                        <div><strong th:text="${item.productName()}"></strong><small
+                                th:text="${item.productSku()}"></small></div>
                         <span th:text="|${item.quantity()} × ${#messages.msg('product.price', item.unitPrice())}|"></span>
                         <strong th:text="#{product.price(${item.totalPrice()})}"></strong>
                     </article>
                     <div class="admin-order-totals">
-                        <div><span th:text="#{admin.order.subtotal}">Междинна сума</span><strong th:text="#{product.price(${order.subtotalPrice()})}"></strong></div>
-                        <div><span th:text="#{admin.order.delivery}">Доставка</span><strong th:text="#{product.price(${order.deliveryPrice()})}"></strong></div>
-                        <div class="text-success" th:if="${order.discountPrice() != null and order.discountPrice().signum() > 0}">
-                            <span><span th:text="#{admin.order.discount}">Отстъпка</span> (<span th:text="|${order.discountPercentText()}%|">0%</span>)</span>
+                        <div><span th:text="#{admin.order.subtotal}">Междинна сума</span><strong
+                                th:text="#{product.price(${order.subtotalPrice()})}"></strong></div>
+                        <div><span th:text="#{admin.order.delivery}">Доставка</span><strong
+                                th:text="#{product.price(${order.deliveryPrice()})}"></strong></div>
+                        <div class="text-success"
+                             th:if="${order.discountPrice() != null and order.discountPrice().signum() > 0}">
+                            <span><span th:text="#{admin.order.discount}">Отстъпка</span> (<span
+                                    th:text="|${order.discountPercentText()}%|">0%</span>)</span>
                             <strong th:text="|−${#messages.msg('product.price', order.discountPrice())}|"></strong>
                         </div>
                         <div th:if="${order.promoCode() != null}">
                             <span th:text="#{checkout.promoCode}">Промокод</span>
                             <strong th:text="|${order.promoCode()} (${order.promoDiscountPercent()}%)|">CODE</strong>
                         </div>
-                        <div class="total"><span th:text="#{cart.total}">Общо</span><strong th:text="#{product.price(${order.totalPrice()})}"></strong></div>
+                        <div class="total"><span th:text="#{cart.total}">Общо</span><strong
+                                th:text="#{product.price(${order.totalPrice()})}"></strong></div>
                     </div>
                 </section>
 
@@ -59,7 +70,8 @@
                     <div class="order-history-entry" th:each="entry : ${order.history()}">
                         <i class="bi bi-clock-history"></i>
                         <div><strong th:text="${#messages.msg('order.status.' + entry.newStatus().name())}"></strong>
-                            <span th:if="${entry.oldStatus() != null}" th:text="| ← ${#messages.msg('order.status.' + entry.oldStatus().name())}|"></span>
+                            <span th:if="${entry.oldStatus() != null}"
+                                  th:text="| ← ${#messages.msg('order.status.' + entry.oldStatus().name())}|"></span>
                             <p th:if="${entry.note() != null}" th:text="${entry.note()}"></p>
                             <small th:text="|${#temporals.format(entry.changedAt(), 'dd.MM.yyyy HH:mm')} ${entry.changedBy() ?: ''}|"></small>
                         </div>
@@ -73,9 +85,11 @@
                     <p><strong th:text="|${order.customerFirstName()} ${order.customerLastName()}|"></strong></p>
                     <p><i class="bi bi-envelope me-2"></i><span th:text="${order.customerEmail() ?: '-'}"></span></p>
                     <p><i class="bi bi-telephone me-2"></i><span th:text="${order.customerPhone()}"></span></p>
-                    <span class="badge text-bg-light" th:text="${order.guestOrder() ? #messages.msg('admin.order.guest') : #messages.msg('admin.order.registered')}"></span>
+                    <span class="badge text-bg-light"
+                          th:text="${order.guestOrder() ? #messages.msg('admin.order.guest') : #messages.msg('admin.order.registered')}"></span>
                     <div class="admin-customer-note" th:if="${order.customerNote() != null}">
-                        <strong th:text="#{checkout.note}">Допълнителна информация</strong><p th:text="${order.customerNote()}"></p>
+                        <strong th:text="#{checkout.note}">Допълнителна информация</strong>
+                        <p th:text="${order.customerNote()}"></p>
                     </div>
                 </section>
 
@@ -90,7 +104,9 @@
                         </select>
                         <label class="form-label" for="note" th:text="#{admin.order.note}">Служебна бележка</label>
                         <textarea class="form-control mb-3" id="note" name="note" rows="4" maxlength="2000"></textarea>
-                        <button class="btn btn-orange w-100" type="submit" th:text="#{admin.order.update}">Обнови статуса</button>
+                        <button class="btn btn-orange w-100" type="submit" th:text="#{admin.order.update}">Обнови
+                            статуса
+                        </button>
                     </form>
                 </section>
             </aside>
