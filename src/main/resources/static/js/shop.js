@@ -48,8 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateCartHeader(cart) {
-        const count = cart.reduce(function (sum, item) { return sum + item.quantity; }, 0);
-        const total = cart.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+        const count = cart.reduce(function (sum, item) {
+            return sum + item.quantity;
+        }, 0);
+        const total = cart.reduce(function (sum, item) {
+            return sum + item.price * item.quantity;
+        }, 0);
         document.querySelectorAll('.cart-count').forEach(function (element) {
             element.textContent = count;
             element.hidden = count === 0;
@@ -84,7 +88,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addProduct(product) {
         const cart = readCart();
-        const existing = cart.find(function (item) { return item.id === product.id; });
+        const existing = cart.find(function (item) {
+            return item.id === product.id;
+        });
         if (existing) existing.quantity += product.quantity;
         else cart.push(product);
         saveCart(cart);
@@ -171,8 +177,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         empty.hidden = cart.length > 0;
         summary.hidden = cart.length === 0;
-        const count = cart.reduce(function (sum, item) { return sum + item.quantity; }, 0);
-        const subtotal = cart.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+        const count = cart.reduce(function (sum, item) {
+            return sum + item.quantity;
+        }, 0);
+        const subtotal = cart.reduce(function (sum, item) {
+            return sum + item.price * item.quantity;
+        }, 0);
         const discountPercent = Math.min(100, Math.max(0, Number(document.body.dataset.discountPercent) || 0));
         const discountAmount = subtotal * discountPercent / 100;
         const total = subtotal - discountAmount;
@@ -189,7 +199,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             function changeQuantity(quantity) {
                 const updated = readCart();
-                const item = updated.find(function (entry) { return entry.id === id; });
+                const item = updated.find(function (entry) {
+                    return entry.id === id;
+                });
                 if (item) item.quantity = Math.max(1, Number(quantity) || 1);
                 saveCart(updated);
                 renderCart();
@@ -205,7 +217,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
             row.querySelector('.cart-remove').addEventListener('click', function () {
-                saveCart(readCart().filter(function (item) { return item.id !== id; }));
+                saveCart(readCart().filter(function (item) {
+                    return item.id !== id;
+                }));
                 renderCart();
             });
         });
@@ -260,13 +274,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-                    const headers = { 'Content-Type': 'application/json' };
+                    const headers = {'Content-Type': 'application/json'};
                     if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
 
                     const response = await fetch('/orders/promo-code', {
                         method: 'POST',
                         headers: headers,
-                        body: JSON.stringify({ promoCode: code })
+                        body: JSON.stringify({promoCode: code})
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || document.body.dataset.orderFailed || 'Invalid promo code.');
@@ -304,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const customerNote = document.getElementById('customerNote');
             const errorBox = document.getElementById('checkoutError');
             const items = cart.map(function (item) {
-                return { productId: Number(item.id), quantity: item.quantity };
+                return {productId: Number(item.id), quantity: item.quantity};
             });
 
             errorBox.hidden = true;
@@ -339,7 +353,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 invalidField.focus();
                 return;
             }
-            if (items.some(function (item) { return !Number.isInteger(item.productId); })) {
+            if (items.some(function (item) {
+                return !Number.isInteger(item.productId);
+            })) {
                 errorBox.textContent = document.body.dataset.invalidCart || 'The cart contains an invalid product.';
                 errorBox.hidden = false;
                 return;
@@ -349,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
                 const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-                const headers = { 'Content-Type': 'application/json' };
+                const headers = {'Content-Type': 'application/json'};
                 if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
 
                 const response = await fetch('/orders/cart', {
