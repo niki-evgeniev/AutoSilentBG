@@ -1,6 +1,7 @@
 package nevg.autosilent.Models.Enums;
 
 public enum DeliveryType {
+
     SPEEDY_OFFICE,
 
     SPEEDY_ADDRESS,

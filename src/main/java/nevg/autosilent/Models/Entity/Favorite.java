@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "favorites", uniqueConstraints =
-        @UniqueConstraint(name = "uk_favorites_user_product", columnNames = {"user_id", "product_id"}))
+@UniqueConstraint(name = "uk_favorites_user_product", columnNames = {"user_id", "product_id"}))
 @Getter
 @Setter
 @NoArgsConstructor

@@ -125,14 +125,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             )
             """,
             countQuery = """
-                    select count(p) from Product p
-                    where p.active = true and (
-                        lower(p.nameProduct) like lower(concat('%', :search, '%')) or
-                        lower(p.model) like lower(concat('%', :search, '%')) or
-                        lower(p.sku) like lower(concat('%', :search, '%')) or
-                lower(p.category.category) like lower(concat('%', :search, '%')) or
-                        lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
-                    )
+                        select count(p) from Product p
+                        where p.active = true and (
+                            lower(p.nameProduct) like lower(concat('%', :search, '%')) or
+                            lower(p.model) like lower(concat('%', :search, '%')) or
+                            lower(p.sku) like lower(concat('%', :search, '%')) or
+                    lower(p.category.category) like lower(concat('%', :search, '%')) or
+                            lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
+                        )
                     """)
     Page<Product> searchActive(@Param("search") String search, Pageable pageable);
 

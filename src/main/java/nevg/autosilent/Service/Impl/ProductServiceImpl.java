@@ -352,127 +352,127 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void addVibrofltr() {
         if (productRepository.count() == 0) {
-                if (productRepository.count() == 0) {
+            if (productRepository.count() == 0) {
 
-                    Category category = categoryRepository
-                            .findByCategoryIgnoreCase(CategoryType.Звукоизолация.name())
-                            .orElseGet(() -> {
-                                Category newCategory = new Category();
-                                newCategory.setCategory(CategoryType.Звукоизолация.name());
-                                return categoryRepository.save(newCategory);
-                            });
+                Category category = categoryRepository
+                        .findByCategoryIgnoreCase(CategoryType.Звукоизолация.name())
+                        .orElseGet(() -> {
+                            Category newCategory = new Category();
+                            newCategory.setCategory(CategoryType.Звукоизолация.name());
+                            return categoryRepository.save(newCategory);
+                        });
 
-                    User user = userRepository.findById(1L)
-                            .orElseThrow(() -> new RuntimeException("User not found with id 1"));
+                User user = userRepository.findById(1L)
+                        .orElseThrow(() -> new RuntimeException("User not found with id 1"));
 
-                    Product product = new Product();
-                    product.setNameProduct("Vibrofiltr");
-                    product.setModel("1.5");
-                    product.setSku(generateUniqueSku());
-                    product.setSold(5);
-                    product.setCategory(category);
-                    product.setPrice(BigDecimal.valueOf(7.70));
-                    product.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
-                            "\n" +
-                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "дебелина: 1.5 mm (± 0,1 mm)               \n" +
-                            "\n" +
-                            "размер на лист: - 0.5 m х 0.7 m / 0,35 m2\n" +
-                            "\n" +
-                            "коефициент на механични загуби при 200 Hz: 0,38\n" +
-                            "\n" +
-                            "количество в опаковка - кашон: 25 бр. / 8,75 m2   \n" +
-                            "\n" +
-                            "тегло на 1 m², не по-малко: 3,0 кг");
-                    product.setUrl(uniqueSlug(product.getDisplayName()));
-                    product.setStock(100);
-                    product.setUser(user);
-                    productRepository.save(product);
+                Product product = new Product();
+                product.setNameProduct("Vibrofiltr");
+                product.setModel("1.5");
+                product.setSku(generateUniqueSku());
+                product.setSold(5);
+                product.setCategory(category);
+                product.setPrice(BigDecimal.valueOf(7.70));
+                product.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                        "\n" +
+                        "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "дебелина: 1.5 mm (± 0,1 mm)               \n" +
+                        "\n" +
+                        "размер на лист: - 0.5 m х 0.7 m / 0,35 m2\n" +
+                        "\n" +
+                        "коефициент на механични загуби при 200 Hz: 0,38\n" +
+                        "\n" +
+                        "количество в опаковка - кашон: 25 бр. / 8,75 m2   \n" +
+                        "\n" +
+                        "тегло на 1 m², не по-малко: 3,0 кг");
+                product.setUrl(uniqueSlug(product.getDisplayName()));
+                product.setStock(100);
+                product.setUser(user);
+                productRepository.save(product);
 
-                    Product product2 = new Product();
-                    product2.setNameProduct("Vibrofiltr");
-                    product2.setModel("2.0");
-                    product2.setSku(generateUniqueSku());
-                    product2.setSold(6);
-                    product2.setCategory(category);
-                    product2.setPrice(BigDecimal.valueOf(4.10));
-                    product2.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
-                            "\n" +
-                            "дебелина: 2,0 mm (± 0,1 mm)               \n" +
-                            "\n" +
-                            "размер на лист: - 0.5 m х 0.35 m / 0,35 m2\n" +
-                            "\n" +
-                            "коефициент на механични загуби при 200 Hz: 0,38\n" +
-                            "\n" +
-                            "количество в опаковка - кашон: 20 броя листове / 3.5 m2   \n" +
-                            "\n" +
-                            "тегло на 1 m², не по-малко: 3,0 кг");
-                    product2.setUrl(uniqueSlug(product2.getDisplayName()));
-                    product2.setStock(100);
-                    product2.setUser(user);
-                    productRepository.save(product2);
+                Product product2 = new Product();
+                product2.setNameProduct("Vibrofiltr");
+                product2.setModel("2.0");
+                product2.setSku(generateUniqueSku());
+                product2.setSold(6);
+                product2.setCategory(category);
+                product2.setPrice(BigDecimal.valueOf(4.10));
+                product2.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                        "\n" +
+                        "дебелина: 2,0 mm (± 0,1 mm)               \n" +
+                        "\n" +
+                        "размер на лист: - 0.5 m х 0.35 m / 0,35 m2\n" +
+                        "\n" +
+                        "коефициент на механични загуби при 200 Hz: 0,38\n" +
+                        "\n" +
+                        "количество в опаковка - кашон: 20 броя листове / 3.5 m2   \n" +
+                        "\n" +
+                        "тегло на 1 m², не по-малко: 3,0 кг");
+                product2.setUrl(uniqueSlug(product2.getDisplayName()));
+                product2.setStock(100);
+                product2.setUser(user);
+                productRepository.save(product2);
 
-                    Product product3 = new Product();
-                    product3.setNameProduct("Vibrofiltr");
-                    product3.setModel("3.0");
-                    product3.setSku(generateUniqueSku());
-                    product3.setSold(7);
-                    product3.setCategory(category);
-                    product3.setPrice(BigDecimal.valueOf(6.70));
-                    product3.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
-                            "\n" +
-                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "дебелина: 3,0 mm (± 0,1 mm)               \n" +
-                            "\n" +
-                            "размер на лист: - 0.35 m х 0,5 m / 0,175 m2\n" +
-                            "\n" +
-                            "коефициент на механични загуби при 200 Hz: 0,50\n" +
-                            "\n" +
-                            "количество в опаковка - кашон: 15 броя листове / 2.625 m2   \n" +
-                            "\n" +
-                            "тегло на 1 m², не по-малко: 4,5 кг");
-                    product3.setUrl(uniqueSlug(product3.getDisplayName()));
-                    product3.setStock(100);
-                    product3.setUser(user);
-                    productRepository.save(product3);
+                Product product3 = new Product();
+                product3.setNameProduct("Vibrofiltr");
+                product3.setModel("3.0");
+                product3.setSku(generateUniqueSku());
+                product3.setSold(7);
+                product3.setCategory(category);
+                product3.setPrice(BigDecimal.valueOf(6.70));
+                product3.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                        "\n" +
+                        "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "дебелина: 3,0 mm (± 0,1 mm)               \n" +
+                        "\n" +
+                        "размер на лист: - 0.35 m х 0,5 m / 0,175 m2\n" +
+                        "\n" +
+                        "коефициент на механични загуби при 200 Hz: 0,50\n" +
+                        "\n" +
+                        "количество в опаковка - кашон: 15 броя листове / 2.625 m2   \n" +
+                        "\n" +
+                        "тегло на 1 m², не по-малко: 4,5 кг");
+                product3.setUrl(uniqueSlug(product3.getDisplayName()));
+                product3.setStock(100);
+                product3.setUser(user);
+                productRepository.save(product3);
 
-                    Product product4 = new Product();
-                    product4.setNameProduct("Vibrofiltr");
-                    product4.setModel("4.0");
-                    product4.setSku(generateUniqueSku());
-                    product4.setSold(8);
-                    product4.setCategory(category);
-                    product4.setPrice(BigDecimal.valueOf(8.70));
-                    product4.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
-                            "\n" +
-                            "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
-                            "\n" +
-                            "\n" +
-                            "\n" +
-                            "дебелина: 4,0 mm (± 0,1 mm)               \n" +
-                            "\n" +
-                            "размер на лист: - 0.35 m х 0,5 m / 0,175 m2\n" +
-                            "\n" +
-                            "коефициент на механични загуби при 200 Hz: 0,60\n" +
-                            "\n" +
-                            "количество в опаковка - кашон: 10 броя листове / 1.75 m2   \n" +
-                            "\n" +
-                            "тегло на 1 m², не по-малко: 6,4 кг");
-                    product4.setUrl(uniqueSlug(product4.getDisplayName()));
-                    product4.setStock(100);
-                    product4.setUser(user);
-                    productRepository.save(product4);
-                }
+                Product product4 = new Product();
+                product4.setNameProduct("Vibrofiltr");
+                product4.setModel("4.0");
+                product4.setSku(generateUniqueSku());
+                product4.setSold(8);
+                product4.setCategory(category);
+                product4.setPrice(BigDecimal.valueOf(8.70));
+                product4.setDescription("Използва се за оформяне на водоустойчив слой, изолиращ вибрациите в автомобили и други места, където също има нужда от звукоизолация, защита от вибрации и корозия. Виброгасящият материал има многослойна структура и се състои от слой от екологично чист състав от бутилкаучук и алуминиево фолио.\n" +
+                        "\n" +
+                        "В производството VIBROFILTR използва алуминиево фолио с висок вискозитет. В резултат на това материалът има увеличен честотен диапазон на коефициента на механични загуби.\n" +
+                        "\n" +
+                        "\n" +
+                        "\n" +
+                        "дебелина: 4,0 mm (± 0,1 mm)               \n" +
+                        "\n" +
+                        "размер на лист: - 0.35 m х 0,5 m / 0,175 m2\n" +
+                        "\n" +
+                        "коефициент на механични загуби при 200 Hz: 0,60\n" +
+                        "\n" +
+                        "количество в опаковка - кашон: 10 броя листове / 1.75 m2   \n" +
+                        "\n" +
+                        "тегло на 1 m², не по-малко: 6,4 кг");
+                product4.setUrl(uniqueSlug(product4.getDisplayName()));
+                product4.setStock(100);
+                product4.setUser(user);
+                productRepository.save(product4);
+            }
         }
     }
 

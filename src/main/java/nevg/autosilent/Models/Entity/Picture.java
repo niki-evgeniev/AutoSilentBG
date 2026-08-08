@@ -13,7 +13,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "pictures", uniqueConstraints =
-        @UniqueConstraint(name = "uk_picture_product_filename", columnNames = {"product_id", "file_name"}))
+@UniqueConstraint(name = "uk_picture_product_filename", columnNames = {"product_id", "file_name"}))
 @NoArgsConstructor
 @Getter
 @Setter

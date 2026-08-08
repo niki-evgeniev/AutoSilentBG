@@ -77,10 +77,21 @@ public class User extends BaseEntity {
         this.activate = activate;
     }
 
-    public BigDecimal getDiscountPercent() { return discountPercent; }
-    public void setDiscountPercent(BigDecimal discountPercent) { this.discountPercent = discountPercent; }
-    public boolean isBlocked() { return blocked; }
-    public void setBlocked(boolean blocked) { this.blocked = blocked; }
+    public BigDecimal getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(BigDecimal discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
 
     public LocalDateTime getEditDate() {
         return editDate;

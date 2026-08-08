@@ -19,7 +19,7 @@ public class Seo extends BaseEntity {
     @Column(name = "keywords", columnDefinition = "TEXT")
     private String keywords;
 
-    @Column(name = "title" , columnDefinition = "TEXT")
+    @Column(name = "title", columnDefinition = "TEXT")
     private String title;
 
     @Column(name = "description", columnDefinition = "TEXT")

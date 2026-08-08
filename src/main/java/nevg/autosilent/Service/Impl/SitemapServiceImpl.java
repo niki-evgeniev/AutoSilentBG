@@ -82,7 +82,7 @@ public class SitemapServiceImpl implements SitemapService {
                 Disallow: /orders/
                 Disallow: /api/
                 Disallow: /search
-
+                
                 Sitemap: https://autosilent.bg/sitemap.xml
                 """;
     }

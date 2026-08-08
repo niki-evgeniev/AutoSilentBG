@@ -51,7 +51,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             user.setRoles(Set.of(userRole, moderatorRole, adminRole));
 
             userRepository.save(user);
-            System.out.println("Successful Add user : info@carpmap.bg and roles: USER, MODERATOR and ADMIN" );
+            System.out.println("Successful Add user : info@carpmap.bg and roles: USER, MODERATOR and ADMIN");
         }
 
     }

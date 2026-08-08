@@ -1,6 +1,7 @@
 package nevg.autosilent.Models.Enums;
 
 public enum OrderStatus {
+
     NEW,
 
     CONFIRMED,
