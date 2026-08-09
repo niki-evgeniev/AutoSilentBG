@@ -19,6 +19,25 @@
             <h1 th:text="#{admin.ipAddresses.heading}">Посетили IP адреси</h1>
         </div>
 
+        <div class="ip-visit-statistics" aria-label="Статистика за посещенията"
+             th:aria-label="#{admin.ipAddresses.statistics}">
+            <article class="ip-visit-stat-card">
+                <div class="ip-visit-stat-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                <div>
+                    <span th:text="#{admin.ipAddresses.totalVisits}">Общо посещения</span>
+                    <strong th:text="${visitStatistics.totalVisits()}">0</strong>
+                </div>
+            </article>
+            <article class="ip-visit-stat-card">
+                <div class="ip-visit-stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+                <div>
+                    <span th:text="#{admin.ipAddresses.todayVisits}">Посещения днес</span>
+                    <strong th:text="${visitStatistics.todayVisits()}">0</strong>
+                    <small th:text="${#temporals.format(visitStatistics.date(), 'dd.MM.yyyy')}">10.08.2026</small>
+                </div>
+            </article>
+        </div>
+
         <div class="alert alert-success" th:if="${ipBanUpdated}"
              th:text="#{admin.ipAddresses.updated}">Статусът на адреса е обновен.
         </div>

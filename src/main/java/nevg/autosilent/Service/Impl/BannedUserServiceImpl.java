@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +59,7 @@ public class BannedUserServiceImpl implements BannedUserService {
 
         ipAddress.setLastSeen(now);
         ipAddress.setCountVisits(ipAddress.getCountVisits() + 1);
+        recordDailyVisit(ipAddress, now.toLocalDate());
         linkUserWhenAvailable(ipAddress, username);
 
         if (hasActiveBan(ipAddress, now)) {
@@ -87,6 +89,15 @@ public class BannedUserServiceImpl implements BannedUserService {
                             .orElseThrow(() -> new IllegalStateException(
                                     "Failed to load IP address after insert: " + address));
                 });
+    }
+
+    private void recordDailyVisit(IpAddress ipAddress, LocalDate date) {
+        if (!date.equals(ipAddress.getVisitsDate())) {
+            ipAddress.setVisitsDate(date);
+            ipAddress.setVisitsToday(1);
+            return;
+        }
+        ipAddress.setVisitsToday(ipAddress.getVisitsToday() + 1);
     }
 
     @Override

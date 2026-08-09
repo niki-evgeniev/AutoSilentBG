@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.PageImpl;
@@ -101,6 +102,18 @@ class AdminIpAddressServiceImplTest {
         verify(repository).findAll(captor.capture());
         assertThat(captor.getValue().getPageNumber()).isZero();
         assertThat(captor.getValue().getPageSize()).isEqualTo(15);
+    }
+
+    @Test
+    void visitStatisticsContainsAllAndTodayVisits() {
+        when(repository.sumAllVisits()).thenReturn(321L);
+        when(repository.sumVisitsForDate(LocalDate.now())).thenReturn(27L);
+
+        var result = service.getVisitStatistics();
+
+        assertThat(result.totalVisits()).isEqualTo(321);
+        assertThat(result.todayVisits()).isEqualTo(27);
+        assertThat(result.date()).isEqualTo(LocalDate.now());
     }
 
     @Test

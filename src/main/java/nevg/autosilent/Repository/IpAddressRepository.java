@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +16,12 @@ import java.util.UUID;
 public interface IpAddressRepository extends JpaRepository<IpAddress, Long> {
 
     Optional<IpAddress> findByAddress(String address);
+
+    @Query("select coalesce(sum(ip.countVisits), 0) from IpAddress ip")
+    long sumAllVisits();
+
+    @Query("select coalesce(sum(ip.visitsToday), 0) from IpAddress ip where ip.visitsDate = :date")
+    long sumVisitsForDate(@Param("date") LocalDate date);
 
     @Modifying
     @Query(value = """

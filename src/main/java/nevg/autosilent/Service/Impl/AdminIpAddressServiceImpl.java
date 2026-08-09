@@ -1,6 +1,7 @@
 package nevg.autosilent.Service.Impl;
 
 import nevg.autosilent.Models.Dto.AdminIpAddressDto;
+import nevg.autosilent.Models.Dto.AdminVisitStatisticsDto;
 import nevg.autosilent.Models.Entity.IpAddress;
 import nevg.autosilent.Repository.IpAddressRepository;
 import nevg.autosilent.Service.AdminIpAddressService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -33,6 +35,16 @@ public class AdminIpAddressServiceImpl implements AdminIpAddressService {
                 Sort.by(Sort.Direction.DESC, "lastSeen"));
         LocalDateTime now = LocalDateTime.now();
         return ipAddressRepository.findAll(pageRequest).map(ipAddress -> toDto(ipAddress, now));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminVisitStatisticsDto getVisitStatistics() {
+        LocalDate today = LocalDate.now();
+        return new AdminVisitStatisticsDto(
+                ipAddressRepository.sumAllVisits(),
+                ipAddressRepository.sumVisitsForDate(today),
+                today);
     }
 
     @Override

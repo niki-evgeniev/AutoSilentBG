@@ -26,6 +26,7 @@ public class AdminIpAddressController {
     public ModelAndView addresses(@RequestParam(defaultValue = "0") int page) {
         ModelAndView modelAndView = new ModelAndView("admin-ip-addresses");
         modelAndView.addObject("addresses", adminIpAddressService.getAll(page));
+        modelAndView.addObject("visitStatistics", adminIpAddressService.getVisitStatistics());
         return modelAndView;
     }
 

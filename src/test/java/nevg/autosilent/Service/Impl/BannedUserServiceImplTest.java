@@ -54,6 +54,35 @@ class BannedUserServiceImplTest {
         verify(ipAddressRepository, times(1)).insertIfAbsent(any(), eq(address), any());
         assertThat(insertedAddress.getCountVisits()).isEqualTo(1);
         assertThat(insertedAddress.getLastSeen()).isEqualTo(LocalDateTime.now(clock));
+        assertThat(insertedAddress.getVisitsDate()).isEqualTo(LocalDateTime.now(clock).toLocalDate());
+        assertThat(insertedAddress.getVisitsToday()).isEqualTo(1);
+    }
+
+    @Test
+    void dailyVisitCounterContinuesForTheSameDay() {
+        IpAddress ipAddress = storedAddress();
+        ipAddress.setVisitsDate(LocalDateTime.now(clock).toLocalDate());
+        ipAddress.setVisitsToday(4);
+        when(ipAddressRepository.findByAddressForUpdate(ipAddress.getAddress()))
+                .thenReturn(Optional.of(ipAddress));
+
+        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), null);
+
+        assertThat(ipAddress.getVisitsToday()).isEqualTo(5);
+    }
+
+    @Test
+    void dailyVisitCounterResetsWhenTheDateChanges() {
+        IpAddress ipAddress = storedAddress();
+        ipAddress.setVisitsDate(LocalDateTime.now(clock).toLocalDate().minusDays(1));
+        ipAddress.setVisitsToday(12);
+        when(ipAddressRepository.findByAddressForUpdate(ipAddress.getAddress()))
+                .thenReturn(Optional.of(ipAddress));
+
+        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), null);
+
+        assertThat(ipAddress.getVisitsDate()).isEqualTo(LocalDateTime.now(clock).toLocalDate());
+        assertThat(ipAddress.getVisitsToday()).isEqualTo(1);
     }
 
     @Test

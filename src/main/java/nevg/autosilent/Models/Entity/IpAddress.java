@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,6 +31,12 @@ public class IpAddress extends BaseEntity {
 
     @Column(name = "count_visits", nullable = false)
     private Long countVisits = 0L;
+
+    @Column(name = "visits_date")
+    private LocalDate visitsDate;
+
+    @Column(name = "visits_today", nullable = false, columnDefinition = "BIGINT NOT NULL DEFAULT 0")
+    private long visitsToday;
 
     @Column(name = "is_banned", nullable = false)
     private boolean banned;

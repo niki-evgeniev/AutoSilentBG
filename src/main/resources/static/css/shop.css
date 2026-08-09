@@ -3013,6 +3013,57 @@ a {
     box-shadow: 0 18px 45px rgba(25, 25, 25, .08);
 }
 
+.ip-visit-statistics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin: -10px 0 28px;
+}
+
+.ip-visit-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-height: 126px;
+    padding: 24px;
+    border: 1px solid #e8e8e8;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 18px 45px rgba(25, 25, 25, .08);
+}
+
+.ip-visit-stat-icon {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    place-items: center;
+    border-radius: 16px;
+    color: #fff;
+    background: var(--color-orange);
+    font-size: 23px;
+}
+
+.ip-visit-stat-card span,
+.ip-visit-stat-card small {
+    display: block;
+    color: #6c757d;
+    font-weight: 700;
+}
+
+.ip-visit-stat-card strong {
+    display: block;
+    color: #171717;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.1;
+}
+
+@media (max-width: 767px) {
+    .ip-visit-statistics {
+        grid-template-columns: 1fr;
+    }
+}
+
 .admin-orders-table {
     margin: 0;
     white-space: nowrap;

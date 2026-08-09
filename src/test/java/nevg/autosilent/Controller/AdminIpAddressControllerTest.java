@@ -1,6 +1,7 @@
 package nevg.autosilent.Controller;
 
 import nevg.autosilent.Models.Dto.AdminIpAddressDto;
+import nevg.autosilent.Models.Dto.AdminVisitStatisticsDto;
 import nevg.autosilent.Service.AdminIpAddressService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -43,12 +45,15 @@ class AdminIpAddressControllerTest {
     @Test
     void addressesReturnsRequestedPage() {
         Page<AdminIpAddressDto> addresses = new PageImpl<>(List.of());
+        AdminVisitStatisticsDto statistics = new AdminVisitStatisticsDto(120, 14, LocalDate.now());
         when(service.getAll(2)).thenReturn(addresses);
+        when(service.getVisitStatistics()).thenReturn(statistics);
 
         ModelAndView result = controller.addresses(2);
 
         assertThat(result.getViewName()).isEqualTo("admin-ip-addresses");
         assertThat(result.getModel().get("addresses")).isSameAs(addresses);
+        assertThat(result.getModel().get("visitStatistics")).isSameAs(statistics);
     }
 
     @Test
