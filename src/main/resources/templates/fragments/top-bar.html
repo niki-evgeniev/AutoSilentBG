@@ -74,6 +74,12 @@
                         </a>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')">
+                        <a class="dropdown-item" th:href="@{/admin/settings/information}">
+                            <i class="bi bi-graph-up-arrow me-2"></i>
+                            <span th:text="#{admin.productInformation.menu}">Информация</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
                         <a class="dropdown-item" th:href="@{/admin/ip-addresses}">
                             <i class="bi bi-shield-lock me-2"></i>
                             <span th:text="#{admin.ipAddresses}">Адреси</span>

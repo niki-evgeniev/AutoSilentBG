@@ -1,0 +1,117 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{admin.productInformation.title}">Информация за продуктите - AutoSilent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/shop.css" rel="stylesheet">
+</head>
+<body th:data-currency="#{site.currency}">
+<div th:replace="~{fragments/top-bar :: topBar}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="admin-orders-page product-information-page">
+    <section class="container py-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb custom-breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
+                <li class="breadcrumb-item active" aria-current="page"
+                    th:text="#{admin.productInformation.heading}">Информация за продуктите</li>
+            </ol>
+        </nav>
+
+        <div class="section-title text-start">
+            <span th:text="#{site.settings}">Настройки</span>
+            <h1 th:text="#{admin.productInformation.heading}">Информация за продуктите</h1>
+            <p th:text="#{admin.productInformation.description}">Обобщена статистика за всички продукти.</p>
+        </div>
+
+        <div class="product-information-summary" th:aria-label="#{admin.productInformation.summary}">
+            <article class="product-information-stat">
+                <i class="bi bi-box-seam"></i>
+                <span th:text="#{admin.productInformation.products}">Продукти</span>
+                <strong th:text="${summary.productCount()}">0</strong>
+                <small th:text="#{admin.productInformation.activeCount(${summary.activeProductCount()})}">0 активни</small>
+            </article>
+            <article class="product-information-stat">
+                <i class="bi bi-boxes"></i>
+                <span th:text="#{admin.productInformation.totalStock}">Обща наличност</span>
+                <strong th:text="${summary.totalStock()}">0</strong>
+            </article>
+            <article class="product-information-stat">
+                <i class="bi bi-bag-check"></i>
+                <span th:text="#{admin.productInformation.totalSold}">Общо продадени</span>
+                <strong th:text="${summary.totalSold()}">0</strong>
+            </article>
+            <article class="product-information-stat">
+                <i class="bi bi-eye"></i>
+                <span th:text="#{admin.productInformation.totalViews}">Общо отваряния</span>
+                <strong th:text="${summary.totalViews()}">0</strong>
+            </article>
+            <article class="product-information-stat">
+                <i class="bi bi-cash-stack"></i>
+                <span th:text="#{admin.productInformation.stockValue}">Стойност на наличността</span>
+                <strong class="product-information-money"
+                        th:text="#{product.price(${summary.totalStockValue()})}">0.00 €</strong>
+            </article>
+        </div>
+
+        <div class="admin-table-card product-information-table-card">
+            <div class="table-responsive" th:if="${!products.isEmpty()}">
+                <table class="table align-middle admin-orders-table product-information-table">
+                    <thead>
+                    <tr>
+                        <th th:text="#{admin.productInformation.product}">Продукт</th>
+                        <th th:text="#{admin.productInformation.sku}">SKU</th>
+                        <th th:text="#{admin.productInformation.category}">Категория</th>
+                        <th th:text="#{admin.productInformation.price}">Цена</th>
+                        <th th:text="#{admin.productInformation.stock}">Налични</th>
+                        <th th:text="#{admin.productInformation.sold}">Продадени</th>
+                        <th th:text="#{admin.productInformation.views}">Отваряния</th>
+                        <th th:text="#{admin.productInformation.itemStockValue}">Стойност</th>
+                        <th th:text="#{admin.productInformation.status}">Статус</th>
+                        <th th:text="#{admin.productInformation.addedAt}">Добавен</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}">
+                        <td>
+                            <a class="product-information-name" target="_blank" rel="noopener"
+                               th:if="${product.active()}" th:href="@{/products/{url}(url=${product.url()})}"
+                               th:text="${product.name()}">Продукт</a>
+                            <strong th:unless="${product.active()}" th:text="${product.name()}">Продукт</strong>
+                        </td>
+                        <td><code th:text="${product.sku()}">SKU</code></td>
+                        <td th:text="${product.category()}">Категория</td>
+                        <td><strong th:text="#{product.price(${product.price()})}">0.00 €</strong></td>
+                        <td><strong th:text="${product.stock()}">0</strong></td>
+                        <td><strong th:text="${product.sold()}">0</strong></td>
+                        <td><strong th:text="${product.views()}">0</strong></td>
+                        <td th:text="#{product.price(${product.stockValue()})}">0.00 €</td>
+                        <td>
+                            <span class="order-status status-delivered" th:if="${product.active()}"
+                                  th:text="#{admin.productInformation.active}">Активен</span>
+                            <span class="order-status status-cancelled" th:unless="${product.active()}"
+                                  th:text="#{admin.productInformation.inactive}">Скрит</span>
+                        </td>
+                        <td th:text="${product.addedAt() == null ? '—' : #temporals.format(product.addedAt(), 'dd.MM.yyyy')}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="cart-empty" th:if="${products.isEmpty()}">
+                <i class="bi bi-box-seam"></i>
+                <h2 th:text="#{admin.productInformation.empty}">Все още няма продукти</h2>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/shop.js"></script>
+</body>
+</html>

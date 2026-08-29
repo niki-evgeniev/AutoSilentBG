@@ -36,6 +36,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = "pictures")
     List<Product> findAllByActiveTrueOrderByAddDateDesc();
 
+    @EntityGraph(attributePaths = "category")
+    List<Product> findAllByOrderByNameProductAscModelAsc();
+
     @EntityGraph(attributePaths = "pictures")
     List<Product> findTop4ByActiveTrueOrderBySoldDescAddDateDesc();
 
