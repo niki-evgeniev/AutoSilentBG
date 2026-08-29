@@ -41,9 +41,11 @@ public class AdminIpAddressServiceImpl implements AdminIpAddressService {
     @Transactional(readOnly = true)
     public AdminVisitStatisticsDto getVisitStatistics() {
         LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime startOfNextDay = today.plusDays(1).atStartOfDay();
         return new AdminVisitStatisticsDto(
                 ipAddressRepository.sumAllVisits(),
-                ipAddressRepository.sumVisitsForDate(today),
+                ipAddressRepository.countAddressesSeenBetween(startOfDay, startOfNextDay),
                 today);
     }
 

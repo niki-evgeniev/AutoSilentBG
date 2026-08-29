@@ -61,6 +61,7 @@ public class ProductsController {
                                          direction = Sort.Direction.ASC) Pageable pageable) {
         ProductFilterDto filter = new ProductFilterDto(
                 search, brand, model, minPrice, maxPrice, inStock, null);
+
         return catalog(filter, catalogPageable(pageable, order),
                 null, normalizeOrder(order));
     }

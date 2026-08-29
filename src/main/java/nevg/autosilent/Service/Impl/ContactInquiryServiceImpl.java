@@ -26,5 +26,16 @@ public class ContactInquiryServiceImpl implements ContactInquiryService {
         inquiry.setMessage(request.getMessage().trim());
         inquiry.setIpAddress(ipAddress);
         repository.save(inquiry);
+
+        System.out.printf("""
+                %n========== НОВО ЗАПИТВАНЕ ==========%n
+                Име: %s
+                Имейл: %s
+                Тема: %s
+                Съобщение: %s
+                IP адрес: %s
+                ====================================%n%n""",
+                inquiry.getName(), inquiry.getEmail(), inquiry.getSubject(),
+                inquiry.getMessage(), inquiry.getIpAddress());
     }
 }

@@ -105,15 +105,17 @@ class AdminIpAddressServiceImplTest {
     }
 
     @Test
-    void visitStatisticsContainsAllAndTodayVisits() {
+    void visitStatisticsContainsAllVisitsAndUniqueAddressesSeenToday() {
+        LocalDate today = LocalDate.now();
         when(repository.sumAllVisits()).thenReturn(321L);
-        when(repository.sumVisitsForDate(LocalDate.now())).thenReturn(27L);
+        when(repository.countAddressesSeenBetween(
+                today.atStartOfDay(), today.plusDays(1).atStartOfDay())).thenReturn(27L);
 
         var result = service.getVisitStatistics();
 
         assertThat(result.totalVisits()).isEqualTo(321);
         assertThat(result.todayVisits()).isEqualTo(27);
-        assertThat(result.date()).isEqualTo(LocalDate.now());
+        assertThat(result.date()).isEqualTo(today);
     }
 
     @Test

@@ -160,7 +160,49 @@ public class OrderServiceImpl implements OrderService {
         history.setOrder(order);
         history.setNewStatus(OrderStatus.NEW);
         statusHistoryRepository.save(history);
+        printNewOrder(order, orderItems);
         return order.getOrderNumber();
+    }
+
+    private void printNewOrder(OrderEntity order, List<OrderItemEntity> orderItems) {
+        StringBuilder products = new StringBuilder();
+        for (OrderItemEntity item : orderItems) {
+            products.append(System.lineSeparator())
+                    .append("  - ").append(item.getProductName())
+                    .append(" | SKU: ").append(item.getProductSku())
+                    .append(" | количество: ").append(item.getQuantity())
+                    .append(" | единична цена: ").append(item.getUnitPrice())
+                    .append(" | общо: ").append(item.getTotalPrice());
+        }
+
+        System.out.printf("""
+                %n========== НОВА ПОРЪЧКА ==========%n
+                Номер: %s
+                Клиент: %s %s
+                Имейл: %s
+                Телефон: %s
+                Тип клиент: %s
+                Доставка: %s (цена: %s)
+                Плащане: %s
+                Статус на плащането: %s
+                Статус на поръчката: %s
+                Междинна сума: %s
+                Отстъпка: %s
+                Промокод: %s
+                Процент от промокод: %s
+                Обща сума: %s
+                Бележка от клиента: %s
+                Продукти:%s
+                ==================================%n%n""",
+                order.getOrderNumber(),
+                order.getCustomerFirstName(), order.getCustomerLastName(),
+                order.getCustomerEmail(), order.getCustomerPhone(),
+                order.isGuestOrder() ? "гост" : "регистриран",
+                order.getDeliveryType(), order.getDeliveryPrice(),
+                order.getPaymentMethod(), order.getPaymentStatus(), order.getOrderStatus(),
+                order.getSubtotalPrice(), order.getDiscountPrice(),
+                order.getPromoCode(), order.getPromoDiscountPercent(), order.getTotalPrice(),
+                order.getCustomerNote(), products);
     }
 
     private BigDecimal totalDiscountPercent(BigDecimal customerDiscountPercent, BigDecimal promoDiscountPercent) {
