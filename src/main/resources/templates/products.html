@@ -45,14 +45,100 @@
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
     <meta name="twitter:image:alt" content="Автомобилна шумоизолация и виброизолация от AutoSilent.bg">
 
-    <script type="application/ld+json">
+    <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": "Автомобилна шумоизолация и виброизолация",
-            "url": "https://autosilent.bg/products",
-            "inLanguage": "bg-BG",
-            "description": "Каталог с материали за автомобилна шумоизолация, звукоизолация и виброизолация."
+            "@graph": [
+                {
+                    "@type": "CollectionPage",
+                    "@id": /*[[${(selectedCategory == null ? 'https://autosilent.bg/products' : 'https://autosilent.bg/products/category/' + selectedCategory.id() + '/' + selectedCategory.slug()) + (productPage.number == 0 ? '' : '?page=' + productPage.number)}]]*/ "https://autosilent.bg/products",
+                    "url": /*[[${(selectedCategory == null ? 'https://autosilent.bg/products' : 'https://autosilent.bg/products/category/' + selectedCategory.id() + '/' + selectedCategory.slug()) + (productPage.number == 0 ? '' : '?page=' + productPage.number)}]]*/ "https://autosilent.bg/products",
+                    "name": /*[[${selectedCategory == null ? 'Автомобилна шумоизолация и виброизолация' : selectedCategory.name() + ' – автомобилна шумоизолация'}]]*/ "Автомобилна шумоизолация и виброизолация",
+                    "description": /*[[${selectedCategory == null ? 'Каталог с материали за автомобилна шумоизолация, звукоизолация и виброизолация.' : 'Продукти в категория ' + selectedCategory.name() + ' за автомобилна шумоизолация и виброизолация.'}]]*/ "Каталог с материали за автомобилна шумоизолация.",
+                    "inLanguage": "bg-BG",
+                    "isPartOf": {"@id": "https://autosilent.bg/#website"},
+                    "publisher": {"@id": "https://autosilent.bg/#organization"},
+                    "primaryImageOfPage": {"@id": "https://autosilent.bg/products#primaryimage"},
+                    "breadcrumb": {"@id": "https://autosilent.bg/products#breadcrumb"},
+                    "mainEntity": {"@id": "https://autosilent.bg/products#product-list"}
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    "@id": "https://autosilent.bg/products#breadcrumb",
+                    "itemListElement": [
+                        {"@type": "ListItem", "position": 1, "name": "Начало", "item": "https://autosilent.bg/"},
+                        {"@type": "ListItem", "position": 2, "name": "Продукти", "item": "https://autosilent.bg/products"}
+                        /*[# th:if="${selectedCategory != null}"]*/,
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": /*[[${selectedCategory.name()}]]*/ "Категория",
+                            "item": /*[[${'https://autosilent.bg/products/category/' + selectedCategory.id() + '/' + selectedCategory.slug()}]]*/ "https://autosilent.bg/products"
+                        }
+                        /*[/]*/
+                    ]
+                },
+                {
+                    "@type": "ItemList",
+                    "@id": "https://autosilent.bg/products#product-list",
+                    "name": /*[[${selectedCategory == null ? 'Продукти за автомобилна шумоизолация' : 'Продукти – ' + selectedCategory.name()}]]*/ "Продукти за автомобилна шумоизолация",
+                    "numberOfItems": /*[[${productPage.totalElements}]]*/ 0,
+                    "itemListElement": [
+                        /*[# th:each="product, stat : ${products}"]*/
+                        {
+                            "@type": "ListItem",
+                            "position": /*[[${productPage.number * productPage.size + stat.count}]]*/ 1,
+                            "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                            "item": {
+                                "@type": "Product",
+                                "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product",
+                                "name": /*[[${product.displayName()}]]*/ "Product",
+                                "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                "description": /*[[${product.plainDescription()}]]*/ "Product description",
+                                "sku": /*[[${product.sku()}]]*/ "SKU",
+                                "category": /*[[${product.category()}]]*/ "Category",
+                                "brand": {"@type": "Brand", "name": /*[[${product.name()}]]*/ "Brand"}
+                                /*[# th:if="${product.mainImageUrl() != null and !product.mainImageUrl().isBlank()}"]*/,
+                                "image": /*[[${#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ "https://autosilent.bg/images/product.webp"
+                                /*[/]*/,
+                                "offers": {
+                                    "@type": "Offer",
+                                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                    "priceCurrency": "EUR",
+                                    "price": /*[[${product.price()}]]*/ 0,
+                                    "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
+                                    "itemCondition": "https://schema.org/NewCondition",
+                                    "seller": {"@id": "https://autosilent.bg/#organization"}
+                                }
+                            }
+                        }/*[# th:unless="${stat.last}"]*/,/*[/]*/
+                        /*[/]*/
+                    ]
+                },
+                {
+                    "@type": "ImageObject",
+                    "@id": "https://autosilent.bg/products#primaryimage",
+                    "url": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "contentUrl": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "width": 1672,
+                    "height": 941,
+                    "caption": "Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
+                },
+                {
+                    "@type": "Organization",
+                    "@id": "https://autosilent.bg/#organization",
+                    "name": "AutoSilent.bg",
+                    "url": "https://autosilent.bg/"
+                },
+                {
+                    "@type": "WebSite",
+                    "@id": "https://autosilent.bg/#website",
+                    "url": "https://autosilent.bg/",
+                    "name": "AutoSilent.bg",
+                    "inLanguage": "bg-BG",
+                    "publisher": {"@id": "https://autosilent.bg/#organization"}
+                }
+            ]
         }
     </script>
 

@@ -42,14 +42,94 @@
     <meta name="twitter:image:alt"
           content="AutoSilent.bg – звукоизолация за автомобили, бусове и камиони">
 
-    <script type="application/ld+json">
+    <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "AutoSilent.bg",
-            "url": "https://autosilent.bg/",
-            "inLanguage": "bg-BG",
-            "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони."
+            "@graph": [
+                {
+                    "@type": "WebPage",
+                    "@id": "https://autosilent.bg/#webpage",
+                    "url": "https://autosilent.bg/",
+                    "name": "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони",
+                    "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони.",
+                    "inLanguage": "bg-BG",
+                    "isPartOf": {"@id": "https://autosilent.bg/#website"},
+                    "about": {"@id": "https://autosilent.bg/#organization"},
+                    "primaryImageOfPage": {"@id": "https://autosilent.bg/#primaryimage"},
+                    "mainEntity": {"@id": "https://autosilent.bg/#featured-products"}
+                },
+                {
+                    "@type": "WebSite",
+                    "@id": "https://autosilent.bg/#website",
+                    "url": "https://autosilent.bg/",
+                    "name": "AutoSilent.bg",
+                    "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони.",
+                    "inLanguage": "bg-BG",
+                    "publisher": {"@id": "https://autosilent.bg/#organization"}
+                },
+                {
+                    "@type": "OnlineStore",
+                    "@id": "https://autosilent.bg/#organization",
+                    "name": "AutoSilent.bg",
+                    "url": "https://autosilent.bg/",
+                    "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони.",
+                    "image": {"@id": "https://autosilent.bg/#primaryimage"},
+                    "email": "autosilentbg@gmail.com",
+                    "telephone": "+359895020304",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Горна Оряховица",
+                        "addressCountry": "BG"
+                    }
+                },
+                {
+                    "@type": "ImageObject",
+                    "@id": "https://autosilent.bg/#primaryimage",
+                    "url": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "contentUrl": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "width": 1672,
+                    "height": 941,
+                    "caption": "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони"
+                },
+                {
+                    "@type": "ItemList",
+                    "@id": "https://autosilent.bg/#featured-products",
+                    "name": "Най-продавани продукти",
+                    "numberOfItems": /*[[${bestSellingProducts.size()}]]*/ 0,
+                    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+                    "itemListElement": [
+                        /*[# th:each="product, stat : ${bestSellingProducts}"]*/
+                        {
+                            "@type": "ListItem",
+                            "position": /*[[${stat.count}]]*/ 1,
+                            "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                            "item": {
+                                "@type": "Product",
+                                "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product",
+                                "name": /*[[${product.displayName()}]]*/ "Product",
+                                "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                "sku": /*[[${product.sku()}]]*/ "SKU",
+                                "category": /*[[${product.category()}]]*/ "Category",
+                                "brand": {"@type": "Brand", "name": /*[[${product.name()}]]*/ "Brand"},
+                                "description": /*[[${product.plainDescription()}]]*/ "Product description"
+                                /*[# th:if="${product.mainImageUrl() != null and !product.mainImageUrl().isBlank()}"]*/,
+                                "image": /*[[${#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ "https://autosilent.bg/images/product.webp"
+                                /*[/]*/,
+                                "offers": {
+                                    "@type": "Offer",
+                                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                    "priceCurrency": "EUR",
+                                    "price": /*[[${product.price()}]]*/ 0,
+                                    "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
+                                    "itemCondition": "https://schema.org/NewCondition",
+                                    "seller": {"@id": "https://autosilent.bg/#organization"}
+                                }
+                            }
+                        }/*[# th:unless="${stat.last}"]*/,/*[/]*/
+                        /*[/]*/
+                    ]
+                }
+            ]
         }
     </script>
 

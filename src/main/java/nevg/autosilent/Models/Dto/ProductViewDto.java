@@ -1,5 +1,7 @@
 package nevg.autosilent.Models.Dto;
 
+import nevg.autosilent.Utility.ProductDescriptionSanitizer;
+
 import java.math.BigDecimal;
 
 public record ProductViewDto(
@@ -21,5 +23,9 @@ public record ProductViewDto(
 
     public String displayName() {
         return model == null || model.isBlank() ? name : name + " " + model;
+    }
+
+    public String plainDescription() {
+        return ProductDescriptionSanitizer.toPlainText(description);
     }
 }

@@ -19,31 +19,98 @@
     <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
-            "@type": "Product",
-            "name": /*[[${product.displayName()}]]*/ "Product",
-            "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/
-            "Product description",
-            "sku": /*[[${product.sku()}]]*/ "SKU",
-            "brand": {
-                "@type": "Brand",
-                "name": /*[[${product.name()}]]*/ "Brand"
-            },
-            "category": /*[[${product.category()}]]*/ "Category",
-            "url": "https://autosilent.bg/products/[(${product.url()})]",
-            "image": /*[[${product.mainImageUrl() == null ? null : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ null,
-            "offers": {
-                "@type": "Offer",
-                "url": "https://autosilent.bg/products/[(${product.url()})]",
-                "priceCurrency": "EUR",
-                "price": /*[[${product.price()}]]*/ 0,
-                "availability": "https://schema.org/[(${product.stock() > 0 ? 'InStock' : 'OutOfStock'})]",
-                "itemCondition": "https://schema.org/NewCondition",
-                "seller": {
-                    "@type": "Organization",
-                    "name": "AutoSilent",
-                    "url": "https://autosilent.bg/"
+            "@graph": [
+                {
+                    "@type": "Product",
+                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product",
+                    "name": /*[[${product.displayName()}]]*/ "Product",
+                    "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/ "Product description",
+                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                    "sku": /*[[${product.sku()}]]*/ "SKU",
+                    "category": /*[[${product.category()}]]*/ "Category",
+                    "brand": {"@type": "Brand", "name": /*[[${product.name()}]]*/ "Brand"}
+                    /*[# th:if="${product.model() != null and !product.model().isBlank()}"]*/,
+                    "model": /*[[${product.model()}]]*/ "Model"
+                    /*[/]*/
+                    /*[# th:if="${seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank()}"]*/,
+                    "image": [
+                        /*[[${#strings.startsWith(seo.imageUrl, 'http') ? seo.imageUrl : 'https://autosilent.bg' + seo.imageUrl}]]*/ "https://autosilent.bg/images/product.webp"
+                        /*[# th:each="imageUrl : ${product.imageUrls()}"]*/,
+                        /*[[${#strings.startsWith(imageUrl, 'http') ? imageUrl : 'https://autosilent.bg' + imageUrl}]]*/ "https://autosilent.bg/images/product.webp"
+                        /*[/]*/
+                    ]
+                    /*[/]*/
+                    /*[# th:if="${(seo == null or seo.imageUrl == null or seo.imageUrl.isBlank()) and !product.imageUrls().isEmpty()}"]*/,
+                    "image": [
+                        /*[# th:each="imageUrl, imageStatus : ${product.imageUrls()}"]*/
+                        /*[[${#strings.startsWith(imageUrl, 'http') ? imageUrl : 'https://autosilent.bg' + imageUrl}]]*/ "https://autosilent.bg/images/product.webp"/*[# th:unless="${imageStatus.last}"]*/,/*[/]*/
+                        /*[/]*/
+                    ]
+                    /*[/]*/,
+                    "mainEntityOfPage": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#webpage'}]]*/ "https://autosilent.bg/products/product#webpage"},
+                    "offers": {
+                        "@type": "Offer",
+                        "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#offer'}]]*/ "https://autosilent.bg/products/product#offer",
+                        "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                        "priceCurrency": "EUR",
+                        "price": /*[[${product.price()}]]*/ 0,
+                        "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
+                        "itemCondition": "https://schema.org/NewCondition",
+                        "seller": {"@id": "https://autosilent.bg/#organization"}
+                    }
+                },
+                {
+                    "@type": "ItemPage",
+                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#webpage'}]]*/ "https://autosilent.bg/products/product#webpage",
+                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                    "name": /*[[${seo != null ? seo.title : product.displayName() + ' | AutoSilent.bg'}]]*/ "Product | AutoSilent.bg",
+                    "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/ "Product description",
+                    "inLanguage": "bg-BG",
+                    "isPartOf": {"@id": "https://autosilent.bg/#website"},
+                    "breadcrumb": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#breadcrumb'}]]*/ "https://autosilent.bg/products/product#breadcrumb"},
+                    "mainEntity": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product"}
+                    /*[# th:if="${(seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank()) or product.mainImageUrl() != null}"]*/,
+                    "primaryImageOfPage": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#primaryimage'}]]*/ "https://autosilent.bg/products/product#primaryimage"}
+                    /*[/]*/
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#breadcrumb'}]]*/ "https://autosilent.bg/products/product#breadcrumb",
+                    "itemListElement": [
+                        {"@type": "ListItem", "position": 1, "name": "Начало", "item": "https://autosilent.bg/"},
+                        {"@type": "ListItem", "position": 2, "name": "Продукти", "item": "https://autosilent.bg/products"},
+                        {
+                            "@type": "ListItem",
+                            "position": 3,
+                            "name": /*[[${product.displayName()}]]*/ "Product",
+                            "item": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product"
+                        }
+                    ]
                 }
-            }
+                /*[# th:if="${(seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank()) or product.mainImageUrl() != null}"]*/,
+                {
+                    "@type": "ImageObject",
+                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#primaryimage'}]]*/ "https://autosilent.bg/products/product#primaryimage",
+                    "url": /*[[${seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank() ? (#strings.startsWith(seo.imageUrl, 'http') ? seo.imageUrl : 'https://autosilent.bg' + seo.imageUrl) : (#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl())}]]*/ "https://autosilent.bg/images/product.webp",
+                    "contentUrl": /*[[${seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank() ? (#strings.startsWith(seo.imageUrl, 'http') ? seo.imageUrl : 'https://autosilent.bg' + seo.imageUrl) : (#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl())}]]*/ "https://autosilent.bg/images/product.webp",
+                    "caption": /*[[${product.displayName()}]]*/ "Product"
+                }
+                /*[/]*/,
+                {
+                    "@type": "Organization",
+                    "@id": "https://autosilent.bg/#organization",
+                    "name": "AutoSilent.bg",
+                    "url": "https://autosilent.bg/"
+                },
+                {
+                    "@type": "WebSite",
+                    "@id": "https://autosilent.bg/#website",
+                    "url": "https://autosilent.bg/",
+                    "name": "AutoSilent.bg",
+                    "inLanguage": "bg-BG",
+                    "publisher": {"@id": "https://autosilent.bg/#organization"}
+                }
+            ]
         }
     </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
