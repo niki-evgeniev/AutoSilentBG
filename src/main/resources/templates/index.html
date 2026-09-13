@@ -1,45 +1,52 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:lang="${#locale.language}">
-<head>
+<head th:with="seoEnglish=${#locale.language == 'en'},
+               seoLanguage=${seoEnglish ? 'en' : 'bg-BG'},
+               seoTitle=${seoEnglish ? 'AutoSilent.bg – Soundproofing for cars, vans and trucks' : 'AutoSilent.bg – звукоизолация за автомобили, бусове и камиони'},
+               seoDescription=${seoEnglish ? 'Soundproofing and vibration insulation for cars, vans and trucks. Browse Vibrofiltr materials to reduce noise, vibrations and panel resonance.' : 'Звукоизолация и шумоизолация за автомобили, бусове и камиони. Разгледайте материали Vibrofiltr за намаляване на вибрациите, шума и резонанса в купето.'},
+               seoImage='https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#080808">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <title>AutoSilent.bg – звукоизолация за автомобили, бусове и камиони</title>
+    <title th:text="${seoTitle}">AutoSilent.bg – звукоизолация за автомобили, бусове и камиони</title>
     <meta name="description"
+          th:content="${seoDescription}"
           content="Звукоизолация и шумоизолация за автомобили, бусове и камиони. Vibrofiltr материали за намаляване на вибрациите, шума и резонанса в купето.">
-    <meta name="keywords"
-          content="звукоизолация за автомобил, шумоизолация за кола, виброизолация за автомобил, автомобилна шумоизолация, звукоизолация за бус, звукоизолация за камион, Vibrofiltr, антивибрационни материали, шумоизолация за врати, изолация за багажник, изолация за под на автомобил">
     <meta name="author" content="AutoSilent.bg">
-
-
     <link rel="canonical" href="https://autosilent.bg/">
-
-    <meta property="og:locale" content="bg_BG">
+    <meta property="og:locale" th:content="${seoEnglish ? 'en_US' : 'bg_BG'}" content="bg_BG">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AutoSilent.bg">
-    <meta property="og:title" content="AutoSilent.bg – звукоизолация за автомобили">
+    <meta property="og:title" th:content="${seoTitle}" content="AutoSilent.bg – звукоизолация за автомобили">
     <meta property="og:description"
+          th:content="${seoDescription}"
           content="Качествени материали за звукоизолация, шумоизолация и намаляване на вибрациите в автомобили, бусове и камиони.">
     <meta property="og:url" content="https://autosilent.bg/">
     <meta property="og:image"
+          th:content="${seoImage}"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
     <meta property="og:image:secure_url"
+          th:content="${seoImage}"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1672">
     <meta property="og:image:height" content="941">
     <meta property="og:image:alt"
+          th:content="${seoTitle}"
           content="AutoSilent.bg – звукоизолация за автомобили, бусове и камиони">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="AutoSilent.bg – звукоизолация за автомобили">
+    <meta name="twitter:title" th:content="${seoTitle}" content="AutoSilent.bg – звукоизолация за автомобили">
     <meta name="twitter:description"
+          th:content="${seoDescription}"
           content="Материали за звукоизолация, шумоизолация и намаляване на вибрациите в автомобили, бусове и камиони.">
     <meta name="twitter:image"
+          th:content="${seoImage}"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
     <meta name="twitter:image:alt"
+          th:content="${seoTitle}"
           content="AutoSilent.bg – звукоизолация за автомобили, бусове и камиони">
 
     <script type="application/ld+json" th:inline="javascript">
@@ -50,30 +57,49 @@
                     "@type": "WebPage",
                     "@id": "https://autosilent.bg/#webpage",
                     "url": "https://autosilent.bg/",
-                    "name": "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони",
-                    "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони.",
-                    "inLanguage": "bg-BG",
-                    "isPartOf": {"@id": "https://autosilent.bg/#website"},
-                    "about": {"@id": "https://autosilent.bg/#organization"},
-                    "primaryImageOfPage": {"@id": "https://autosilent.bg/#primaryimage"},
-                    "mainEntity": {"@id": "https://autosilent.bg/#featured-products"}
+                    "name": /*[[${seoTitle}]]*/ "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони",
+                    "description": /*[[${seoDescription}]]*/ "Онлайн магазин за автомобилна шумоизолация.",
+                    "inLanguage": /*[[${seoLanguage}]]*/ "bg-BG",
+                    "isPartOf": {
+                        "@id": "https://autosilent.bg/#website"
+                    },
+                    "about": {
+                        "@id": "https://autosilent.bg/#organization"
+                    },
+                    "publisher": {
+                        "@id": "https://autosilent.bg/#organization"
+                    },
+                    "primaryImageOfPage": {
+                        "@id": "https://autosilent.bg/#primaryimage"
+                    },
+                    "mainEntity": {
+                        "@id": "https://autosilent.bg/#featured-products"
+                    }
                 },
                 {
                     "@type": "WebSite",
                     "@id": "https://autosilent.bg/#website",
                     "url": "https://autosilent.bg/",
                     "name": "AutoSilent.bg",
-                    "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони.",
-                    "inLanguage": "bg-BG",
-                    "publisher": {"@id": "https://autosilent.bg/#organization"}
+                    "alternateName": "AutoSilent",
+                    "description": /*[[${seoDescription}]]*/ "Онлайн магазин за автомобилна шумоизолация.",
+                    "inLanguage": [
+                        "bg-BG",
+                        "en"
+                    ],
+                    "publisher": {
+                        "@id": "https://autosilent.bg/#organization"
+                    }
                 },
                 {
                     "@type": "OnlineStore",
                     "@id": "https://autosilent.bg/#organization",
                     "name": "AutoSilent.bg",
                     "url": "https://autosilent.bg/",
-                    "description": "Онлайн магазин за автомобилна шумоизолация, звукоизолация и виброизолация за автомобили, бусове и камиони.",
-                    "image": {"@id": "https://autosilent.bg/#primaryimage"},
+                    "description": /*[[${seoDescription}]]*/ "Онлайн магазин за автомобилна шумоизолация.",
+                    "image": {
+                        "@id": "https://autosilent.bg/#primaryimage"
+                    },
                     "email": "autosilentbg@gmail.com",
                     "telephone": "+359895020304",
                     "address": {
@@ -85,47 +111,69 @@
                 {
                     "@type": "ImageObject",
                     "@id": "https://autosilent.bg/#primaryimage",
-                    "url": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
-                    "contentUrl": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "url": /*[[${seoImage}]]*/ "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "contentUrl": /*[[${seoImage}]]*/ "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
                     "width": 1672,
                     "height": 941,
-                    "caption": "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони"
+                    "caption": /*[[${seoTitle}]]*/ "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони"
                 },
                 {
                     "@type": "ItemList",
                     "@id": "https://autosilent.bg/#featured-products",
-                    "name": "Най-продавани продукти",
-                    "numberOfItems": /*[[${bestSellingProducts.size()}]]*/ 0,
+                    "name": /*[[${seoEnglish ? 'Best-selling products' : 'Най-продавани продукти'}]]*/ "Най-продавани продукти",
+                    "numberOfItems": /*[[${bestSellingProducts == null ? 0 : bestSellingProducts.size()}]]*/ 0,
                     "itemListOrder": "https://schema.org/ItemListOrderDescending",
                     "itemListElement": [
-                        /*[# th:each="product, stat : ${bestSellingProducts}"]*/
+                        /*[# th:each="product, stat : ${bestSellingProducts}" th:with="productUrl=${'https://autosilent.bg/shumoizolaciya/' + product.url()}, rawImage=${#strings.trim(product.mainImageUrl())}, productImage=${#strings.isEmpty(rawImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawImage), 'https://') or #strings.startsWith(#strings.toLowerCase(rawImage), 'http://') ? rawImage : (#strings.startsWith(rawImage, '//') ? 'https:' + rawImage : (rawImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawImage, '/') ? '' : '/') + rawImage)))}"]*/
                         {
                             "@type": "ListItem",
                             "position": /*[[${stat.count}]]*/ 1,
-                            "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                            "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                             "item": {
                                 "@type": "Product",
-                                "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product",
+                                "@id": /*[[${productUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
                                 "name": /*[[${product.displayName()}]]*/ "Product",
-                                "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
-                                "sku": /*[[${product.sku()}]]*/ "SKU",
-                                "category": /*[[${product.category()}]]*/ "Category",
-                                "brand": {"@type": "Brand", "name": /*[[${product.name()}]]*/ "Brand"},
+                                "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product"
+                                /*[# th:if="${!#strings.isEmpty(#strings.trim(product.sku()))}"]*/,
+                                "sku": /*[[${product.sku()}]]*/ "SKU"
+                                /*[/]*/
+                                /*[# th:if="${!#strings.isEmpty(#strings.trim(product.category()))}"]*/,
+                                "category": /*[[${product.category()}]]*/ "Category"
+                                /*[/]*/
+                                /*[# th:if="${!#strings.isEmpty(#strings.trim(product.name()))}"]*/,
+                                "brand": {
+                                    "@type": "Brand",
+                                    "name": /*[[${product.name()}]]*/ "Brand"
+                                }
+                                /*[/]*/
+                                /*[# th:if="${!#strings.isEmpty(#strings.trim(product.model()))}"]*/,
+                                "model": /*[[${product.model()}]]*/ "Model"
+                                /*[/]*/
+                                /*[# th:if="${!#strings.isEmpty(product.plainDescription())}"]*/,
                                 "description": /*[[${product.plainDescription()}]]*/ "Product description"
-                                /*[# th:if="${product.mainImageUrl() != null and !product.mainImageUrl().isBlank()}"]*/,
-                                "image": /*[[${#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ "https://autosilent.bg/images/product.webp"
-                                /*[/]*/,
+                                /*[/]*/
+                                /*[# th:if="${productImage != null}"]*/,
+                                "image": /*[[${productImage}]]*/ "https://autosilent.bg/images/product.webp"
+                                /*[/]*/
+                                /*[# th:if="${product.price() != null and product.price().signum() >= 0}"]*/,
                                 "offers": {
                                     "@type": "Offer",
-                                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                    "@id": /*[[${productUrl + '#offer'}]]*/ "https://autosilent.bg/shumoizolaciya/product#offer",
+                                    "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                                     "priceCurrency": "EUR",
                                     "price": /*[[${product.price()}]]*/ 0,
                                     "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
                                     "itemCondition": "https://schema.org/NewCondition",
-                                    "seller": {"@id": "https://autosilent.bg/#organization"}
+                                    "seller": {
+                                        "@id": "https://autosilent.bg/#organization"
+                                    }
                                 }
+                                /*[/]*/
                             }
-                        }/*[# th:unless="${stat.last}"]*/,/*[/]*/
+                        }
+                        /*[# th:unless="${stat.last}"]*/
+                        ,
+                        /*[/]*/
                         /*[/]*/
                     ]
                 }
@@ -158,7 +206,7 @@
                     <div class="hero-buttons">
                         <a href="#products" class="btn btn-orange"
                            th:text="#{home.hero.products}">Най-продавани</a>
-                        <a th:href="@{/products}"
+                        <a th:href="@{/shumoizolaciya}"
                            class="btn btn-outline-dark custom-outline"
                            th:text="#{home.hero.promotions}">Виж промоции</a>
                     </div>
@@ -166,13 +214,6 @@
 
                 <div class="col-lg-7">
                     <div class="hero-slider-wrap home-3d-scene">
-                        <!--                        <div class="scene-orbit" aria-hidden="true"></div>-->
-                        <!--                        <div class="scene-chip chip-fast" aria-hidden="true">-->
-                        <!--                            <i class="bi bi-lightning-charge-fill"></i></div>-->
-                        <!--                        <div class="scene-chip chip-secure" aria-hidden="true">-->
-                        <!--                            <i class="bi bi-shield-lock-fill"></i></div>-->
-                        <!--                        <div class="scene-chip chip-delivery" aria-hidden="true">-->
-                        <!--                            <i class="bi bi-truck"></i></div>-->
                         <div class="swiper hero-swiper">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide">
@@ -256,50 +297,6 @@
             </div>
         </div>
     </section>
-
-    <!--    <section id="categories" class="section-padding">-->
-    <!--        <div class="container">-->
-    <!--            <div class="section-title">-->
-    <!--                <span th:text="#{home.categories.label}">Избери категория</span>-->
-    <!--                <h2 th:text="#{home.categories.title}">Популярни категории</h2>-->
-    <!--            </div>-->
-
-    <!--            <div class="row g-4">-->
-    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
-    <!--                    <article class="category-card tilt-card">-->
-    <!--                        <div class="category-img"><i class="bi bi-car-front"></i></div>-->
-    <!--                        <h3 th:text="#{category.car}">Автоаксесоари</h3>-->
-    <!--                        <p th:text="#{category.car.text}">Практични и качествени аксесоари за автомобила.</p>-->
-    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-    <!--                    </article>-->
-    <!--                </div>-->
-    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
-    <!--                    <article class="category-card tilt-card">-->
-    <!--                        <div class="category-img"><i class="bi bi-box-seam"></i></div>-->
-    <!--                        <h3 th:text="#{category.3d}">3D продукти</h3>-->
-    <!--                        <p th:text="#{category.3d.text}">Иновативни 3D принтирани продукти и аксесоари.</p>-->
-    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-    <!--                    </article>-->
-    <!--                </div>-->
-    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
-    <!--                    <article class="category-card tilt-card">-->
-    <!--                        <div class="category-img"><i class="bi bi-gift"></i></div>-->
-    <!--                        <h3 th:text="#{category.gifts}">Подаръци</h3>-->
-    <!--                        <p th:text="#{category.gifts.text}">Оригинални подаръци за всеки повод.</p>-->
-    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-    <!--                    </article>-->
-    <!--                </div>-->
-    <!--                <div class="col-12 col-sm-6 col-lg-3">-->
-    <!--                    <article class="category-card tilt-card">-->
-    <!--                        <div class="category-img accent"><i class="bi bi-percent"></i></div>-->
-    <!--                        <h3 th:text="#{category.promotions}">Промоции</h3>-->
-    <!--                        <p th:text="#{category.promotions.text}">Виж всички продукти с намаление.</p>-->
-    <!--                        <a href="#"><span th:text="#{category.view}">Разгледай</span> <i class="bi bi-arrow-right"></i></a>-->
-    <!--                    </article>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--        </div>-->
-    <!--    </section>-->
     <br>
     <br>
     <br>
@@ -317,15 +314,15 @@
                              th:data-product-name="${product.displayName()}"
                              th:data-product-price="${product.price()}"
                              th:data-product-image="${product.mainImageUrl()}"
-                             th:data-product-url="@{/products/{url}(url=${product.url()})}">
-                        <a class="product-image" th:href="@{/products/{url}(url=${product.url()})}">
+                             th:data-product-url="@{/shumoizolaciya/{url}(url=${product.url()})}">
+                        <a class="product-image" th:href="@{/shumoizolaciya/{url}(url=${product.url()})}">
                             <img th:if="${product.mainImageUrl() != null}"
                                  th:src="${product.mainImageUrl()}"
                                  th:alt="${product.displayName()}">
                             <i th:unless="${product.mainImageUrl() != null}" class="bi bi-box-seam"></i>
                         </a>
                         <div class="product-content text-center">
-                            <a class="product-name-link" th:href="@{/products/{url}(url=${product.url()})}">
+                            <a class="product-name-link" th:href="@{/shumoizolaciya/{url}(url=${product.url()})}">
                                 <h3 th:text="${product.displayName()}">Марка и модел</h3>
                             </a>
                             <div class="price"

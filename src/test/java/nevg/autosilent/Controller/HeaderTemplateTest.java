@@ -23,11 +23,7 @@ class HeaderTemplateTest {
                 .contains("data-nav=\"home\"")
                 .contains("th:href=\"@{/}\"")
                 .contains("data-nav=\"products\"")
-                .contains("th:href=\"@{/products}\"")
-                .contains("data-nav=\"promo\"")
-                .contains("th:href=\"@{/#promo}\"")
-                .contains("data-nav=\"new-products\"")
-                .contains("th:href=\"@{/#products}\"")
+                .contains("th:href=\"@{/shumoizolaciya}\"")
                 .contains("data-nav=\"contacts\"")
                 .contains("th:href=\"@{/contact}\"");
     }
@@ -54,7 +50,7 @@ class HeaderTemplateTest {
                 .contains("class=\"language-switch\"")
                 .contains("href=\"?lang=bg\"")
                 .contains("href=\"?lang=en\"")
-                .contains("th:action=\"@{/products}\"")
+                .contains("th:action=\"@{/shumoizolaciya}\"")
                 .contains("method=\"get\"")
                 .contains("name=\"search\"")
                 .contains("maxlength=\"150\"")

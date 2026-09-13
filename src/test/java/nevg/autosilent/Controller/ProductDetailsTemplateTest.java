@@ -23,7 +23,7 @@ class ProductDetailsTemplateTest {
                 .contains("th:data-product-name=\"${product.displayName()}\"")
                 .contains("th:data-product-price=\"${product.price()}\"")
                 .contains("th:data-product-image=\"${product.mainImageUrl()}\"")
-                .contains("th:data-product-url=\"@{/products/{url}(url=${product.url()})}\"")
+                .contains("th:data-product-url=\"@{/shumoizolaciya/{url}(url=${product.url()})}\"")
                 .doesNotContain("class=\"quick-order-form\"");
     }
 

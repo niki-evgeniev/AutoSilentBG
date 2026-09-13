@@ -102,8 +102,8 @@ class FavoriteControllerTest {
 
     private static Stream<Arguments> redirectCases() {
         return Stream.of(
-                Arguments.of("products", "redirect:/products"),
-                Arguments.of("details", "redirect:/products/27"),
+                Arguments.of("products", "redirect:/shumoizolaciya"),
+                Arguments.of("details", "redirect:/shumoizolaciya/27"),
                 Arguments.of("favorites", "redirect:/favorites"),
                 Arguments.of("unknown", "redirect:/favorites"),
                 Arguments.of("https://example.com", "redirect:/favorites"),

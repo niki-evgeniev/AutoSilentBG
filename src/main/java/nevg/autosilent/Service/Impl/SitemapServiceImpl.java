@@ -24,7 +24,7 @@ import java.util.Locale;
 public class SitemapServiceImpl implements SitemapService {
 
     private static final String SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
-    private static final List<String> STATIC_PUBLIC_PATHS = List.of("/", "/products", "/contact");
+    private static final List<String> STATIC_PUBLIC_PATHS = List.of("/", "/shumoizolaciya", "/contact");
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -52,12 +52,12 @@ public class SitemapServiceImpl implements SitemapService {
                 writeUrl(xml, siteUrl + path, null);
             }
             for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
-                String categoryPath = "/products/category/" + category.id() + "/"
+                String categoryPath = "/shumoizolaciya/category/" + category.id() + "/"
                         + ProductSlugGenerator.toSlug(category.name());
                 writeUrl(xml, siteUrl + categoryPath, category.lastModified());
             }
             for (SitemapProductDto product : productRepository.findAllActiveForSitemap()) {
-                writeUrl(xml, siteUrl + "/products/" + product.url(), product.lastModified());
+                writeUrl(xml, siteUrl + "/shumoizolaciya/" + product.url(), product.lastModified());
             }
 
             xml.writeEndElement();

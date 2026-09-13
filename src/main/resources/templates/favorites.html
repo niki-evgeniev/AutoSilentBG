@@ -30,7 +30,7 @@
                              th:data-product-id="${product.id()}" th:data-product-name="${product.displayName()}"
                              th:data-product-price="${product.price()}"
                              th:data-product-image="${product.mainImageUrl()}"
-                             th:data-product-url="@{/products/{url}(url=${product.url()})}">
+                             th:data-product-url="@{/shumoizolaciya/{url}(url=${product.url()})}">
                         <form method="post" th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
                             <input type="hidden" name="source" value="favorites">
                             <button type="submit" class="wishlist-btn" th:aria-label="#{favorites.remove}">
@@ -50,13 +50,13 @@
                             <div class="product-meta"><span th:text="${product.category()}">Категория</span><span
                                     th:text="${product.sku()}">Код</span></div>
                             <h3 class="text-center"><a class="product-name-link"
-                                                       th:href="@{/products/{url}(url=${product.url()})}"
+                                                       th:href="@{/shumoizolaciya/{url}(url=${product.url()})}"
                                                        th:text="${product.displayName()}">Марка и модел</a></h3>
                             <p class="product-card-description" th:text="${product.description()}">Описание</p>
                             <div class="price" th:text="#{product.price(${product.price()})}">0.00 €</div>
                             <div class="product-card-actions">
                                 <a class="btn btn-outline-dark custom-outline"
-                                   th:href="@{/products/{url}(url=${product.url()})}" th:text="#{products.more}">Виж
+                                   th:href="@{/shumoizolaciya/{url}(url=${product.url()})}" th:text="#{products.more}">Виж
                                     повече</a>
                                 <button class="btn btn-orange add-cart" th:disabled="${product.stock() == 0}"><i
                                         class="bi bi-cart-plus"></i></button>
@@ -68,7 +68,7 @@
             <div class="alert alert-light text-center py-5" th:if="${products.isEmpty()}">
                 <i class="bi bi-heart display-5 d-block mb-3"></i>
                 <h2 class="h4" th:text="#{favorites.empty}">Нямате любими продукти.</h2>
-                <a class="btn btn-orange mt-3" th:href="@{/products}" th:text="#{favorites.browse}">Разгледай
+                <a class="btn btn-orange mt-3" th:href="@{/shumoizolaciya}" th:text="#{favorites.browse}">Разгледай
                     продуктите</a>
             </div>
         </div>

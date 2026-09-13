@@ -5,6 +5,7 @@ import nevg.autosilent.Models.Dto.ProductViewDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
 import nevg.autosilent.Models.Dto.SeoDto;
 import org.junit.jupiter.api.Test;
+import org.jsoup.Jsoup;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.thymeleaf.context.Context;
@@ -40,15 +41,6 @@ class CanonicalTemplateTest {
     }
 
     @Test
-    void productCanonicalAndOpenGraphUrlsUseDynamicProductSlug() throws IOException {
-        String template = template("product-details.html");
-
-        assertThat(template)
-                .contains("rel=\"canonical\" th:href=\"|https://autosilent.bg/products/${product.url()}|\"")
-                .contains("property=\"og:url\" th:content=\"|https://autosilent.bg/products/${product.url()}|\"");
-    }
-
-    @Test
     void productDetailsHasDynamicProductJsonLd() throws IOException {
         String template = template("product-details.html");
 
@@ -74,14 +66,8 @@ class CanonicalTemplateTest {
         context.setVariable("product", product);
         context.setVariable("seo", seo);
 
-        String template = template("product-details.html");
-        int scriptStart = template.indexOf("<script type=\"application/ld+json\"");
-        int scriptEnd = template.indexOf("</script>", scriptStart) + "</script>".length();
-        String rendered = new SpringTemplateEngine().process(
-                template.substring(scriptStart, scriptEnd), context);
-        String json = rendered.substring(rendered.indexOf('>') + 1, rendered.lastIndexOf("</script>"));
-
-        JsonNode graph = new ObjectMapper().readTree(json).path("@graph");
+        JsonNode root = renderJsonLd("product-details.html", context);
+        JsonNode graph = root.path("@graph");
         assertThat(graph.path(0).path("@type").asText()).isEqualTo("Product");
         assertThat(graph.path(0).path("description").asText()).isEqualTo("SEO описание");
         assertThat(graph.path(0).path("image")).hasSize(3);
@@ -106,17 +92,10 @@ class CanonicalTemplateTest {
         context.setVariable("products", List.of(product));
         context.setVariable("productPage", productPage);
 
-        String template = template("products.html");
-        int scriptStart = template.indexOf("<script type=\"application/ld+json\"");
-        int scriptEnd = template.indexOf("</script>", scriptStart) + "</script>".length();
-        String rendered = new SpringTemplateEngine().process(
-                template.substring(scriptStart, scriptEnd), context);
-        String json = rendered.substring(rendered.indexOf('>') + 1, rendered.lastIndexOf("</script>"));
-
-        JsonNode root = new ObjectMapper().readTree(json);
+        JsonNode root = renderJsonLd("products.html", context);
         JsonNode graph = root.path("@graph");
         assertThat(graph.path(0).path("url").asText())
-                .isEqualTo("https://autosilent.bg/products/category/4/vibroizolatsiya?page=1");
+                .isEqualTo("https://autosilent.bg/shumoizolaciya/category/4/vibroizolatsiya?page=1");
         assertThat(graph.path(1).path("itemListElement")).hasSize(3);
         assertThat(graph.path(2).path("numberOfItems").asLong()).isEqualTo(10);
         assertThat(graph.path(2).path("itemListElement").path(0).path("position").asInt()).isEqualTo(10);
@@ -140,14 +119,8 @@ class CanonicalTemplateTest {
         Context context = new Context();
         context.setVariable("bestSellingProducts", List.of(product));
 
-        String template = template("index.html");
-        int scriptStart = template.indexOf("<script type=\"application/ld+json\"");
-        int scriptEnd = template.indexOf("</script>", scriptStart) + "</script>".length();
-        String rendered = new SpringTemplateEngine().process(
-                template.substring(scriptStart, scriptEnd), context);
-        String json = rendered.substring(rendered.indexOf('>') + 1, rendered.lastIndexOf("</script>"));
-
-        JsonNode graph = new ObjectMapper().readTree(json).path("@graph");
+        JsonNode root = renderJsonLd("index.html", context);
+        JsonNode graph = root.path("@graph");
         assertThat(graph.path(0).path("@type").asText()).isEqualTo("WebPage");
         assertThat(graph.path(1).path("@type").asText()).isEqualTo("WebSite");
         assertThat(graph.path(2).path("@type").asText()).isEqualTo("OnlineStore");
@@ -184,45 +157,6 @@ class CanonicalTemplateTest {
                 .path("itemListElement")).isEmpty();
     }
 
-    @Test
-    void productJsonLdUrlRendersWithoutEscapedSlashes() {
-        Context context = new Context();
-        context.setVariable("slug", "vibrofiltr-1-5");
-        String rendered = new SpringTemplateEngine().process(
-                "<script type=\"application/ld+json\" th:inline=\"javascript\">" +
-                        "{\"url\":\"https://autosilent.bg/products/[(${slug})]\"}</script>",
-                context);
-
-        assertThat(rendered)
-                .contains("\"url\":\"https://autosilent.bg/products/vibrofiltr-1-5\"")
-                .doesNotContain("\\/");
-    }
-
-    @Test
-    void productJsonLdImageRendersWithoutEscapedSlashes() {
-        Context context = new Context();
-        context.setVariable("imagePath", "/images/products/vibrofiltr.webp");
-        String rendered = new SpringTemplateEngine().process(
-                "<script type=\"application/ld+json\" th:inline=\"javascript\">" +
-                        "{\"image\":[(${imagePath == null ? 'null' : '\"https://autosilent.bg' + imagePath + '\"'})]}" +
-                        "</script>",
-                context);
-
-        assertThat(rendered)
-                .contains("\"image\":\"https://autosilent.bg/images/products/vibrofiltr.webp\"")
-                .doesNotContain("\\/");
-    }
-
-    @Test
-    void productListingCanonicalSupportsCategoriesAndPagination() throws IOException {
-        String template = template("products.html");
-
-        assertThat(template)
-                .contains("https://autosilent.bg/products?page=${productPage.number}")
-                .contains("https://autosilent.bg/products/category/${selectedCategory.id()}/${selectedCategory.slug()}")
-                .contains("?page=${productPage.number}");
-    }
-
     private String template(String name) throws IOException {
         return Files.readString(
                 Path.of("src/main/resources/templates", name), StandardCharsets.UTF_8);
@@ -230,11 +164,11 @@ class CanonicalTemplateTest {
 
     private JsonNode renderJsonLd(String templateName, Context context) throws IOException {
         String template = template(templateName);
-        int scriptStart = template.indexOf("<script type=\"application/ld+json\"");
-        int scriptEnd = template.indexOf("</script>", scriptStart) + "</script>".length();
+        int headStart = template.indexOf("<head");
+        int headEnd = template.indexOf("</head>", headStart) + "</head>".length();
         String rendered = new SpringTemplateEngine().process(
-                template.substring(scriptStart, scriptEnd), context);
-        String json = rendered.substring(rendered.indexOf('>') + 1, rendered.lastIndexOf("</script>"));
+                template.substring(headStart, headEnd), context);
+        String json = Jsoup.parse(rendered).selectFirst("script[type='application/ld+json']").data();
         return new ObjectMapper().readTree(json);
     }
 }

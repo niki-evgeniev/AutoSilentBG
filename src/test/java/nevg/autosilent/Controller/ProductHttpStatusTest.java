@@ -42,7 +42,7 @@ class ProductHttpStatusTest {
 
     @Test
     void unknownProductReturnsRealHttp404() throws Exception {
-        mockMvc.perform(get("/products/does-not-exist"))
+        mockMvc.perform(get("/shumoizolaciya/does-not-exist"))
                 .andExpect(status().isNotFound());
     }
 
@@ -53,7 +53,7 @@ class ProductHttpStatusTest {
         when(productService.getActiveProductByUrlAndIncrementCount("deleted-product"))
                 .thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/products/deleted-product"))
+        mockMvc.perform(get("/shumoizolaciya/deleted-product"))
                 .andExpect(status().isNotFound());
     }
 
@@ -62,9 +62,9 @@ class ProductHttpStatusTest {
         when(productService.getActiveProductUrlByPreviousUrl("old-product"))
                 .thenReturn(Optional.of("current-product"));
 
-        mockMvc.perform(get("/products/old-product"))
+        mockMvc.perform(get("/shumoizolaciya/old-product"))
                 .andExpect(status().isMovedPermanently())
-                .andExpect(redirectedUrl("/products/current-product"));
+                .andExpect(redirectedUrl("/shumoizolaciya/current-product"));
     }
 
     @Test
@@ -75,7 +75,24 @@ class ProductHttpStatusTest {
         when(productService.getActiveProductByUrlAndIncrementCount("sold-out-product"))
                 .thenReturn(Optional.of(product));
 
-        mockMvc.perform(get("/products/sold-out-product"))
+        mockMvc.perform(get("/shumoizolaciya/sold-out-product"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void legacyProductUrlRedirectsPermanentlyToNewPath() throws Exception {
+        when(productService.getActiveProductUrlByPreviousUrl("vibrofiltr-2-0"))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/products/vibrofiltr-2-0"))
+                .andExpect(status().isMovedPermanently())
+                .andExpect(redirectedUrl("/shumoizolaciya/vibrofiltr-2-0"));
+    }
+
+    @Test
+    void legacyCatalogUrlWithTrailingSlashRedirectsPermanently() throws Exception {
+        mockMvc.perform(get("/products/"))
+                .andExpect(status().isMovedPermanently())
+                .andExpect(redirectedUrl("/shumoizolaciya"));
     }
 }

@@ -38,8 +38,8 @@ public class FavoriteController {
 
     private String redirectTarget(String source, Long productId) {
         return switch (source) {
-            case "products" -> "/products";
-            case "details" -> "/products/" + productId;
+            case "products" -> "/shumoizolaciya";
+            case "details" -> "/shumoizolaciya/" + productId;
             default -> "/favorites";
         };
     }

@@ -24,10 +24,10 @@ class AutoSilentApplicationTests {
     void productsPageRendersWithCombinedFilters() throws Exception {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 
-        var defaultResponse = mockMvc.perform(get("/products"))
+        var defaultResponse = mockMvc.perform(get("/shumoizolaciya"))
                 .andReturn()
                 .getResponse();
-        var response = mockMvc.perform(get("/products")
+        var response = mockMvc.perform(get("/shumoizolaciya")
                         .param("brand", "Missing brand")
                         .param("model", "Missing model")
                         .param("minPrice", "10")

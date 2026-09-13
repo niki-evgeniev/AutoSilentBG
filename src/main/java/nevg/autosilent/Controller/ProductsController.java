@@ -49,7 +49,7 @@ public class ProductsController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/products")
+    @GetMapping("/shumoizolaciya")
     public ModelAndView products(@RequestParam(name = "search", required = false) String search,
                                  @RequestParam(name = "brand", required = false) String brand,
                                  @RequestParam(name = "model", required = false) String model,
@@ -66,7 +66,12 @@ public class ProductsController {
                 null, normalizeOrder(order));
     }
 
-    @GetMapping("/products/category/{categoryId}/{slug}")
+    @GetMapping({"/products", "/products/"})
+    public ModelAndView legacyProducts(HttpServletRequest request) {
+        return permanentRedirect("/shumoizolaciya", request.getQueryString());
+    }
+
+    @GetMapping("/shumoizolaciya/category/{categoryId}/{slug}")
     public ModelAndView productsByCategory(@PathVariable Long categoryId,
                                            @PathVariable String slug,
                                            @RequestParam(name = "search", required = false) String search,
@@ -83,7 +88,7 @@ public class ProductsController {
                         "Категорията не е намерена."));
         if (!category.slug().equals(slug)) {
             ModelAndView redirect = new ModelAndView(
-                    "redirect:/products/category/" + category.id() + "/" + category.slug());
+                    "redirect:/shumoizolaciya/category/" + category.id() + "/" + category.slug());
             redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
             return redirect;
         }
@@ -91,6 +96,23 @@ public class ProductsController {
         ProductFilterDto filter = new ProductFilterDto(
                 search, brand, model, minPrice, maxPrice, inStock, categoryId);
         return catalog(filter, catalogPageable(pageable, order), category, normalizeOrder(order));
+    }
+
+    @GetMapping("/products/category/{categoryId}/{slug}")
+    public ModelAndView legacyProductsByCategory(@PathVariable Long categoryId,
+                                                  @PathVariable String slug,
+                                                  HttpServletRequest request) {
+        return permanentRedirect("/shumoizolaciya/category/" + categoryId + "/" + slug,
+                request.getQueryString());
+    }
+
+    private ModelAndView permanentRedirect(String path, String queryString) {
+        String target = queryString == null || queryString.isBlank()
+                ? path
+                : path + "?" + queryString;
+        ModelAndView redirect = new ModelAndView("redirect:" + target);
+        redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
+        return redirect;
     }
 
     private ModelAndView catalog(ProductFilterDto filter,
@@ -134,7 +156,7 @@ public class ProductsController {
         };
     }
 
-    @GetMapping("/products/{url}")
+    @GetMapping("/shumoizolaciya/{url}")
     public ModelAndView productDetailsPage(@PathVariable String url, HttpServletRequest request) {
         Object csrfAttribute = request.getAttribute(CsrfToken.class.getName());
         if (csrfAttribute instanceof CsrfToken csrfToken) {
@@ -145,17 +167,31 @@ public class ProductsController {
             String canonicalUrl = productService.getActiveProductUrl(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "Продуктът не е намерен."));
-            ModelAndView redirect = new ModelAndView("redirect:/products/" + canonicalUrl);
+            ModelAndView redirect = new ModelAndView("redirect:/shumoizolaciya/" + canonicalUrl);
             redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
             return redirect;
         }
         Optional<String> currentUrl = productService.getActiveProductUrlByPreviousUrl(url);
         if (currentUrl.isPresent()) {
-            ModelAndView redirect = new ModelAndView("redirect:/products/" + currentUrl.get());
+            ModelAndView redirect = new ModelAndView("redirect:/shumoizolaciya/" + currentUrl.get());
             redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
             return redirect;
         }
         return productDetails(url);
+    }
+
+    @GetMapping("/products/{url}")
+    public ModelAndView legacyProductDetails(@PathVariable String url,
+                                              HttpServletRequest request) {
+        String targetUrl = url;
+        if (url.matches("\\d+")) {
+            targetUrl = productService.getActiveProductUrl(Long.valueOf(url))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Продуктът не е намерен."));
+        } else {
+            targetUrl = productService.getActiveProductUrlByPreviousUrl(url).orElse(url);
+        }
+        return permanentRedirect("/shumoizolaciya/" + targetUrl, request.getQueryString());
     }
 
     public ModelAndView productDetailsPage(Long id, HttpServletRequest request) {
@@ -266,12 +302,12 @@ public class ProductsController {
 
         redirectAttributes.addFlashAttribute("productUpdated", true);
         if (!product.isActive()) {
-            return new ModelAndView("redirect:/products");
+            return new ModelAndView("redirect:/shumoizolaciya");
         }
         String productUrl = productService.getActiveProductUrl(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Продуктът не е намерен."));
-        return new ModelAndView("redirect:/products/" + productUrl);
+        return new ModelAndView("redirect:/shumoizolaciya/" + productUrl);
     }
 
     @PostMapping("/products/{id}/delete")
@@ -279,7 +315,7 @@ public class ProductsController {
     public ModelAndView deleteProduct(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         productService.delete(id);
         redirectAttributes.addFlashAttribute("productDeleted", true);
-        return new ModelAndView("redirect:/products");
+        return new ModelAndView("redirect:/shumoizolaciya");
     }
 
     private ModelAndView productForm(ProductCreateDto product) {

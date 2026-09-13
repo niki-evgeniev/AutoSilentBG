@@ -1,33 +1,37 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:lang="${#locale.language}">
-<head>
+<head th:with="seoEnglish=${#locale.language == 'en'},
+               seoLanguage=${seoEnglish ? 'en' : 'bg-BG'},
+               seoCategoryUrl=${selectedCategory == null ? 'https://autosilent.bg/shumoizolaciya' : 'https://autosilent.bg/shumoizolaciya/category/' + selectedCategory.id() + '/' + selectedCategory.slug()},
+               seoCanonicalUrl=${seoCategoryUrl + (productPage.number == 0 ? '' : '?page=' + productPage.number)},
+               seoName=${selectedCategory == null ? (seoEnglish ? 'Car soundproofing and vibration insulation' : 'Автомобилна шумоизолация и виброизолация') : selectedCategory.name() + (seoEnglish ? ' – car soundproofing' : ' – автомобилна шумоизолация')},
+               seoPageSuffix=${productPage.number == 0 ? '' : (seoEnglish ? ' – Page ' : ' – Страница ') + (productPage.number + 1)},
+               seoTitle=${seoName + seoPageSuffix + ' | AutoSilent.bg'},
+               seoDescription=${(selectedCategory == null ? (seoEnglish ? 'Browse Vibrofiltr soundproofing and vibration insulation materials for cars, vans and trucks. Compare products, prices and availability.' : 'Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности.') : (seoEnglish ? 'Explore ' : 'Разгледайте ') + selectedCategory.name() + (seoEnglish ? ' for car soundproofing and vibration insulation. Compare products, prices and availability at AutoSilent.bg.' : ' за автомобилна шумоизолация и виброизолация. Сравнете продукти, цени и наличности в AutoSilent.bg.')) + (productPage.number == 0 ? '' : (seoEnglish ? ' Page ' : ' Страница ') + (productPage.number + 1) + '.')},
+               seoImageAlt=${seoEnglish ? 'Car soundproofing and vibration insulation from AutoSilent.bg' : 'Автомобилна шумоизолация и виброизолация от AutoSilent.bg'},
+               seoNoindex=${(search != null and !search.isBlank()) or (filter != null and (filter.hasCatalogFilters() or (filter.search() != null and !filter.search().isBlank()))) or (sortMode != null and !sortMode.isBlank() and sortMode != 'default') or (productPage.number > 0 and productPage.empty) or productPage.size != 9}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#080808">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <title>Автомобилна шумоизолация и виброизолация | AutoSilent.bg</title>
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+          th:content="${seoNoindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}">
+    <title th:text="${seoTitle}">Автомобилна шумоизолация и виброизолация | AutoSilent.bg</title>
     <meta name="description"
-          content="Разгледайте материали Vibrofiltr за звукоизолация, шумоизолация и виброизолация на автомобили, бусове и камиони.">
-    <meta name="keywords"
-          content="автомобилна шумоизолация, звукоизолация за автомобил, виброизолация за автомобил, шумоизолация за кола, звукоизолация за бус, звукоизолация за камион, Vibrofiltr, антивибрационни материали">
+          content="Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности."
+          th:content="${seoDescription}">
     <meta name="author" content="AutoSilent.bg">
-    <link rel="canonical"
-          th:href="${selectedCategory == null}
-              ? (${productPage.number == 0}
-                  ? 'https://autosilent.bg/products'
-                  : |https://autosilent.bg/products?page=${productPage.number}|)
-              : (${productPage.number == 0}
-                  ? |https://autosilent.bg/products/category/${selectedCategory.id()}/${selectedCategory.slug()}|
-                  : |https://autosilent.bg/products/category/${selectedCategory.id()}/${selectedCategory.slug()}?page=${productPage.number}|)">
+    <link rel="canonical" href="https://autosilent.bg/shumoizolaciya" th:href="${seoCanonicalUrl}">
 
-    <meta property="og:locale" content="bg_BG">
+    <meta property="og:locale" content="bg_BG" th:content="${seoEnglish ? 'en_US' : 'bg_BG'}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AutoSilent.bg">
-    <meta property="og:title" content="Автомобилна шумоизолация и виброизолация">
+    <meta property="og:title" content="Автомобилна шумоизолация и виброизолация | AutoSilent.bg"
+          th:content="${seoTitle}">
     <meta property="og:description"
-          content="Материали Vibrofiltr за намаляване на шума, вибрациите и резонанса в автомобили, бусове и камиони.">
-    <meta property="og:url" content="https://autosilent.bg/products">
+          content="Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности."
+          th:content="${seoDescription}">
+    <meta property="og:url" content="https://autosilent.bg/shumoizolaciya" th:content="${seoCanonicalUrl}">
     <meta property="og:image"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
     <meta property="og:image:secure_url"
@@ -35,15 +39,19 @@
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1672">
     <meta property="og:image:height" content="941">
-    <meta property="og:image:alt" content="Автомобилна шумоизолация и виброизолация от AutoSilent.bg">
+    <meta property="og:image:alt" content="Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
+          th:content="${seoImageAlt}">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Автомобилна шумоизолация и виброизолация | AutoSilent.bg">
+    <meta name="twitter:title" content="Автомобилна шумоизолация и виброизолация | AutoSilent.bg"
+          th:content="${seoTitle}">
     <meta name="twitter:description"
-          content="Материали Vibrofiltr за намаляване на шума, вибрациите и резонанса в автомобили, бусове и камиони.">
+          content="Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности."
+          th:content="${seoDescription}">
     <meta name="twitter:image"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
-    <meta name="twitter:image:alt" content="Автомобилна шумоизолация и виброизолация от AutoSilent.bg">
+    <meta name="twitter:image:alt" content="Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
+          th:content="${seoImageAlt}">
 
     <script type="application/ld+json" th:inline="javascript">
         {
@@ -51,78 +59,112 @@
             "@graph": [
                 {
                     "@type": "CollectionPage",
-                    "@id": /*[[${(selectedCategory == null ? 'https://autosilent.bg/products' : 'https://autosilent.bg/products/category/' + selectedCategory.id() + '/' + selectedCategory.slug()) + (productPage.number == 0 ? '' : '?page=' + productPage.number)}]]*/ "https://autosilent.bg/products",
-                    "url": /*[[${(selectedCategory == null ? 'https://autosilent.bg/products' : 'https://autosilent.bg/products/category/' + selectedCategory.id() + '/' + selectedCategory.slug()) + (productPage.number == 0 ? '' : '?page=' + productPage.number)}]]*/ "https://autosilent.bg/products",
-                    "name": /*[[${selectedCategory == null ? 'Автомобилна шумоизолация и виброизолация' : selectedCategory.name() + ' – автомобилна шумоизолация'}]]*/ "Автомобилна шумоизолация и виброизолация",
-                    "description": /*[[${selectedCategory == null ? 'Каталог с материали за автомобилна шумоизолация, звукоизолация и виброизолация.' : 'Продукти в категория ' + selectedCategory.name() + ' за автомобилна шумоизолация и виброизолация.'}]]*/ "Каталог с материали за автомобилна шумоизолация.",
-                    "inLanguage": "bg-BG",
-                    "isPartOf": {"@id": "https://autosilent.bg/#website"},
-                    "publisher": {"@id": "https://autosilent.bg/#organization"},
-                    "primaryImageOfPage": {"@id": "https://autosilent.bg/products#primaryimage"},
-                    "breadcrumb": {"@id": "https://autosilent.bg/products#breadcrumb"},
-                    "mainEntity": {"@id": "https://autosilent.bg/products#product-list"}
+                    "@id": /*[[${seoCanonicalUrl + '#webpage'}]]*/ "https://autosilent.bg/shumoizolaciya#webpage",
+                    "url": /*[[${seoCanonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya",
+                    "name": /*[[${seoTitle}]]*/ "Автомобилна шумоизолация и виброизолация | AutoSilent.bg",
+                    "description": /*[[${seoDescription}]]*/ "Каталог с материали за автомобилна шумоизолация.",
+                    "inLanguage": /*[[${seoLanguage}]]*/ "bg-BG",
+                    "isPartOf": {
+                        "@id": "https://autosilent.bg/#website"
+                    },
+                    "publisher": {
+                        "@id": "https://autosilent.bg/#organization"
+                    },
+                    "primaryImageOfPage": {
+                        "@id": /*[[${seoCanonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/shumoizolaciya#primaryimage"
+                    },
+                    "breadcrumb": {
+                        "@id": /*[[${seoCanonicalUrl + '#breadcrumb'}]]*/ "https://autosilent.bg/shumoizolaciya#breadcrumb"
+                    },
+                    "mainEntity": {
+                        "@id": /*[[${seoCanonicalUrl + '#product-list'}]]*/ "https://autosilent.bg/shumoizolaciya#product-list"
+                    }
                 },
                 {
                     "@type": "BreadcrumbList",
-                    "@id": "https://autosilent.bg/products#breadcrumb",
+                    "@id": /*[[${seoCanonicalUrl + '#breadcrumb'}]]*/ "https://autosilent.bg/shumoizolaciya#breadcrumb",
                     "itemListElement": [
-                        {"@type": "ListItem", "position": 1, "name": "Начало", "item": "https://autosilent.bg/"},
-                        {"@type": "ListItem", "position": 2, "name": "Продукти", "item": "https://autosilent.bg/products"}
+                        {
+                            "@type": "ListItem",
+                            "position": 1,
+                            "name": /*[[${seoEnglish ? 'Home' : 'Начало'}]]*/ "Начало",
+                            "item": "https://autosilent.bg/"
+                        },
+                        {
+                            "@type": "ListItem",
+                            "position": 2,
+                            "name": /*[[${seoEnglish ? 'Products' : 'Продукти'}]]*/ "Продукти",
+                            "item": "https://autosilent.bg/shumoizolaciya"
+                        }
                         /*[# th:if="${selectedCategory != null}"]*/,
                         {
                             "@type": "ListItem",
                             "position": 3,
                             "name": /*[[${selectedCategory.name()}]]*/ "Категория",
-                            "item": /*[[${'https://autosilent.bg/products/category/' + selectedCategory.id() + '/' + selectedCategory.slug()}]]*/ "https://autosilent.bg/products"
+                            "item": /*[[${seoCategoryUrl}]]*/ "https://autosilent.bg/shumoizolaciya"
                         }
                         /*[/]*/
                     ]
                 },
                 {
                     "@type": "ItemList",
-                    "@id": "https://autosilent.bg/products#product-list",
-                    "name": /*[[${selectedCategory == null ? 'Продукти за автомобилна шумоизолация' : 'Продукти – ' + selectedCategory.name()}]]*/ "Продукти за автомобилна шумоизолация",
+                    "@id": /*[[${seoCanonicalUrl + '#product-list'}]]*/ "https://autosilent.bg/shumoizolaciya#product-list",
+                    "name": /*[[${seoName + seoPageSuffix}]]*/ "Автомобилна шумоизолация и виброизолация",
                     "numberOfItems": /*[[${productPage.totalElements}]]*/ 0,
                     "itemListElement": [
-                        /*[# th:each="product, stat : ${products}"]*/
+                        /*[# th:each="product, stat : ${products}" th:with="rawImage=${product.mainImageUrl() == null ? '' : product.mainImageUrl().trim()}, productImage=${#strings.isEmpty(rawImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawImage), 'https://') or #strings.startsWith(#strings.toLowerCase(rawImage), 'http://') ? rawImage : (#strings.startsWith(rawImage, '//') ? 'https:' + rawImage : (rawImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawImage, '/') ? '' : '/') + rawImage)))}"]*/
                         {
                             "@type": "ListItem",
                             "position": /*[[${productPage.number * productPage.size + stat.count}]]*/ 1,
-                            "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                            "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                             "item": {
                                 "@type": "Product",
-                                "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product",
+                                "@id": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url() + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
                                 "name": /*[[${product.displayName()}]]*/ "Product",
-                                "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                                 "description": /*[[${product.plainDescription()}]]*/ "Product description",
                                 "sku": /*[[${product.sku()}]]*/ "SKU",
                                 "category": /*[[${product.category()}]]*/ "Category",
-                                "brand": {"@type": "Brand", "name": /*[[${product.name()}]]*/ "Brand"}
-                                /*[# th:if="${product.mainImageUrl() != null and !product.mainImageUrl().isBlank()}"]*/,
-                                "image": /*[[${#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl()}]]*/ "https://autosilent.bg/images/product.webp"
-                                /*[/]*/,
+                                "brand": {
+                                    "@type": "Brand",
+                                    "name": /*[[${product.name()}]]*/ "Brand"
+                                }
+                                /*[# th:if="${product.model() != null and !product.model().isBlank()}"]*/,
+                                "model": /*[[${product.model()}]]*/ "Model"
+                                /*[/]*/
+                                /*[# th:if="${productImage != null}"]*/,
+                                "image": /*[[${productImage}]]*/ "https://autosilent.bg/images/product.webp"
+                                /*[/]*/
+                                /*[# th:if="${product.price() != null and product.price().signum() >= 0}"]*/,
                                 "offers": {
                                     "@type": "Offer",
-                                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                                    "@id": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url() + '#offer'}]]*/ "https://autosilent.bg/shumoizolaciya/product#offer",
+                                    "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                                     "priceCurrency": "EUR",
                                     "price": /*[[${product.price()}]]*/ 0,
                                     "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
                                     "itemCondition": "https://schema.org/NewCondition",
-                                    "seller": {"@id": "https://autosilent.bg/#organization"}
+                                    "seller": {
+                                        "@id": "https://autosilent.bg/#organization"
+                                    }
                                 }
+                                /*[/]*/
                             }
-                        }/*[# th:unless="${stat.last}"]*/,/*[/]*/
+                        }
+                        /*[# th:unless="${stat.last}"]*/
+                        ,
+                        /*[/]*/
                         /*[/]*/
                     ]
                 },
                 {
                     "@type": "ImageObject",
-                    "@id": "https://autosilent.bg/products#primaryimage",
+                    "@id": /*[[${seoCanonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/shumoizolaciya#primaryimage",
                     "url": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
                     "contentUrl": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
                     "width": 1672,
                     "height": 941,
-                    "caption": "Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
+                    "caption": /*[[${seoImageAlt}]]*/ "Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
                 },
                 {
                     "@type": "Organization",
@@ -135,8 +177,11 @@
                     "@id": "https://autosilent.bg/#website",
                     "url": "https://autosilent.bg/",
                     "name": "AutoSilent.bg",
-                    "inLanguage": "bg-BG",
-                    "publisher": {"@id": "https://autosilent.bg/#organization"}
+                    "description": /*[[${seoEnglish ? 'Online store for car soundproofing and vibration insulation materials.' : 'Онлайн магазин за материали за автомобилна шумоизолация и виброизолация.'}]]*/ "Онлайн магазин за материали за автомобилна шумоизолация и виброизолация.",
+                    "inLanguage": /*[[${seoLanguage}]]*/ "bg-BG",
+                    "publisher": {
+                        "@id": "https://autosilent.bg/#organization"
+                    }
                 }
             ]
         }
@@ -178,8 +223,8 @@
                 <div class="col-lg-5">
                     <form class="shop-search-box tilt-card"
                           th:action="${selectedCategory == null}
-                              ? @{/products}
-                              : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}"
+                              ? @{/shumoizolaciya}
+                              : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}"
                           method="get" role="search">
                         <i class="bi bi-search"></i>
                         <label class="visually-hidden" for="productsSearch" th:text="#{site.search}">Търси</label>
@@ -216,20 +261,20 @@
                 <aside class="col-lg-3 d-none d-lg-block">
                     <form class="filter-sidebar tilt-card" method="get"
                           th:action="${selectedCategory == null}
-                              ? @{/products}
-                              : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                              ? @{/shumoizolaciya}
+                              : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
                         <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
                         <input type="hidden" name="order" th:value="${sortMode}">
                         <div class="filter-head">
                             <h2><i class="bi bi-sliders"></i> <span th:text="#{products.filters}">Филтри</span></h2>
-                            <a th:href="@{/products}" th:text="#{products.clear}">Изчисти</a>
+                            <a th:href="@{/shumoizolaciya}" th:text="#{products.clear}">Изчисти</a>
                         </div>
 
                         <div class="filter-group">
                             <h3 th:text="#{site.categories}">Категории</h3>
                             <a class="category-filter-link" th:each="category : ${categories}"
                                th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                               th:href="@{/products/category/{categoryId}/{slug}(
+                               th:href="@{/shumoizolaciya/category/{categoryId}/{slug}(
                                    categoryId=${category.id()},slug=${category.slug()},
                                    search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
                                    minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
@@ -313,8 +358,8 @@
                         <div class="toolbar-actions">
                             <form class="toolbar-sort-form" method="get"
                                   th:action="${selectedCategory == null}
-                                      ? @{/products}
-                                      : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                                      ? @{/shumoizolaciya}
+                                      : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
                                 <input th:if="${filter.search() != null}" type="hidden" name="search"
                                        th:value="${filter.search()}">
                                 <input th:if="${filter.brand() != null}" type="hidden" name="brand"
@@ -363,7 +408,7 @@
                         <span th:if="${filter.maxPrice() != null}"
                               th:text="|#{products.priceTo}: ${filter.maxPrice()} €|">Цена до</span>
                         <span th:if="${filter.inStock()}" th:text="#{products.inStock}">В наличност</span>
-                        <a class="active-filter-clear" th:href="@{/products}"
+                        <a class="active-filter-clear" th:href="@{/shumoizolaciya}"
                            th:text="#{products.clear}">Изчисти</a>
                     </div>
 
@@ -374,7 +419,7 @@
                                      th:data-product-name="${product.displayName()}"
                                      th:data-product-price="${product.price()}"
                                      th:data-product-image="${product.mainImageUrl()}"
-                                     th:data-product-url="@{/products/{url}(url=${product.url()})}">
+                                     th:data-product-url="@{/shumoizolaciya/{url}(url=${product.url()})}">
                                 <form sec:authorize="isAuthenticated()" method="post"
                                       th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
                                     <input type="hidden" name="source" value="products">
@@ -385,7 +430,7 @@
                                 <a sec:authorize="isAnonymous()" class="wishlist-btn" th:href="@{/user/sign_in}"
                                    th:aria-label="#{favorites.loginRequired}"><i class="bi bi-heart"></i></a>
                                 <a class="product-image"
-                                   th:href="@{/products/{url}(url=${product.url()})}"
+                                   th:href="@{/shumoizolaciya/{url}(url=${product.url()})}"
                                    th:aria-label="${product.displayName()}">
                                     <img th:if="${product.mainImageUrl() != null}"
                                          th:src="${product.mainImageUrl()}"
@@ -404,7 +449,7 @@
                                     </div>
                                     <h3 class="text-center">
                                         <a class="product-name-link"
-                                           th:href="@{/products/{url}(url=${product.url()})}"
+                                           th:href="@{/shumoizolaciya/{url}(url=${product.url()})}"
                                            th:text="${product.displayName()}">Марка и модел</a>
                                     </h3>
                                     <p class="product-card-description"
@@ -417,7 +462,7 @@
                                     </div>
                                     <div class="product-card-actions">
                                         <a class="btn btn-outline-dark custom-outline"
-                                           th:href="@{/products/{url}(url=${product.url()})}">
+                                           th:href="@{/shumoizolaciya/{url}(url=${product.url()})}">
                                             <span th:text="#{products.more}">Виж повече</span>
                                         </a>
                                         <button class="btn btn-orange add-cart"
@@ -438,22 +483,22 @@
                     <nav class="shop-pagination" th:if="${productPage.totalPages > 1}"
                          th:aria-label="#{products.pagination}">
                         <a th:href="${selectedCategory == null}
-                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}
-                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}"
+                            ? @{/shumoizolaciya(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}
+                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}"
                            th:classappend="${productPage.first} ? ' disabled'"
                            th:aria-label="#{products.previous}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                         <a th:each="pageNumber : ${#numbers.sequence(0, productPage.totalPages - 1)}"
                            th:href="${selectedCategory == null}
-                               ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}
-                               : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}"
+                               ? @{/shumoizolaciya(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}
+                               : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}"
                            th:classappend="${pageNumber == productPage.number} ? ' active'"
                            th:text="${pageNumber + 1}"
                            th:aria-label="#{products.page(${pageNumber + 1})}">1</a>
                         <a th:href="${selectedCategory == null}
-                            ? @{/products(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}
-                            : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}"
+                            ? @{/shumoizolaciya(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}
+                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}"
                            th:classappend="${productPage.last} ? ' disabled'"
                            th:aria-label="#{products.next}">
                             <i class="bi bi-chevron-right"></i>
@@ -473,15 +518,15 @@
     <div class="offcanvas-body">
         <form class="filter-sidebar mobile-filter-sidebar" method="get"
               th:action="${selectedCategory == null}
-                  ? @{/products}
-                  : @{/products/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                  ? @{/shumoizolaciya}
+                  : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
             <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
             <input type="hidden" name="order" th:value="${sortMode}">
             <div class="filter-group">
                 <h3 th:text="#{site.categories}">Категории</h3>
                 <a class="category-filter-link" th:each="category : ${categories}"
                    th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                   th:href="@{/products/category/{categoryId}/{slug}(
+                   th:href="@{/shumoizolaciya/category/{categoryId}/{slug}(
                        categoryId=${category.id()},slug=${category.slug()},
                        search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
                        minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},

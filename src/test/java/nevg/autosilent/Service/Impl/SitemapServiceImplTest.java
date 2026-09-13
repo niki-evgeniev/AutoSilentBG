@@ -50,11 +50,11 @@ class SitemapServiceImplTest {
 
         assertThat(textValues(locations)).containsExactly(
                 "https://shop.example/",
-                "https://shop.example/products",
+                "https://shop.example/shumoizolaciya",
                 "https://shop.example/contact",
-                "https://shop.example/products/category/3/zvukoizolatsiya",
-                "https://shop.example/products/vibrofiltr-2-0",
-                "https://shop.example/products/special-and-safe"
+                "https://shop.example/shumoizolaciya/category/3/zvukoizolatsiya",
+                "https://shop.example/shumoizolaciya/vibrofiltr-2-0",
+                "https://shop.example/shumoizolaciya/special-and-safe"
         );
         assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-21");
         assertThat(document.getElementsByTagName("priority").getLength()).isZero();

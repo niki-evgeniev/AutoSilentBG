@@ -80,7 +80,7 @@
                     <tr th:each="product : ${products}">
                         <td>
                             <a class="product-information-name" target="_blank" rel="noopener"
-                               th:if="${product.active()}" th:href="@{/products/{url}(url=${product.url()})}"
+                               th:if="${product.active()}" th:href="@{/shumoizolaciya/{url}(url=${product.url()})}"
                                th:text="${product.name()}">Продукт</a>
                             <strong th:unless="${product.active()}" th:text="${product.name()}">Продукт</strong>
                         </td>

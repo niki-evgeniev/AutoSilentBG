@@ -46,6 +46,7 @@ public class SpringSecurity {
                                 "/orders/quick", "/orders/success/*",
                                 "/api/***", "/user/sign_up",
                                 "/users/login-error", "/users/logout",
+                                "/shumoizolaciya", "/shumoizolaciya/*", "/shumoizolaciya/category/**",
                                 "/products", "/products/*", "/products/category/**").permitAll()
                         .requestMatchers("/imagesApp/**").permitAll()
                         .anyRequest().authenticated()

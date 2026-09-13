@@ -146,10 +146,35 @@ class ProductsControllerTest {
                 null, null, false, "default", PageRequest.of(0, 9));
 
         assertThat(result.getViewName())
-                .isEqualTo("redirect:/products/category/3/zvukoizolatsiya");
+                .isEqualTo("redirect:/shumoizolaciya/category/3/zvukoizolatsiya");
         assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
         verify(productService, never()).filterActiveProducts(
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void legacyCatalogUrlRedirectsPermanentlyAndKeepsFilters() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("brand=Vibrofiltr&page=2");
+
+        ModelAndView result = productsController.legacyProducts(request);
+
+        assertThat(result.getViewName())
+                .isEqualTo("redirect:/shumoizolaciya?brand=Vibrofiltr&page=2");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+    }
+
+    @Test
+    void legacyCategoryUrlRedirectsPermanentlyAndKeepsFilters() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("inStock=true");
+
+        ModelAndView result = productsController.legacyProductsByCategory(
+                3L, "zvukoizolatsiya", request);
+
+        assertThat(result.getViewName()).isEqualTo(
+                "redirect:/shumoizolaciya/category/3/zvukoizolatsiya?inStock=true");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
     }
 
     @ParameterizedTest
@@ -211,7 +236,7 @@ class ProductsControllerTest {
         ModelAndView result = productsController.productDetailsPage(
                 "7", new MockHttpServletRequest());
 
-        assertThat(result.getViewName()).isEqualTo("redirect:/products/product-model");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya/product-model");
         assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
     }
 
@@ -223,7 +248,7 @@ class ProductsControllerTest {
         ModelAndView result = productsController.productDetailsPage(
                 "old-product-name", new MockHttpServletRequest());
 
-        assertThat(result.getViewName()).isEqualTo("redirect:/products/new-product-name");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya/new-product-name");
         assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
         verify(productService, never())
                 .getActiveProductByUrlAndIncrementCount("old-product-name");
@@ -446,7 +471,7 @@ class ProductsControllerTest {
         ModelAndView result = productsController.deleteProduct(7L, redirectAttributes);
 
         verify(productService).delete(7L);
-        assertThat(result.getViewName()).isEqualTo("redirect:/products");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya");
         assertThat(redirectAttributes.getFlashAttributes()).containsKey("productDeleted");
     }
 
@@ -491,7 +516,7 @@ class ProductsControllerTest {
                 9L, submitted, bindingResult(submitted), redirect);
 
         verify(productService).update(9L, submitted);
-        assertThat(result.getViewName()).isEqualTo("redirect:/products/product-model");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya/product-model");
         assertThat(redirect.getFlashAttributes().get("productUpdated")).isEqualTo(true);
     }
 
@@ -503,7 +528,7 @@ class ProductsControllerTest {
                 9L, submitted, bindingResult(submitted), new RedirectAttributesModelMap());
 
         verify(productService).update(9L, submitted);
-        assertThat(result.getViewName()).isEqualTo("redirect:/products");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya");
     }
 
     @Test

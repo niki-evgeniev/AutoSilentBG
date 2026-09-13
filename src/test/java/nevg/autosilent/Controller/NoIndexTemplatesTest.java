@@ -5,35 +5,20 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NoIndexTemplatesTest {
 
-    private static final String ROBOTS_NOINDEX =
-            "<meta name=\"robots\" content=\"noindex\">";
-
     @Test
-    void everyRenderablePageIsTemporarilyExcludedFromIndexing() throws Exception {
-        Path templatesDirectory = Path.of("src/main/resources/templates");
-        List<Path> pages;
-        try (var paths = Files.walk(templatesDirectory)) {
-            pages = paths
-                    .filter(path -> path.toString().endsWith(".html"))
-                    .filter(path -> !path.toString().contains(
-                            java.io.File.separator + "fragments" + java.io.File.separator))
-                    .toList();
-        }
-
-        assertThat(pages).isNotEmpty();
-        for (Path page : pages) {
-            String html = Files.readString(page, StandardCharsets.UTF_8);
-            if (html.contains("<head")) {
-                assertThat(html)
-                        .as("robots directive in %s", page)
-                        .containsOnlyOnce(ROBOTS_NOINDEX);
-            }
+    void publicSeoPagesAreIndexable() throws Exception {
+        for (String template : new String[]{"index.html", "products.html", "product-details.html"}) {
+            String html = Files.readString(
+                    Path.of("src/main/resources/templates", template), StandardCharsets.UTF_8);
+            assertThat(html)
+                    .as("robots directive in %s", template)
+                    .contains("<meta name=\"robots\" content=\"index, follow,")
+                    .doesNotContain("<meta name=\"robots\" content=\"noindex\">");
         }
     }
 }

@@ -21,7 +21,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/products}" th:text="#{site.products}">Продукти</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/shumoizolaciya}" th:text="#{site.products}">Продукти</a></li>
                     <li class="breadcrumb-item active" aria-current="page" th:text="#{site.addProduct}">Добави продукт
                     </li>
                 </ol>
@@ -202,7 +202,7 @@
                             th:data-confirm-message="#{edit.deleteConfirm}">
                         <i class="bi bi-trash3 me-2"></i><span th:text="#{edit.delete}">Изтрий</span>
                     </button>
-                    <a th:href="${editMode} ? @{/products/{id}(id=${productId})} : @{/products}"
+                    <a th:href="${editMode} ? @{/shumoizolaciya/{id}(id=${productId})} : @{/shumoizolaciya}"
                        class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
                         <i class="bi me-2" th:classappend="${editMode} ? 'bi-check-circle' : 'bi-plus-circle'"></i><span

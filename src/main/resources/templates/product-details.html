@@ -1,99 +1,127 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:lang="${#locale.language}">
-<head>
-    <title th:text="${seo != null ? seo.title : #messages.msg('details.title', product.displayName())}">Детайли за
-        продукт - AutoSilent</title>
+<head th:with="english=${#locale.language == 'en'},
+               languageTag=${english ? 'en' : 'bg-BG'},
+               canonicalUrl=${'https://autosilent.bg/shumoizolaciya/' + product.url()},
+               productName=${#strings.trim(product.displayName())},
+               productDescription=${product.plainDescription()},
+               pageTitle=${seo != null and seo.title != null and !seo.title.isBlank() ? seo.title.trim() : productName + ' | AutoSilent.bg'},
+               pageDescription=${seo != null and seo.description != null and !seo.description.isBlank() ? seo.description.trim() : (!#strings.isEmpty(productDescription) ? productDescription : productName + (english ? ' — product information, price and availability at AutoSilent.bg.' : ' — характеристики, цена и наличност в AutoSilent.bg.'))},
+               rawSeoImage=${seo != null and seo.imageUrl != null ? seo.imageUrl.trim() : ''},
+               seoImage=${#strings.isEmpty(rawSeoImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawSeoImage), 'http://') or #strings.startsWith(#strings.toLowerCase(rawSeoImage), 'https://') ? rawSeoImage : (#strings.startsWith(rawSeoImage, '//') ? 'https:' + rawSeoImage : (rawSeoImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawSeoImage, '/') ? '' : '/') + rawSeoImage)))},
+               rawGalleryImages=${product.imageUrls() != null ? product.imageUrls().?[#this != null and !#this.isBlank()].![#this.trim()] : {}},
+               normalizedGalleryImages=${rawGalleryImages.![#strings.startsWith(#strings.toLowerCase(#this), 'http://') or #strings.startsWith(#strings.toLowerCase(#this), 'https://') ? #this : (#strings.startsWith(#this, '//') ? 'https:' + #this : (#this.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(#this, '/') ? '' : '/') + #this))].?[#this != null]},
+               primaryImage=${seoImage != null ? seoImage : (#lists.isEmpty(normalizedGalleryImages) ? null : normalizedGalleryImages[0])},
+               galleryImages=${#sets.toSet(normalizedGalleryImages)},
+               hasOffer=${product.price() != null and product.price().signum() >= 0}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <meta name="description" th:content="${seo != null ? seo.description : product.plainDescription()}">
-    <meta name="keywords" th:if="${seo != null and seo.keywords != null}" th:content="${seo.keywords}">
-    <meta property="og:title" th:content="${seo != null ? seo.title : product.displayName()}">
-    <meta property="og:description" th:content="${seo != null ? seo.description : product.plainDescription()}">
-    <meta property="og:image" th:if="${(seo != null and seo.imageUrl != null) or product.mainImageUrl() != null}"
-          th:content="${seo != null and seo.imageUrl != null ? seo.imageUrl : product.mainImageUrl()}">
+    <title th:text="${pageTitle}">Продукт | AutoSilent.bg</title>
+    <meta name="description" th:content="${pageDescription}">
+    <link rel="canonical" th:href="${canonicalUrl}">
+
+    <meta property="og:locale" th:content="${english ? 'en_US' : 'bg_BG'}">
     <meta property="og:type" content="product">
-    <meta property="og:url" th:content="|https://autosilent.bg/products/${product.url()}|">
-    <link rel="canonical" th:href="|https://autosilent.bg/products/${product.url()}|">
+    <meta property="og:site_name" content="AutoSilent.bg">
+    <meta property="og:title" th:content="${pageTitle}">
+    <meta property="og:description" th:content="${pageDescription}">
+    <meta property="og:url" th:content="${canonicalUrl}">
+    <meta property="og:image" th:if="${primaryImage != null}" th:content="${primaryImage}">
+    <meta property="og:image:secure_url" th:if="${primaryImage != null and #strings.startsWith(#strings.toLowerCase(primaryImage), 'https://')}"
+          th:content="${primaryImage}">
+    <meta property="og:image:alt" th:if="${primaryImage != null}" th:content="${productName}">
+    <meta property="product:price:amount" th:if="${hasOffer}" th:content="${product.price()}">
+    <meta property="product:price:currency" th:if="${hasOffer}" content="EUR">
+
+    <meta name="twitter:card" th:content="${primaryImage != null ? 'summary_large_image' : 'summary'}">
+    <meta name="twitter:title" th:content="${pageTitle}">
+    <meta name="twitter:description" th:content="${pageDescription}">
+    <meta name="twitter:image" th:if="${primaryImage != null}" th:content="${primaryImage}">
+    <meta name="twitter:image:alt" th:if="${primaryImage != null}" th:content="${productName}">
+
     <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
             "@graph": [
                 {
                     "@type": "Product",
-                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product",
-                    "name": /*[[${product.displayName()}]]*/ "Product",
-                    "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/ "Product description",
-                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
-                    "sku": /*[[${product.sku()}]]*/ "SKU",
-                    "category": /*[[${product.category()}]]*/ "Category",
-                    "brand": {"@type": "Brand", "name": /*[[${product.name()}]]*/ "Brand"}
+                    "@id": /*[[${canonicalUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
+                    "name": /*[[${productName}]]*/ "Product",
+                    "description": /*[[${pageDescription}]]*/ "Product description",
+                    "url": /*[[${canonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product"
+                    /*[# th:if="${product.sku() != null and !product.sku().isBlank()}"]*/,
+                    "sku": /*[[${product.sku().trim()}]]*/ "SKU"
+                    /*[/]*/
+                    /*[# th:if="${product.category() != null and !product.category().isBlank()}"]*/,
+                    "category": /*[[${product.category().trim()}]]*/ "Category"
+                    /*[/]*/
+                    /*[# th:if="${product.name() != null and !product.name().isBlank()}"]*/,
+                    "brand": {"@type": "Brand", "name": /*[[${product.name().trim()}]]*/ "Brand"}
+                    /*[/]*/
                     /*[# th:if="${product.model() != null and !product.model().isBlank()}"]*/,
-                    "model": /*[[${product.model()}]]*/ "Model"
+                    "model": /*[[${product.model().trim()}]]*/ "Model"
                     /*[/]*/
-                    /*[# th:if="${seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank()}"]*/,
+                    /*[# th:if="${primaryImage != null}"]*/,
                     "image": [
-                        /*[[${#strings.startsWith(seo.imageUrl, 'http') ? seo.imageUrl : 'https://autosilent.bg' + seo.imageUrl}]]*/ "https://autosilent.bg/images/product.webp"
-                        /*[# th:each="imageUrl : ${product.imageUrls()}"]*/,
-                        /*[[${#strings.startsWith(imageUrl, 'http') ? imageUrl : 'https://autosilent.bg' + imageUrl}]]*/ "https://autosilent.bg/images/product.webp"
-                        /*[/]*/
-                    ]
-                    /*[/]*/
-                    /*[# th:if="${(seo == null or seo.imageUrl == null or seo.imageUrl.isBlank()) and !product.imageUrls().isEmpty()}"]*/,
-                    "image": [
-                        /*[# th:each="imageUrl, imageStatus : ${product.imageUrls()}"]*/
-                        /*[[${#strings.startsWith(imageUrl, 'http') ? imageUrl : 'https://autosilent.bg' + imageUrl}]]*/ "https://autosilent.bg/images/product.webp"/*[# th:unless="${imageStatus.last}"]*/,/*[/]*/
+                        /*[[${primaryImage}]]*/ "https://autosilent.bg/images/product.webp"
+                        /*[# th:each="imageUrl : ${galleryImages}" th:if="${imageUrl != primaryImage}"]*/,
+                        /*[[${imageUrl}]]*/ "https://autosilent.bg/images/product.webp"
                         /*[/]*/
                     ]
                     /*[/]*/,
-                    "mainEntityOfPage": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#webpage'}]]*/ "https://autosilent.bg/products/product#webpage"},
+                    "mainEntityOfPage": {"@id": /*[[${canonicalUrl + '#webpage'}]]*/ "https://autosilent.bg/shumoizolaciya/product#webpage"}
+                    /*[# th:if="${hasOffer}"]*/,
                     "offers": {
                         "@type": "Offer",
-                        "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#offer'}]]*/ "https://autosilent.bg/products/product#offer",
-                        "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
+                        "@id": /*[[${canonicalUrl + '#offer'}]]*/ "https://autosilent.bg/shumoizolaciya/product#offer",
+                        "url": /*[[${canonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                         "priceCurrency": "EUR",
                         "price": /*[[${product.price()}]]*/ 0,
                         "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
                         "itemCondition": "https://schema.org/NewCondition",
                         "seller": {"@id": "https://autosilent.bg/#organization"}
                     }
+                    /*[/]*/
                 },
                 {
                     "@type": "ItemPage",
-                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#webpage'}]]*/ "https://autosilent.bg/products/product#webpage",
-                    "url": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product",
-                    "name": /*[[${seo != null ? seo.title : product.displayName() + ' | AutoSilent.bg'}]]*/ "Product | AutoSilent.bg",
-                    "description": /*[[${seo != null ? seo.description : product.plainDescription()}]]*/ "Product description",
-                    "inLanguage": "bg-BG",
+                    "@id": /*[[${canonicalUrl + '#webpage'}]]*/ "https://autosilent.bg/shumoizolaciya/product#webpage",
+                    "url": /*[[${canonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                    "name": /*[[${pageTitle}]]*/ "Product | AutoSilent.bg",
+                    "description": /*[[${pageDescription}]]*/ "Product description",
+                    "inLanguage": /*[[${languageTag}]]*/ "bg-BG",
                     "isPartOf": {"@id": "https://autosilent.bg/#website"},
-                    "breadcrumb": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#breadcrumb'}]]*/ "https://autosilent.bg/products/product#breadcrumb"},
-                    "mainEntity": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#product'}]]*/ "https://autosilent.bg/products/product#product"}
-                    /*[# th:if="${(seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank()) or product.mainImageUrl() != null}"]*/,
-                    "primaryImageOfPage": {"@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#primaryimage'}]]*/ "https://autosilent.bg/products/product#primaryimage"}
+                    "publisher": {"@id": "https://autosilent.bg/#organization"},
+                    "breadcrumb": {"@id": /*[[${canonicalUrl + '#breadcrumb'}]]*/ "https://autosilent.bg/shumoizolaciya/product#breadcrumb"},
+                    "mainEntity": {"@id": /*[[${canonicalUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product"}
+                    /*[# th:if="${primaryImage != null}"]*/,
+                    "primaryImageOfPage": {"@id": /*[[${canonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/shumoizolaciya/product#primaryimage"}
                     /*[/]*/
                 },
                 {
                     "@type": "BreadcrumbList",
-                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#breadcrumb'}]]*/ "https://autosilent.bg/products/product#breadcrumb",
+                    "@id": /*[[${canonicalUrl + '#breadcrumb'}]]*/ "https://autosilent.bg/shumoizolaciya/product#breadcrumb",
                     "itemListElement": [
-                        {"@type": "ListItem", "position": 1, "name": "Начало", "item": "https://autosilent.bg/"},
-                        {"@type": "ListItem", "position": 2, "name": "Продукти", "item": "https://autosilent.bg/products"},
+                        {"@type": "ListItem", "position": 1, "name": /*[[${english ? 'Home' : 'Начало'}]]*/ "Начало", "item": "https://autosilent.bg/"},
+                        {"@type": "ListItem", "position": 2, "name": /*[[${english ? 'Products' : 'Продукти'}]]*/ "Продукти", "item": "https://autosilent.bg/shumoizolaciya"},
                         {
                             "@type": "ListItem",
                             "position": 3,
-                            "name": /*[[${product.displayName()}]]*/ "Product",
-                            "item": /*[[${'https://autosilent.bg/products/' + product.url()}]]*/ "https://autosilent.bg/products/product"
+                            "name": /*[[${productName}]]*/ "Product",
+                            "item": /*[[${canonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product"
                         }
                     ]
                 }
-                /*[# th:if="${(seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank()) or product.mainImageUrl() != null}"]*/,
+                /*[# th:if="${primaryImage != null}"]*/,
                 {
                     "@type": "ImageObject",
-                    "@id": /*[[${'https://autosilent.bg/products/' + product.url() + '#primaryimage'}]]*/ "https://autosilent.bg/products/product#primaryimage",
-                    "url": /*[[${seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank() ? (#strings.startsWith(seo.imageUrl, 'http') ? seo.imageUrl : 'https://autosilent.bg' + seo.imageUrl) : (#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl())}]]*/ "https://autosilent.bg/images/product.webp",
-                    "contentUrl": /*[[${seo != null and seo.imageUrl != null and !seo.imageUrl.isBlank() ? (#strings.startsWith(seo.imageUrl, 'http') ? seo.imageUrl : 'https://autosilent.bg' + seo.imageUrl) : (#strings.startsWith(product.mainImageUrl(), 'http') ? product.mainImageUrl() : 'https://autosilent.bg' + product.mainImageUrl())}]]*/ "https://autosilent.bg/images/product.webp",
-                    "caption": /*[[${product.displayName()}]]*/ "Product"
+                    "@id": /*[[${canonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/shumoizolaciya/product#primaryimage",
+                    "url": /*[[${primaryImage}]]*/ "https://autosilent.bg/images/product.webp",
+                    "contentUrl": /*[[${primaryImage}]]*/ "https://autosilent.bg/images/product.webp",
+                    "caption": /*[[${productName}]]*/ "Product"
                 }
                 /*[/]*/,
                 {
@@ -107,7 +135,7 @@
                     "@id": "https://autosilent.bg/#website",
                     "url": "https://autosilent.bg/",
                     "name": "AutoSilent.bg",
-                    "inLanguage": "bg-BG",
+                    "inLanguage": /*[[${languageTag}]]*/ "bg-BG",
                     "publisher": {"@id": "https://autosilent.bg/#organization"}
                 }
             ]
@@ -133,7 +161,7 @@
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}"
                                                    th:text="#{site.home}">Начало</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/products}"
+                    <li class="breadcrumb-item"><a th:href="@{/shumoizolaciya}"
                                                    th:text="#{site.products}">Продукти</a></li>
                     <li class="breadcrumb-item active" aria-current="page"
                         th:text="${product.displayName()}">Продукт
@@ -173,7 +201,7 @@
                              th:data-product-name="${product.displayName()}"
                              th:data-product-price="${product.price()}"
                              th:data-product-image="${product.mainImageUrl()}"
-                             th:data-product-url="@{/products/{url}(url=${product.url()})}">
+                             th:data-product-url="@{/shumoizolaciya/{url}(url=${product.url()})}">
                         <span class="eyebrow" th:text="${product.category()}">Категория</span>
                         <h1 th:text="${product.displayName()}">Марка и модел</h1>
                         <a sec:authorize="hasAnyRole('ADMIN', 'MODERATOR')"
@@ -274,7 +302,7 @@
                 </div>
                 <div class="text-center">
                     <a class="btn btn-outline-dark custom-outline"
-                       th:href="@{/products}">
+                       th:href="@{/shumoizolaciya}">
                         <i class="bi bi-arrow-left"></i>
                         <span th:text="#{details.back}">Обратно към продуктите
                     </span>

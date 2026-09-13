@@ -145,7 +145,7 @@ class OrderControllerTest {
         ModelAndView result = controller.createQuickOrder(
                 request, bindingResult, redirectAttributes, Locale.ENGLISH);
 
-        assertThat(result.getViewName()).isEqualTo("redirect:/products/7");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya/7");
         assertThat(redirectAttributes.getFlashAttributes().get("orderError")).isEqualTo("Check the form");
         verify(orderService, never()).createQuickOrder(request);
     }
@@ -173,7 +173,7 @@ class OrderControllerTest {
                 request, new BeanPropertyBindingResult(request, "quickOrderDto"),
                 redirectAttributes, Locale.ENGLISH);
 
-        assertThat(result.getViewName()).isEqualTo("redirect:/products/7");
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya/7");
         assertThat(redirectAttributes.getFlashAttributes().get("orderError"))
                 .isEqualTo("Product unavailable");
     }

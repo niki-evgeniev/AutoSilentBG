@@ -19,6 +19,6 @@ class NotFoundTemplateTest {
                 .contains("<meta name=\"robots\" content=\"noindex\">")
                 .contains("class=\"error-code\">404")
                 .contains("th:href=\"@{/}\"")
-                .contains("th:href=\"@{/products}\"");
+                .contains("th:href=\"@{/shumoizolaciya}\"");
     }
 }

@@ -91,14 +91,14 @@ public class OrderController {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("orderError",
                     messageSource.getMessage("order.error.invalidQuickOrder", null, locale));
-            return new ModelAndView("redirect:/products/" + request.productId());
+            return new ModelAndView("redirect:/shumoizolaciya/" + request.productId());
         }
         try {
             String orderNumber = orderService.createQuickOrder(request);
             return new ModelAndView("redirect:/orders/success/" + orderNumber);
         } catch (OrderCreationException exception) {
             redirectAttributes.addFlashAttribute("orderError", exception.getMessage());
-            return new ModelAndView("redirect:/products/" + request.productId());
+            return new ModelAndView("redirect:/shumoizolaciya/" + request.productId());
         }
     }
 
