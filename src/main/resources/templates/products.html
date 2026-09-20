@@ -4,7 +4,7 @@
 <head th:with="seoContentEnglish=${seoPage != null and seoPage.englishContent()},
                seoLanguage=${seoPage != null ? seoPage.contentLanguage() : 'bg-BG'},
                seoOpenGraphLocale=${seoPage != null ? seoPage.openGraphLocale() : 'bg_BG'},
-               seoCategoryUrl=${selectedCategory == null ? 'https://autosilent.bg/shumoizolaciya' : 'https://autosilent.bg/shumoizolaciya/category/' + selectedCategory.id() + '/' + selectedCategory.slug()},
+               seoCategoryUrl=${selectedCategory == null or selectedCategory.rootCatalogCategory() ? 'https://autosilent.bg/shumoizolaciya' : 'https://autosilent.bg/shumoizolaciya/category/' + selectedCategory.id() + '/' + selectedCategory.slug()},
                seoBulgarianUrl=${seoPage != null ? seoPage.bulgarianUrl() : seoCategoryUrl + (productPage.number == 0 ? '' : '?page=' + productPage.number)},
                seoEnglishUrl=${seoPage != null ? seoPage.englishUrl() : null},
                seoCanonicalUrl=${seoPage != null ? seoPage.canonicalUrl() : seoBulgarianUrl},
@@ -283,12 +283,14 @@
                             <h3 th:text="#{site.categories}">Категории</h3>
                             <a class="category-filter-link" th:each="category : ${categories}"
                                th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                               th:href="@{/shumoizolaciya/category/{categoryId}/{slug}(
-                                   categoryId=${category.id()},slug=${category.slug()},
-                                   lang=${#locale.language == 'en' ? 'en' : null},
-                                   search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
-                                   minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
-                                   order=${sortMode})}">
+                               th:href="${category.rootCatalogCategory()}
+                                   ? @{/shumoizolaciya}
+                                   : @{/shumoizolaciya/category/{categoryId}/{slug}(
+                                       categoryId=${category.id()},slug=${category.slug()},
+                                       lang=${#locale.language == 'en' ? 'en' : null},
+                                       search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
+                                       minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
+                                       order=${sortMode})}">
                                 <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                             </a>
                         </div>
@@ -538,12 +540,14 @@
                 <h3 th:text="#{site.categories}">Категории</h3>
                 <a class="category-filter-link" th:each="category : ${categories}"
                    th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                   th:href="@{/shumoizolaciya/category/{categoryId}/{slug}(
-                       categoryId=${category.id()},slug=${category.slug()},
-                       lang=${#locale.language == 'en' ? 'en' : null},
-                       search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
-                       minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
-                       order=${sortMode})}">
+                   th:href="${category.rootCatalogCategory()}
+                       ? @{/shumoizolaciya}
+                       : @{/shumoizolaciya/category/{categoryId}/{slug}(
+                           categoryId=${category.id()},slug=${category.slug()},
+                           lang=${#locale.language == 'en' ? 'en' : null},
+                           search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
+                           minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
+                           order=${sortMode})}">
                     <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                 </a>
             </div>

@@ -13,6 +13,7 @@ import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.CategoryService;
 import nevg.autosilent.Service.ProductService;
 import nevg.autosilent.Service.SeoService;
+import nevg.autosilent.Utility.CatalogCategoryUrlPolicy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -83,6 +84,9 @@ public class ProductsController {
                                            @RequestParam(name = "order", defaultValue = "default") String order,
                                            @PageableDefault(size = 9, sort = {"nameProduct", "model", "id"},
                                                    direction = Sort.Direction.ASC) Pageable pageable) {
+        if (CatalogCategoryUrlPolicy.isRootCatalogCategory(categoryId)) {
+            return permanentRedirect("/shumoizolaciya", null);
+        }
         var category = categoryService.getById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Категорията не е намерена."));
@@ -102,6 +106,9 @@ public class ProductsController {
     public ModelAndView legacyProductsByCategory(@PathVariable Long categoryId,
                                                   @PathVariable String slug,
                                                   HttpServletRequest request) {
+        if (CatalogCategoryUrlPolicy.isRootCatalogCategory(categoryId)) {
+            return permanentRedirect("/shumoizolaciya", null);
+        }
         return permanentRedirect("/shumoizolaciya/category/" + categoryId + "/" + slug,
                 request.getQueryString());
     }

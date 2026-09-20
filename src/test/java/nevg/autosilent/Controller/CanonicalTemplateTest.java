@@ -111,6 +111,31 @@ class CanonicalTemplateTest {
     }
 
     @Test
+    void rootCatalogCategoryNeverAppearsAsStructuredDataDestination() throws IOException {
+        Context context = new Context();
+        context.setVariable("selectedCategory", new CategoryViewDto(1L, "Звукоизолация"));
+        context.setVariable("products", List.of());
+        context.setVariable("productPage",
+                new PageImpl<>(List.of(), PageRequest.of(0, 9), 0));
+
+        JsonNode graph = renderJsonLd("products.html", context).path("@graph");
+
+        assertThat(graph.toString())
+                .doesNotContain("/shumoizolaciya/category/1/zvukoizolatsiya");
+        assertThat(graph.path(1).path("itemListElement").path(2).path("item").asText())
+                .isEqualTo("https://autosilent.bg/shumoizolaciya");
+    }
+
+    @Test
+    void rootCatalogCategoryLinksPointDirectlyToCatalog() throws IOException {
+        String html = template("products.html");
+
+        assertThat(html.split("\\$\\{category\\.rootCatalogCategory\\(\\)\\}", -1).length - 1)
+                .isEqualTo(2);
+        assertThat(html).contains("? @{/shumoizolaciya}");
+    }
+
+    @Test
     void homePageRendersValidRichJsonLdGraph() throws IOException {
         ProductViewDto product = new ProductViewDto(
                 9L, "vibrofiltr-home", "Vibrofiltr", "Gold", "VF-9", "Виброизолация",

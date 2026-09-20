@@ -137,6 +137,30 @@ class ProductsControllerTest {
     }
 
     @Test
+    void rootCatalogCategoryRedirectsPermanentlyToCatalog() {
+        ModelAndView result = productsController.productsByCategory(
+                1L, "zvukoizolatsiya", null, null, null,
+                null, null, false, "default", PageRequest.of(0, 9));
+
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+        verify(categoryService, never()).getById(1L);
+        verify(productService, never()).filterActiveProducts(any(), any());
+    }
+
+    @Test
+    void legacyRootCatalogCategoryAlsoRedirectsDirectlyToCatalog() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setQueryString("lang=en&brand=Vibrofiltr");
+
+        ModelAndView result = productsController.legacyProductsByCategory(
+                1L, "zvukoizolatsiya", request);
+
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya");
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+    }
+
+    @Test
     void categoryPageRedirectsNonCanonicalSlugPermanently() {
         CategoryViewDto category = new CategoryViewDto(3L, "Звукоизолация");
         when(categoryService.getById(3L)).thenReturn(Optional.of(category));

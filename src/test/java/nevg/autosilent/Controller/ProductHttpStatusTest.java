@@ -11,12 +11,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +40,9 @@ class ProductHttpStatusTest {
     void setUp() {
         ProductsController controller =
                 new ProductsController(productService, seoService, categoryService);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+                .build();
     }
 
     @Test
@@ -92,6 +97,27 @@ class ProductHttpStatusTest {
     @Test
     void legacyCatalogUrlWithTrailingSlashRedirectsPermanently() throws Exception {
         mockMvc.perform(get("/products/"))
+                .andExpect(status().isMovedPermanently())
+                .andExpect(redirectedUrl("/shumoizolaciya"));
+    }
+
+    @Test
+    void catalogReturnsHttp200() throws Exception {
+        when(productService.filterActiveProducts(any(), any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/shumoizolaciya"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void duplicateRootCategoryReturnsPermanentRedirectToCatalog() throws Exception {
+        mockMvc.perform(get("/shumoizolaciya/category/1/zvukoizolatsiya"))
+                .andExpect(status().isMovedPermanently())
+                .andExpect(redirectedUrl("/shumoizolaciya"));
+
+        mockMvc.perform(get("/shumoizolaciya/category/1/zvukoizolatsiya")
+                        .param("lang", "en"))
                 .andExpect(status().isMovedPermanently())
                 .andExpect(redirectedUrl("/shumoizolaciya"));
     }

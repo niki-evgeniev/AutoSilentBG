@@ -6,6 +6,7 @@ import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Service.SitemapService;
 import nevg.autosilent.Utility.ProductSlugGenerator;
+import nevg.autosilent.Utility.CatalogCategoryUrlPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,9 @@ public class SitemapServiceImpl implements SitemapService {
                 writeUrl(xml, siteUrl + path, null);
             }
             for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
+                if (CatalogCategoryUrlPolicy.isRootCatalogCategory(category.id())) {
+                    continue;
+                }
                 String categoryPath = "/shumoizolaciya/category/" + category.id() + "/"
                         + ProductSlugGenerator.toSlug(category.name());
                 writeUrl(xml, siteUrl + categoryPath, category.lastModified());

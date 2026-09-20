@@ -37,6 +37,8 @@ class SitemapServiceImplTest {
                 new SitemapProductDto("special-and-safe", null)
         ));
         when(categoryRepository.findAllWithActiveProductsForSitemap()).thenReturn(List.of(
+                new SitemapCategoryDto(1L, "Звукоизолация",
+                        LocalDateTime.of(2026, 7, 19, 10, 0)),
                 new SitemapCategoryDto(3L, "Звукоизолация",
                         LocalDateTime.of(2026, 7, 20, 10, 0))
         ));
@@ -81,7 +83,8 @@ class SitemapServiceImplTest {
         assertThat(alternates.item(0).getAttributes().getNamedItem("hreflang").getNodeValue())
                 .isEqualTo("bg");
         assertThat(textValues(locations)).noneMatch(url ->
-                url.contains("/shumoizolaciya?lang=en")
+                url.contains("/category/1/zvukoizolatsiya")
+                        || url.contains("/shumoizolaciya?lang=en")
                         || url.contains("/category/3/zvukoizolatsiya?lang=en")
                         || url.contains("/vibrofiltr-2-0?lang=en")
                         || url.contains("/special-and-safe?lang=en"));
