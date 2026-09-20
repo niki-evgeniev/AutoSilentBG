@@ -24,7 +24,7 @@ public class SitemapController {
         this.sitemapService = sitemapService;
     }
 
-    @GetMapping("/sitemap.xml")
+    @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
     @ResponseBody
     public ResponseEntity<String> sitemap() {
         return ResponseEntity.ok()

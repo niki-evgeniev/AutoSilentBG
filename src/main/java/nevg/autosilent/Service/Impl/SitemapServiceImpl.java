@@ -46,10 +46,14 @@ public class SitemapServiceImpl implements SitemapService {
         try {
             StringWriter output = new StringWriter();
             XMLStreamWriter xml = XMLOutputFactory.newFactory().createXMLStreamWriter(output);
+            xml.setDefaultNamespace(SITEMAP_NAMESPACE);
+            xml.setPrefix("xhtml", XHTML_NAMESPACE);
             xml.writeStartDocument("UTF-8", "1.0");
-            xml.writeStartElement("urlset");
+            xml.writeCharacters("\n");
+            xml.writeStartElement("", "urlset", SITEMAP_NAMESPACE);
             xml.writeDefaultNamespace(SITEMAP_NAMESPACE);
             xml.writeNamespace("xhtml", XHTML_NAMESPACE);
+            xml.writeCharacters("\n");
 
             for (String path : LOCALIZED_STATIC_PUBLIC_PATHS) {
                 writeLocalizedUrls(xml, siteUrl + path, null);
@@ -67,7 +71,9 @@ public class SitemapServiceImpl implements SitemapService {
             }
 
             xml.writeEndElement();
+            xml.writeCharacters("\n");
             xml.writeEndDocument();
+            xml.flush();
             xml.close();
             return output.toString();
         } catch (XMLStreamException exception) {
@@ -95,16 +101,17 @@ public class SitemapServiceImpl implements SitemapService {
 
     private void writeUrl(XMLStreamWriter xml, String location, LocalDateTime lastModified)
             throws XMLStreamException {
-        xml.writeStartElement("url");
-        xml.writeStartElement("loc");
-        xml.writeCharacters(location);
-        xml.writeEndElement();
+        xml.writeCharacters("  ");
+        xml.writeStartElement("", "url", SITEMAP_NAMESPACE);
+        xml.writeCharacters("\n");
+        writeTextElement(xml, "loc", location);
         if (lastModified != null) {
-            xml.writeStartElement("lastmod");
-            xml.writeCharacters(lastModified.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
-            xml.writeEndElement();
+            writeTextElement(xml, "lastmod",
+                    lastModified.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
+        xml.writeCharacters("  ");
         xml.writeEndElement();
+        xml.writeCharacters("\n");
     }
 
     private void writeLocalizedUrls(XMLStreamWriter xml, String bulgarianUrl,
@@ -117,27 +124,39 @@ public class SitemapServiceImpl implements SitemapService {
     private void writeLocalizedUrl(XMLStreamWriter xml, String location, String bulgarianUrl,
                                    String englishUrl, LocalDateTime lastModified)
             throws XMLStreamException {
-        xml.writeStartElement("url");
-        xml.writeStartElement("loc");
-        xml.writeCharacters(location);
-        xml.writeEndElement();
+        xml.writeCharacters("  ");
+        xml.writeStartElement("", "url", SITEMAP_NAMESPACE);
+        xml.writeCharacters("\n");
+        writeTextElement(xml, "loc", location);
         writeAlternate(xml, "bg", bulgarianUrl);
         writeAlternate(xml, "en", englishUrl);
         writeAlternate(xml, "x-default", bulgarianUrl);
         if (lastModified != null) {
-            xml.writeStartElement("lastmod");
-            xml.writeCharacters(lastModified.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
-            xml.writeEndElement();
+            writeTextElement(xml, "lastmod",
+                    lastModified.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
+        xml.writeCharacters("  ");
         xml.writeEndElement();
+        xml.writeCharacters("\n");
     }
 
     private void writeAlternate(XMLStreamWriter xml, String language, String url)
             throws XMLStreamException {
+        xml.writeCharacters("    ");
         xml.writeEmptyElement("xhtml", "link", XHTML_NAMESPACE);
         xml.writeAttribute("rel", "alternate");
         xml.writeAttribute("hreflang", language);
         xml.writeAttribute("href", url);
+        xml.writeCharacters("\n");
+    }
+
+    private void writeTextElement(XMLStreamWriter xml, String name, String value)
+            throws XMLStreamException {
+        xml.writeCharacters("    ");
+        xml.writeStartElement("", name, SITEMAP_NAMESPACE);
+        xml.writeCharacters(value);
+        xml.writeEndElement();
+        xml.writeCharacters("\n");
     }
 
     private String normalizeSiteUrl(String value) {

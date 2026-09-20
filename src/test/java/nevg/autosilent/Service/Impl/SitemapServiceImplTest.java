@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -42,12 +43,23 @@ class SitemapServiceImplTest {
         SitemapServiceImpl service = new SitemapServiceImpl(
                 productRepository, categoryRepository, "https://shop.example/");
 
-        Document document = parse(service.generateSitemap());
+        String sitemap = service.generateSitemap();
+        Document document = parse(sitemap);
+        Element root = document.getDocumentElement();
         NodeList locations = document.getElementsByTagNameNS(
                 "http://www.sitemaps.org/schemas/sitemap/0.9", "loc");
         NodeList lastModified = document.getElementsByTagNameNS(
                 "http://www.sitemaps.org/schemas/sitemap/0.9", "lastmod");
+        NodeList alternates = document.getElementsByTagNameNS(
+                "http://www.w3.org/1999/xhtml", "link");
 
+        assertThat(sitemap).startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        assertThat(sitemap).doesNotContain("xml-stylesheet");
+        assertThat(root.getLocalName()).isEqualTo("urlset");
+        assertThat(root.getNamespaceURI())
+                .isEqualTo("http://www.sitemaps.org/schemas/sitemap/0.9");
+        assertThat(root.lookupNamespaceURI("xhtml"))
+                .isEqualTo("http://www.w3.org/1999/xhtml");
         assertThat(textValues(locations)).containsExactly(
                 "https://shop.example/",
                 "https://shop.example/?lang=en",
@@ -59,8 +71,12 @@ class SitemapServiceImplTest {
                 "https://shop.example/shumoizolaciya/special-and-safe"
         );
         assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-21");
-        assertThat(document.getElementsByTagNameNS(
-                "http://www.w3.org/1999/xhtml", "link").getLength()).isEqualTo(12);
+        assertThat(lastModified.item(0).getParentNode().getLocalName()).isEqualTo("url");
+        assertThat(alternates.getLength()).isEqualTo(12);
+        assertThat(alternates.item(0).getNamespaceURI())
+                .isEqualTo("http://www.w3.org/1999/xhtml");
+        assertThat(alternates.item(0).getAttributes().getNamedItem("hreflang").getNodeValue())
+                .isEqualTo("bg");
         assertThat(textValues(locations)).noneMatch(url ->
                 url.contains("/shumoizolaciya?lang=en")
                         || url.contains("/category/3/zvukoizolatsiya?lang=en")
