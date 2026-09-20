@@ -1,24 +1,27 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
-<head>
+<head th:with="seoEnglish=${#locale.language == 'en'},
+               seoCanonicalUrl=${seoPage != null ? seoPage.canonicalUrl() : (seoEnglish ? 'https://autosilent.bg/contact?lang=en' : 'https://autosilent.bg/contact')},
+               seoBulgarianUrl=${seoPage != null ? seoPage.bulgarianUrl() : 'https://autosilent.bg/contact'},
+               seoEnglishUrl=${seoPage != null ? seoPage.englishUrl() : 'https://autosilent.bg/contact?lang=en'}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#080808">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <title>Контакти с AutoSilent.bg – въпроси и поръчки</title>
-    <meta name="description"
-          content="Свържете се с AutoSilent.bg за въпроси, поръчки и консултация при избор на звукоизолация за автомобили, бусове и камиони.">
-    <meta name="keywords"
-          content="контакти AutoSilent, AutoSilent телефон, AutoSilent имейл, консултация за звукоизолация, поръчка на шумоизолация">
+    <title th:text="#{contact.pageTitle}">Контакти с AutoSilent.bg – въпроси и поръчки</title>
+    <meta name="description" th:content="#{contact.meta}"
+          content="Свържете се с AutoSilent.bg за въпроси, поръчки и консултация.">
     <meta name="author" content="AutoSilent.bg">
-    <link rel="canonical" href="https://autosilent.bg/contact">
-    <meta property="og:locale" content="bg_BG">
+    <link rel="canonical" href="https://autosilent.bg/contact" th:href="${seoCanonicalUrl}">
+    <link rel="alternate" hreflang="bg" href="https://autosilent.bg/contact" th:href="${seoBulgarianUrl}">
+    <link rel="alternate" hreflang="en" href="https://autosilent.bg/contact?lang=en" th:href="${seoEnglishUrl}">
+    <link rel="alternate" hreflang="x-default" href="https://autosilent.bg/contact" th:href="${seoBulgarianUrl}">
+    <meta property="og:locale" content="bg_BG" th:content="${seoEnglish ? 'en_US' : 'bg_BG'}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AutoSilent.bg">
-    <meta property="og:title" content="Контакти с AutoSilent.bg">
-    <meta property="og:description"
-          content="Свържете се с нас за въпроси, поръчки и съдействие при избор на подходяща автомобилна звукоизолация.">
-    <meta property="og:url" content="https://autosilent.bg/contact">
+    <meta property="og:title" content="Контакти с AutoSilent.bg" th:content="#{contact.pageTitle}">
+    <meta property="og:description" content="Свържете се с нас." th:content="#{contact.meta}">
+    <meta property="og:url" content="https://autosilent.bg/contact" th:content="${seoCanonicalUrl}">
     <meta property="og:image"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
     <meta property="og:image:secure_url"
@@ -26,23 +29,22 @@
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1672">
     <meta property="og:image:height" content="941">
-    <meta property="og:image:alt" content="Контакти с AutoSilent.bg">
+    <meta property="og:image:alt" content="Контакти с AutoSilent.bg" th:content="#{contact.pageTitle}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Контакти с AutoSilent.bg">
-    <meta name="twitter:description"
-          content="Свържете се с нас за въпроси, поръчки и консултация при избор на автомобилна звукоизолация.">
+    <meta name="twitter:title" content="Контакти с AutoSilent.bg" th:content="#{contact.pageTitle}">
+    <meta name="twitter:description" content="Свържете се с нас." th:content="#{contact.meta}">
     <meta name="twitter:image"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
-    <meta name="twitter:image:alt" content="Контакти с AutoSilent.bg">
+    <meta name="twitter:image:alt" content="Контакти с AutoSilent.bg" th:content="#{contact.pageTitle}">
 
-    <script type="application/ld+json">
+    <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            "name": "Контакти с AutoSilent.bg",
-            "url": "https://autosilent.bg/contact",
-            "inLanguage": "bg-BG",
-            "description": "Контактна страница за въпроси, поръчки и консултация при избор на автомобилна звукоизолация."
+            "name": /*[[#{contact.pageTitle}]]*/ "Контакти с AutoSilent.bg",
+            "url": /*[[${seoCanonicalUrl}]]*/ "https://autosilent.bg/contact",
+            "inLanguage": /*[[${seoEnglish ? 'en' : 'bg-BG'}]]*/ "bg-BG",
+            "description": /*[[#{contact.meta}]]*/ "Контактна страница на AutoSilent.bg."
         }
     </script>
 

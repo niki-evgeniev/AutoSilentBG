@@ -41,9 +41,11 @@
 
                 <div class="header-actions d-flex align-items-center gap-3">
                     <div class="language-switch" th:aria-label="#{site.language}">
-                        <a href="?lang=bg" th:classappend="${#locale.language == 'bg'} ? 'active'"
+                        <a href="?lang=bg" th:href="${bulgarianLanguageUrl != null ? bulgarianLanguageUrl : '?lang=bg'}"
+                           th:classappend="${#locale.language == 'bg'} ? 'active'"
                            th:text="#{site.bulgarian}">БГ</a>
-                        <a href="?lang=en" th:classappend="${#locale.language == 'en'} ? 'active'"
+                        <a href="?lang=en" th:href="${englishLanguageUrl != null ? englishLanguageUrl : '?lang=en'}"
+                           th:classappend="${#locale.language == 'en'} ? 'active'"
                            th:text="#{site.english}">EN</a>
                     </div>
                     <a sec:authorize="isAuthenticated()"
@@ -76,6 +78,7 @@
                 <form class="header-search header-search-persistent"
                       th:action="@{/shumoizolaciya}" method="get"
                       role="search">
+                    <input th:if="${#locale.language == 'en'}" type="hidden" name="lang" value="en">
                     <label class="visually-hidden" for="headerSearch"
                            th:text="#{site.search}">Търси</label>
                     <input id="headerSearch" name="search"

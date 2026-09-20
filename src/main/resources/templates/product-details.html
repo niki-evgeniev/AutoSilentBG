@@ -3,12 +3,15 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:lang="${#locale.language}">
 <head th:with="english=${#locale.language == 'en'},
-               languageTag=${english ? 'en' : 'bg-BG'},
-               canonicalUrl=${'https://autosilent.bg/shumoizolaciya/' + product.url()},
+               languageTag=${seoPage != null ? seoPage.contentLanguage() : 'bg-BG'},
+               canonicalUrl=${seoPage != null ? seoPage.canonicalUrl() : 'https://autosilent.bg/shumoizolaciya/' + product.url()},
+               bulgarianUrl=${seoPage != null ? seoPage.bulgarianUrl() : 'https://autosilent.bg/shumoizolaciya/' + product.url()},
+               englishUrl=${seoPage != null ? seoPage.englishUrl() : null},
+               openGraphLocale=${seoPage != null ? seoPage.openGraphLocale() : 'bg_BG'},
                productName=${#strings.trim(product.displayName())},
                productDescription=${product.plainDescription()},
                pageTitle=${seo != null and seo.title != null and !seo.title.isBlank() ? seo.title.trim() : productName + ' | AutoSilent.bg'},
-               pageDescription=${seo != null and seo.description != null and !seo.description.isBlank() ? seo.description.trim() : (!#strings.isEmpty(productDescription) ? productDescription : productName + (english ? ' — product information, price and availability at AutoSilent.bg.' : ' — характеристики, цена и наличност в AutoSilent.bg.'))},
+               pageDescription=${seo != null and seo.description != null and !seo.description.isBlank() ? seo.description.trim() : (!#strings.isEmpty(productDescription) ? productDescription : productName + ' — характеристики, цена и наличност в AutoSilent.bg.')},
                rawSeoImage=${seo != null and seo.imageUrl != null ? seo.imageUrl.trim() : ''},
                seoImage=${#strings.isEmpty(rawSeoImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawSeoImage), 'http://') or #strings.startsWith(#strings.toLowerCase(rawSeoImage), 'https://') ? rawSeoImage : (#strings.startsWith(rawSeoImage, '//') ? 'https:' + rawSeoImage : (rawSeoImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawSeoImage, '/') ? '' : '/') + rawSeoImage)))},
                rawGalleryImages=${product.imageUrls() != null ? product.imageUrls().?[#this != null and !#this.isBlank()].![#this.trim()] : {}},
@@ -22,8 +25,11 @@
     <title th:text="${pageTitle}">Продукт | AutoSilent.bg</title>
     <meta name="description" th:content="${pageDescription}">
     <link rel="canonical" th:href="${canonicalUrl}">
+    <link rel="alternate" hreflang="bg" th:href="${bulgarianUrl}">
+    <link rel="alternate" hreflang="en" th:if="${englishUrl != null}" th:href="${englishUrl}">
+    <link rel="alternate" hreflang="x-default" th:href="${bulgarianUrl}">
 
-    <meta property="og:locale" th:content="${english ? 'en_US' : 'bg_BG'}">
+    <meta property="og:locale" content="bg_BG" th:content="${openGraphLocale}">
     <meta property="og:type" content="product">
     <meta property="og:site_name" content="AutoSilent.bg">
     <meta property="og:title" th:content="${pageTitle}">
@@ -51,7 +57,8 @@
                     "@id": /*[[${canonicalUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
                     "name": /*[[${productName}]]*/ "Product",
                     "description": /*[[${pageDescription}]]*/ "Product description",
-                    "url": /*[[${canonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product"
+                    "url": /*[[${canonicalUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                    "inLanguage": /*[[${languageTag}]]*/ "bg-BG"
                     /*[# th:if="${product.sku() != null and !product.sku().isBlank()}"]*/,
                     "sku": /*[[${product.sku().trim()}]]*/ "SKU"
                     /*[/]*/

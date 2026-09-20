@@ -21,4 +21,30 @@ class NoIndexTemplatesTest {
                     .doesNotContain("<meta name=\"robots\" content=\"noindex\">");
         }
     }
+
+    @Test
+    void accountAndTransactionalPagesAreNoindex() throws Exception {
+        for (String template : new String[]{
+                "login.html", "register.html", "forgot-password.html", "profile.html",
+                "account-dashboard.html", "user-addresses.html", "user-orders.html",
+                "user-order-details.html", "favorites.html", "cart.html", "checkout.html"
+        }) {
+            String html = Files.readString(
+                    Path.of("src/main/resources/templates", template), StandardCharsets.UTF_8);
+            assertThat(html)
+                    .as("robots directive in %s", template)
+                    .contains("<meta name=\"robots\" content=\"noindex\">");
+        }
+    }
+
+    @Test
+    void everyRenderedTemplateUsesTheActiveLocaleForHtmlLang() throws Exception {
+        try (var paths = Files.walk(Path.of("src/main/resources/templates"))) {
+            for (Path template : paths.filter(path -> path.toString().endsWith(".html")).toList()) {
+                assertThat(Files.readString(template, StandardCharsets.UTF_8))
+                        .as("html language in %s", template)
+                        .contains("th:lang=\"${#locale.language}\"");
+            }
+        }
+    }
 }

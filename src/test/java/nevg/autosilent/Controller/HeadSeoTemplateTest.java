@@ -58,7 +58,7 @@ class HeadSeoTemplateTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"index.html", "products.html", "product-details.html"})
+    @ValueSource(strings = {"index.html", "products.html"})
     void localeChangesTheLanguageOfHeadMetadata(String template) throws IOException {
         RenderedHead english = render(template, context(template, Locale.ENGLISH));
         RenderedHead bulgarian = render(template, context(template, Locale.forLanguageTag("bg")));
@@ -66,9 +66,23 @@ class HeadSeoTemplateTest {
         assertHeadConsistency(english);
         assertThat(english.meta("property", "og:locale")).startsWith("en_");
         assertThat(english.page().path("inLanguage").asText()).startsWith("en");
-        if (!template.equals("product-details.html")) {
-            assertThat(english.document().title()).isNotEqualTo(bulgarian.document().title());
-        }
+        assertThat(english.document().title()).isNotEqualTo(bulgarian.document().title());
+        assertThat(english.canonical()).contains("lang=en");
+        assertThat(english.document().select("link[rel=alternate][hreflang=en]")).hasSize(1);
+        assertThat(english.document().select("link[rel=alternate][hreflang=bg]")).hasSize(1);
+    }
+
+    @Test
+    void englishProductUiKeepsBulgarianSeoSemantics() throws IOException {
+        RenderedHead head = render("product-details.html",
+                context("product-details.html", Locale.ENGLISH));
+
+        assertHeadConsistency(head);
+        assertThat(head.canonical()).doesNotContain("lang=");
+        assertThat(head.meta("property", "og:locale")).isEqualTo("bg_BG");
+        assertThat(head.page().path("inLanguage").asText()).isEqualTo("bg-BG");
+        assertThat(head.node("Product").path("inLanguage").asText()).isEqualTo("bg-BG");
+        assertThat(head.document().select("link[rel=alternate][hreflang=en]")).isEmpty();
     }
 
     @Test

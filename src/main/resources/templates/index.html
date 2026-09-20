@@ -3,6 +3,9 @@
       th:lang="${#locale.language}">
 <head th:with="seoEnglish=${#locale.language == 'en'},
                seoLanguage=${seoEnglish ? 'en' : 'bg-BG'},
+               seoCanonicalUrl=${seoPage != null ? seoPage.canonicalUrl() : (seoEnglish ? 'https://autosilent.bg/?lang=en' : 'https://autosilent.bg/')},
+               seoBulgarianUrl=${seoPage != null ? seoPage.bulgarianUrl() : 'https://autosilent.bg/'},
+               seoEnglishUrl=${seoPage != null ? seoPage.englishUrl() : 'https://autosilent.bg/?lang=en'},
                seoTitle=${seoEnglish ? 'AutoSilent.bg – Soundproofing for cars, vans and trucks' : 'AutoSilent.bg – звукоизолация за автомобили, бусове и камиони'},
                seoDescription=${seoEnglish ? 'Soundproofing and vibration insulation for cars, vans and trucks. Browse Vibrofiltr materials to reduce noise, vibrations and panel resonance.' : 'Звукоизолация и шумоизолация за автомобили, бусове и камиони. Разгледайте материали Vibrofiltr за намаляване на вибрациите, шума и резонанса в купето.'},
                seoImage='https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png'">
@@ -15,7 +18,10 @@
           th:content="${seoDescription}"
           content="Звукоизолация и шумоизолация за автомобили, бусове и камиони. Vibrofiltr материали за намаляване на вибрациите, шума и резонанса в купето.">
     <meta name="author" content="AutoSilent.bg">
-    <link rel="canonical" href="https://autosilent.bg/">
+    <link rel="canonical" href="https://autosilent.bg/" th:href="${seoCanonicalUrl}">
+    <link rel="alternate" hreflang="bg" href="https://autosilent.bg/" th:href="${seoBulgarianUrl}">
+    <link rel="alternate" hreflang="en" href="https://autosilent.bg/?lang=en" th:href="${seoEnglishUrl}">
+    <link rel="alternate" hreflang="x-default" href="https://autosilent.bg/" th:href="${seoBulgarianUrl}">
     <meta property="og:locale" th:content="${seoEnglish ? 'en_US' : 'bg_BG'}" content="bg_BG">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AutoSilent.bg">
@@ -23,7 +29,7 @@
     <meta property="og:description"
           th:content="${seoDescription}"
           content="Качествени материали за звукоизолация, шумоизолация и намаляване на вибрациите в автомобили, бусове и камиони.">
-    <meta property="og:url" content="https://autosilent.bg/">
+    <meta property="og:url" content="https://autosilent.bg/" th:content="${seoCanonicalUrl}">
     <meta property="og:image"
           th:content="${seoImage}"
           content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
@@ -55,8 +61,8 @@
             "@graph": [
                 {
                     "@type": "WebPage",
-                    "@id": "https://autosilent.bg/#webpage",
-                    "url": "https://autosilent.bg/",
+                    "@id": /*[[${seoCanonicalUrl + '#webpage'}]]*/ "https://autosilent.bg/#webpage",
+                    "url": /*[[${seoCanonicalUrl}]]*/ "https://autosilent.bg/",
                     "name": /*[[${seoTitle}]]*/ "AutoSilent.bg – звукоизолация за автомобили, бусове и камиони",
                     "description": /*[[${seoDescription}]]*/ "Онлайн магазин за автомобилна шумоизолация.",
                     "inLanguage": /*[[${seoLanguage}]]*/ "bg-BG",
@@ -70,10 +76,10 @@
                         "@id": "https://autosilent.bg/#organization"
                     },
                     "primaryImageOfPage": {
-                        "@id": "https://autosilent.bg/#primaryimage"
+                        "@id": /*[[${seoCanonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/#primaryimage"
                     },
                     "mainEntity": {
-                        "@id": "https://autosilent.bg/#featured-products"
+                        "@id": /*[[${seoCanonicalUrl + '#featured-products'}]]*/ "https://autosilent.bg/#featured-products"
                     }
                 },
                 {
@@ -110,7 +116,7 @@
                 },
                 {
                     "@type": "ImageObject",
-                    "@id": "https://autosilent.bg/#primaryimage",
+                    "@id": /*[[${seoCanonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/#primaryimage",
                     "url": /*[[${seoImage}]]*/ "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
                     "contentUrl": /*[[${seoImage}]]*/ "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
                     "width": 1672,
@@ -119,7 +125,7 @@
                 },
                 {
                     "@type": "ItemList",
-                    "@id": "https://autosilent.bg/#featured-products",
+                    "@id": /*[[${seoCanonicalUrl + '#featured-products'}]]*/ "https://autosilent.bg/#featured-products",
                     "name": /*[[${seoEnglish ? 'Best-selling products' : 'Най-продавани продукти'}]]*/ "Най-продавани продукти",
                     "numberOfItems": /*[[${bestSellingProducts == null ? 0 : bestSellingProducts.size()}]]*/ 0,
                     "itemListOrder": "https://schema.org/ItemListOrderDescending",
@@ -133,7 +139,8 @@
                                 "@type": "Product",
                                 "@id": /*[[${productUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
                                 "name": /*[[${product.displayName()}]]*/ "Product",
-                                "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product"
+                                "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                                "inLanguage": "bg-BG"
                                 /*[# th:if="${!#strings.isEmpty(#strings.trim(product.sku()))}"]*/,
                                 "sku": /*[[${product.sku()}]]*/ "SKU"
                                 /*[/]*/

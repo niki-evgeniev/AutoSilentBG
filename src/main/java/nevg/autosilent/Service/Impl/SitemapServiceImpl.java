@@ -24,6 +24,7 @@ import java.util.Locale;
 public class SitemapServiceImpl implements SitemapService {
 
     private static final String SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
+    private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
     private static final List<String> STATIC_PUBLIC_PATHS = List.of("/", "/shumoizolaciya", "/contact");
 
     private final ProductRepository productRepository;
@@ -47,14 +48,15 @@ public class SitemapServiceImpl implements SitemapService {
             xml.writeStartDocument("UTF-8", "1.0");
             xml.writeStartElement("urlset");
             xml.writeDefaultNamespace(SITEMAP_NAMESPACE);
+            xml.writeNamespace("xhtml", XHTML_NAMESPACE);
 
             for (String path : STATIC_PUBLIC_PATHS) {
-                writeUrl(xml, siteUrl + path, null);
+                writeLocalizedUrls(xml, siteUrl + path, null);
             }
             for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
                 String categoryPath = "/shumoizolaciya/category/" + category.id() + "/"
                         + ProductSlugGenerator.toSlug(category.name());
-                writeUrl(xml, siteUrl + categoryPath, category.lastModified());
+                writeLocalizedUrls(xml, siteUrl + categoryPath, category.lastModified());
             }
             for (SitemapProductDto product : productRepository.findAllActiveForSitemap()) {
                 writeUrl(xml, siteUrl + "/shumoizolaciya/" + product.url(), product.lastModified());
@@ -99,6 +101,39 @@ public class SitemapServiceImpl implements SitemapService {
             xml.writeEndElement();
         }
         xml.writeEndElement();
+    }
+
+    private void writeLocalizedUrls(XMLStreamWriter xml, String bulgarianUrl,
+                                    LocalDateTime lastModified) throws XMLStreamException {
+        String englishUrl = bulgarianUrl + "?lang=en";
+        writeLocalizedUrl(xml, bulgarianUrl, bulgarianUrl, englishUrl, lastModified);
+        writeLocalizedUrl(xml, englishUrl, bulgarianUrl, englishUrl, lastModified);
+    }
+
+    private void writeLocalizedUrl(XMLStreamWriter xml, String location, String bulgarianUrl,
+                                   String englishUrl, LocalDateTime lastModified)
+            throws XMLStreamException {
+        xml.writeStartElement("url");
+        xml.writeStartElement("loc");
+        xml.writeCharacters(location);
+        xml.writeEndElement();
+        writeAlternate(xml, "bg", bulgarianUrl);
+        writeAlternate(xml, "en", englishUrl);
+        writeAlternate(xml, "x-default", bulgarianUrl);
+        if (lastModified != null) {
+            xml.writeStartElement("lastmod");
+            xml.writeCharacters(lastModified.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+            xml.writeEndElement();
+        }
+        xml.writeEndElement();
+    }
+
+    private void writeAlternate(XMLStreamWriter xml, String language, String url)
+            throws XMLStreamException {
+        xml.writeEmptyElement("xhtml", "link", XHTML_NAMESPACE);
+        xml.writeAttribute("rel", "alternate");
+        xml.writeAttribute("hreflang", language);
+        xml.writeAttribute("href", url);
     }
 
     private String normalizeSiteUrl(String value) {

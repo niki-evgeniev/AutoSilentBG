@@ -27,9 +27,9 @@ class CanonicalTemplateTest {
     @Test
     void publicStaticPagesHaveAbsoluteCanonicalUrls() throws IOException {
         assertThat(template("index.html"))
-                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/\">");
+                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/\"");
         assertThat(template("contact.html"))
-                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/contact\">");
+                .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/contact\"");
         assertThat(template("product-return.html"))
                 .contains("<link rel=\"canonical\" href=\"https://autosilent.bg/returns\">");
         assertThat(template("delivery.html"))

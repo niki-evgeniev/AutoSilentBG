@@ -4,7 +4,9 @@
 <head th:with="seoEnglish=${#locale.language == 'en'},
                seoLanguage=${seoEnglish ? 'en' : 'bg-BG'},
                seoCategoryUrl=${selectedCategory == null ? 'https://autosilent.bg/shumoizolaciya' : 'https://autosilent.bg/shumoizolaciya/category/' + selectedCategory.id() + '/' + selectedCategory.slug()},
-               seoCanonicalUrl=${seoCategoryUrl + (productPage.number == 0 ? '' : '?page=' + productPage.number)},
+               seoBulgarianUrl=${seoPage != null ? seoPage.bulgarianUrl() : seoCategoryUrl + (productPage.number == 0 ? '' : '?page=' + productPage.number)},
+               seoEnglishUrl=${seoPage != null ? seoPage.englishUrl() : seoCategoryUrl + '?lang=en' + (productPage.number == 0 ? '' : '&' + 'page=' + productPage.number)},
+               seoCanonicalUrl=${seoPage != null ? seoPage.canonicalUrl() : (seoEnglish ? seoEnglishUrl : seoBulgarianUrl)},
                seoName=${selectedCategory == null ? (seoEnglish ? 'Car soundproofing and vibration insulation' : 'Автомобилна шумоизолация и виброизолация') : selectedCategory.name() + (seoEnglish ? ' – car soundproofing' : ' – автомобилна шумоизолация')},
                seoPageSuffix=${productPage.number == 0 ? '' : (seoEnglish ? ' – Page ' : ' – Страница ') + (productPage.number + 1)},
                seoTitle=${seoName + seoPageSuffix + ' | AutoSilent.bg'},
@@ -22,6 +24,9 @@
           th:content="${seoDescription}">
     <meta name="author" content="AutoSilent.bg">
     <link rel="canonical" href="https://autosilent.bg/shumoizolaciya" th:href="${seoCanonicalUrl}">
+    <link rel="alternate" hreflang="bg" href="https://autosilent.bg/shumoizolaciya" th:href="${seoBulgarianUrl}">
+    <link rel="alternate" hreflang="en" href="https://autosilent.bg/shumoizolaciya?lang=en" th:href="${seoEnglishUrl}">
+    <link rel="alternate" hreflang="x-default" href="https://autosilent.bg/shumoizolaciya" th:href="${seoBulgarianUrl}">
 
     <meta property="og:locale" content="bg_BG" th:content="${seoEnglish ? 'en_US' : 'bg_BG'}">
     <meta property="og:type" content="website">
@@ -122,6 +127,7 @@
                                 "@id": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url() + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
                                 "name": /*[[${product.displayName()}]]*/ "Product",
                                 "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                                "inLanguage": "bg-BG",
                                 "description": /*[[${product.plainDescription()}]]*/ "Product description",
                                 "sku": /*[[${product.sku()}]]*/ "SKU",
                                 "category": /*[[${product.category()}]]*/ "Category",
@@ -226,6 +232,7 @@
                               ? @{/shumoizolaciya}
                               : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}"
                           method="get" role="search">
+                        <input th:if="${#locale.language == 'en'}" type="hidden" name="lang" value="en">
                         <i class="bi bi-search"></i>
                         <label class="visually-hidden" for="productsSearch" th:text="#{site.search}">Търси</label>
                         <input id="productsSearch" name="search" type="search" maxlength="150"
@@ -263,6 +270,7 @@
                           th:action="${selectedCategory == null}
                               ? @{/shumoizolaciya}
                               : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                        <input th:if="${#locale.language == 'en'}" type="hidden" name="lang" value="en">
                         <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
                         <input type="hidden" name="order" th:value="${sortMode}">
                         <div class="filter-head">
@@ -276,6 +284,7 @@
                                th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
                                th:href="@{/shumoizolaciya/category/{categoryId}/{slug}(
                                    categoryId=${category.id()},slug=${category.slug()},
+                                   lang=${#locale.language == 'en' ? 'en' : null},
                                    search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
                                    minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
                                    order=${sortMode})}">
@@ -360,6 +369,7 @@
                                   th:action="${selectedCategory == null}
                                       ? @{/shumoizolaciya}
                                       : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+                                <input th:if="${#locale.language == 'en'}" type="hidden" name="lang" value="en">
                                 <input th:if="${filter.search() != null}" type="hidden" name="search"
                                        th:value="${filter.search()}">
                                 <input th:if="${filter.brand() != null}" type="hidden" name="brand"
@@ -483,22 +493,22 @@
                     <nav class="shop-pagination" th:if="${productPage.totalPages > 1}"
                          th:aria-label="#{products.pagination}">
                         <a th:href="${selectedCategory == null}
-                            ? @{/shumoizolaciya(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}
-                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}"
+                            ? @{/shumoizolaciya(lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}
+                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}"
                            th:classappend="${productPage.first} ? ' disabled'"
                            th:aria-label="#{products.previous}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                         <a th:each="pageNumber : ${#numbers.sequence(0, productPage.totalPages - 1)}"
                            th:href="${selectedCategory == null}
-                               ? @{/shumoizolaciya(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}
-                               : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}"
+                               ? @{/shumoizolaciya(lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}
+                               : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}"
                            th:classappend="${pageNumber == productPage.number} ? ' active'"
                            th:text="${pageNumber + 1}"
                            th:aria-label="#{products.page(${pageNumber + 1})}">1</a>
                         <a th:href="${selectedCategory == null}
-                            ? @{/shumoizolaciya(search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}
-                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}"
+                            ? @{/shumoizolaciya(lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}
+                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}"
                            th:classappend="${productPage.last} ? ' disabled'"
                            th:aria-label="#{products.next}">
                             <i class="bi bi-chevron-right"></i>
@@ -520,6 +530,7 @@
               th:action="${selectedCategory == null}
                   ? @{/shumoizolaciya}
                   : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()})}">
+            <input th:if="${#locale.language == 'en'}" type="hidden" name="lang" value="en">
             <input th:if="${!search.isBlank()}" type="hidden" name="search" th:value="${search}">
             <input type="hidden" name="order" th:value="${sortMode}">
             <div class="filter-group">
@@ -528,6 +539,7 @@
                    th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
                    th:href="@{/shumoizolaciya/category/{categoryId}/{slug}(
                        categoryId=${category.id()},slug=${category.slug()},
+                       lang=${#locale.language == 'en' ? 'en' : null},
                        search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
                        minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
                        order=${sortMode})}">
