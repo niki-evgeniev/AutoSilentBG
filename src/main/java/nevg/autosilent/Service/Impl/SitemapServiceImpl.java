@@ -25,7 +25,8 @@ public class SitemapServiceImpl implements SitemapService {
 
     private static final String SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
     private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
-    private static final List<String> STATIC_PUBLIC_PATHS = List.of("/", "/shumoizolaciya", "/contact");
+    private static final List<String> LOCALIZED_STATIC_PUBLIC_PATHS = List.of("/", "/contact");
+    private static final List<String> BULGARIAN_ONLY_STATIC_PUBLIC_PATHS = List.of("/shumoizolaciya");
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -50,13 +51,16 @@ public class SitemapServiceImpl implements SitemapService {
             xml.writeDefaultNamespace(SITEMAP_NAMESPACE);
             xml.writeNamespace("xhtml", XHTML_NAMESPACE);
 
-            for (String path : STATIC_PUBLIC_PATHS) {
+            for (String path : LOCALIZED_STATIC_PUBLIC_PATHS) {
                 writeLocalizedUrls(xml, siteUrl + path, null);
+            }
+            for (String path : BULGARIAN_ONLY_STATIC_PUBLIC_PATHS) {
+                writeUrl(xml, siteUrl + path, null);
             }
             for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
                 String categoryPath = "/shumoizolaciya/category/" + category.id() + "/"
                         + ProductSlugGenerator.toSlug(category.name());
-                writeLocalizedUrls(xml, siteUrl + categoryPath, category.lastModified());
+                writeUrl(xml, siteUrl + categoryPath, category.lastModified());
             }
             for (SitemapProductDto product : productRepository.findAllActiveForSitemap()) {
                 writeUrl(xml, siteUrl + "/shumoizolaciya/" + product.url(), product.lastModified());

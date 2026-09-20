@@ -4,7 +4,9 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 import java.util.Locale;
 
@@ -47,5 +49,29 @@ class InternationalizationConfigurationTest {
         laterRequest.setCookies(localeCookie);
 
         assertThat(localeResolver.resolveLocale(laterRequest)).isEqualTo(Locale.ENGLISH);
+    }
+
+    @Test
+    void bgLanguageSwitchReplacesEnglishCookieForFollowingRequest() throws Exception {
+        MockHttpServletRequest englishRequest = new MockHttpServletRequest();
+        MockHttpServletResponse englishResponse = new MockHttpServletResponse();
+        localeResolver.setLocale(englishRequest, englishResponse, Locale.ENGLISH);
+        Cookie englishCookie = englishResponse.getCookie("AutoSilent_LOCALE");
+
+        MockHttpServletRequest switchRequest = new MockHttpServletRequest("GET", "/shumoizolaciya");
+        switchRequest.setCookies(englishCookie);
+        switchRequest.addParameter("lang", "bg");
+        switchRequest.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE, localeResolver);
+        MockHttpServletResponse switchResponse = new MockHttpServletResponse();
+        LocaleChangeInterceptor interceptor =
+                new InternationalizationConfiguration().localeChangeInterceptor();
+
+        interceptor.preHandle(switchRequest, switchResponse, new Object());
+
+        Cookie bulgarianCookie = switchResponse.getCookie("AutoSilent_LOCALE");
+        assertThat(bulgarianCookie).isNotNull();
+        MockHttpServletRequest followingRequest = new MockHttpServletRequest();
+        followingRequest.setCookies(bulgarianCookie);
+        assertThat(localeResolver.resolveLocale(followingRequest).getLanguage()).isEqualTo("bg");
     }
 }

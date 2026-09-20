@@ -51,20 +51,21 @@ class SitemapServiceImplTest {
         assertThat(textValues(locations)).containsExactly(
                 "https://shop.example/",
                 "https://shop.example/?lang=en",
-                "https://shop.example/shumoizolaciya",
-                "https://shop.example/shumoizolaciya?lang=en",
                 "https://shop.example/contact",
                 "https://shop.example/contact?lang=en",
+                "https://shop.example/shumoizolaciya",
                 "https://shop.example/shumoizolaciya/category/3/zvukoizolatsiya",
-                "https://shop.example/shumoizolaciya/category/3/zvukoizolatsiya?lang=en",
                 "https://shop.example/shumoizolaciya/vibrofiltr-2-0",
                 "https://shop.example/shumoizolaciya/special-and-safe"
         );
-        assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-20", "2026-07-21");
+        assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-21");
         assertThat(document.getElementsByTagNameNS(
-                "http://www.w3.org/1999/xhtml", "link").getLength()).isEqualTo(24);
+                "http://www.w3.org/1999/xhtml", "link").getLength()).isEqualTo(12);
         assertThat(textValues(locations)).noneMatch(url ->
-                url.contains("/vibrofiltr-2-0?lang=en") || url.contains("/special-and-safe?lang=en"));
+                url.contains("/shumoizolaciya?lang=en")
+                        || url.contains("/category/3/zvukoizolatsiya?lang=en")
+                        || url.contains("/vibrofiltr-2-0?lang=en")
+                        || url.contains("/special-and-safe?lang=en"));
         assertThat(document.getElementsByTagName("priority").getLength()).isZero();
         assertThat(document.getElementsByTagName("changefreq").getLength()).isZero();
     }

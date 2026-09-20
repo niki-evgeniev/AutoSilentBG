@@ -13,7 +13,7 @@ class SeoUrlServiceTest {
     private final SeoUrlService service = new SeoUrlService("https://autosilent.bg/");
 
     @Test
-    void englishCatalogCanonicalKeepsOnlyLanguageAndPagination() {
+    void englishCatalogUiCanonicalizesToBulgarianCatalogAndKeepsOnlyPagination() {
         MockHttpServletRequest request = request("/shumoizolaciya");
         request.addParameter("lang", "en");
         request.addParameter("page", "1");
@@ -24,14 +24,16 @@ class SeoUrlServiceTest {
         SeoPageMetadata metadata = service.metadata(request, Locale.ENGLISH);
 
         assertThat(metadata.canonicalUrl())
-                .isEqualTo("https://autosilent.bg/shumoizolaciya?lang=en&page=1");
+                .isEqualTo("https://autosilent.bg/shumoizolaciya?page=1");
         assertThat(metadata.bulgarianUrl())
                 .isEqualTo("https://autosilent.bg/shumoizolaciya?page=1");
-        assertThat(metadata.englishUrl()).isEqualTo(metadata.canonicalUrl());
+        assertThat(metadata.englishUrl()).isNull();
+        assertThat(metadata.contentLanguage()).isEqualTo("bg-BG");
+        assertThat(metadata.openGraphLocale()).isEqualTo("bg_BG");
     }
 
     @Test
-    void categoryHasReciprocalLocalizedUrls() {
+    void englishCategoryUiCanonicalizesToBulgarianCategory() {
         MockHttpServletRequest request = request(
                 "/shumoizolaciya/category/4/vibroizolatsiya");
 
@@ -39,8 +41,20 @@ class SeoUrlServiceTest {
         SeoPageMetadata english = service.metadata(request, Locale.ENGLISH);
 
         assertThat(bulgarian.canonicalUrl()).isEqualTo(bulgarian.bulgarianUrl());
-        assertThat(english.canonicalUrl()).isEqualTo(english.englishUrl());
-        assertThat(english.englishUrl()).endsWith("?lang=en");
+        assertThat(english.canonicalUrl()).isEqualTo(english.bulgarianUrl());
+        assertThat(english.englishUrl()).isNull();
+        assertThat(english.contentLanguage()).isEqualTo("bg-BG");
+    }
+
+    @Test
+    void catalogSeoCanBeActivatedAfterAllCatalogContentIsTranslated() {
+        SeoPageMetadata metadata = service.catalogMetadata(
+                "/shumoizolaciya/category/4/vibroizolatsiya", 1, Locale.ENGLISH, true);
+
+        assertThat(metadata.canonicalUrl()).isEqualTo(
+                "https://autosilent.bg/shumoizolaciya/category/4/vibroizolatsiya?lang=en&page=1");
+        assertThat(metadata.englishUrl()).isEqualTo(metadata.canonicalUrl());
+        assertThat(metadata.contentLanguage()).isEqualTo("en");
     }
 
     @Test
@@ -79,7 +93,7 @@ class SeoUrlServiceTest {
         assertThat(service.languageUrl(request, "en"))
                 .isEqualTo("/shumoizolaciya?lang=en&page=2&search=door%20panel");
         assertThat(service.languageUrl(request, "bg"))
-                .isEqualTo("/shumoizolaciya?page=2&search=door%20panel");
+                .isEqualTo("/shumoizolaciya?lang=bg&page=2&search=door%20panel");
     }
 
     private MockHttpServletRequest request(String path) {

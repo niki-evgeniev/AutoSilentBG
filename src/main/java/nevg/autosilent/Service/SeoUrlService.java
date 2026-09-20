@@ -13,7 +13,7 @@ import java.util.Set;
 @Service
 public class SeoUrlService {
 
-    private static final Set<String> FULLY_LOCALIZED_PATHS = Set.of("/", "/shumoizolaciya", "/contact");
+    private static final Set<String> FULLY_LOCALIZED_PATHS = Set.of("/", "/contact");
 
     private final String siteUrl;
 
@@ -27,15 +27,35 @@ public class SeoUrlService {
 
     public SeoPageMetadata metadata(HttpServletRequest request, Locale locale) {
         String path = requestPath(request);
-        boolean fullyLocalized = isFullyLocalized(path);
         int page = catalogPage(path, request.getParameter("page"));
-        String bulgarianUrl = localizedUrl(path, false, page);
-        String englishUrl = fullyLocalized ? localizedUrl(path, true, page) : null;
-        boolean englishContent = fullyLocalized && "en".equals(locale.getLanguage());
-
+        if (isCatalogPath(path)) {
+            return catalogMetadata(path, page, locale, false);
+        }
         if (isProductPath(path)) {
             return productMetadata(path, locale, false);
         }
+
+        boolean fullyLocalized = FULLY_LOCALIZED_PATHS.contains(path);
+        String bulgarianUrl = localizedUrl(path, false, page);
+        String englishUrl = fullyLocalized ? localizedUrl(path, true, page) : null;
+        boolean englishContent = fullyLocalized && "en".equals(locale.getLanguage());
+        return new SeoPageMetadata(
+                englishContent ? englishUrl : bulgarianUrl,
+                bulgarianUrl,
+                englishUrl,
+                englishContent ? "en" : "bg-BG",
+                englishContent ? "en_US" : "bg_BG",
+                englishContent
+        );
+    }
+
+    public SeoPageMetadata catalogMetadata(String path, int page, Locale locale,
+                                           boolean hasFullyTranslatedCatalogContent) {
+        String bulgarianUrl = localizedUrl(path, false, page);
+        String englishUrl = hasFullyTranslatedCatalogContent
+                ? localizedUrl(path, true, page) : null;
+        boolean englishContent = hasFullyTranslatedCatalogContent
+                && "en".equals(locale.getLanguage());
         return new SeoPageMetadata(
                 englishContent ? englishUrl : bulgarianUrl,
                 bulgarianUrl,
@@ -63,9 +83,7 @@ public class SeoUrlService {
 
     public String languageUrl(HttpServletRequest request, String language) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(requestPath(request));
-        if ("en".equals(language)) {
-            builder.queryParam("lang", "en");
-        }
+        builder.queryParam("lang", language);
         for (Map.Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
             if ("lang".equals(parameter.getKey())) {
                 continue;
@@ -77,8 +95,8 @@ public class SeoUrlService {
         return builder.build().encode().toUriString();
     }
 
-    private boolean isFullyLocalized(String path) {
-        return FULLY_LOCALIZED_PATHS.contains(path)
+    private boolean isCatalogPath(String path) {
+        return path.equals("/shumoizolaciya")
                 || path.startsWith("/shumoizolaciya/category/");
     }
 
