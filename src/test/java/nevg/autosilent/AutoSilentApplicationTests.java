@@ -45,4 +45,24 @@ class AutoSilentApplicationTests {
                 .contains("name=\"maxPrice\"")
                 .contains("name=\"inStock\"");
     }
+
+    @Test
+    void sitemapStylesheetIsPubliclyAvailable() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+        var response = mockMvc.perform(get("/sitemap.xsl"))
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getContentType()).isNotNull().satisfiesAnyOf(
+                value -> assertThat(value).startsWith("text/xsl"),
+                value -> assertThat(value).startsWith("application/xml"),
+                value -> assertThat(value).startsWith("text/xml")
+        );
+        assertThat(response.getContentAsString())
+                .contains("<xsl:stylesheet")
+                .contains("AutoSilent.bg Sitemap")
+                .doesNotContain("<script");
+    }
 }

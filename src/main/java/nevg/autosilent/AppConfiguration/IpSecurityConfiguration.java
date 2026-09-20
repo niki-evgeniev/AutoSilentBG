@@ -21,6 +21,7 @@ public class IpSecurityConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/css/**", "/js/**", "/images/**", "/fonts/**",
-                        "/ProductImages/**", "/favicon.ico", "/robots.txt", "/sitemap.xml", "/error");
+                        "/ProductImages/**", "/favicon.ico", "/robots.txt", "/sitemap.xml",
+                        "/sitemap.xsl", "/error");
     }
 }

@@ -53,8 +53,11 @@ class SitemapServiceImplTest {
         NodeList alternates = document.getElementsByTagNameNS(
                 "http://www.w3.org/1999/xhtml", "link");
 
-        assertThat(sitemap).startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        assertThat(sitemap).doesNotContain("xml-stylesheet");
+        assertThat(sitemap).startsWith("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+
+                """);
         assertThat(root.getLocalName()).isEqualTo("urlset");
         assertThat(root.getNamespaceURI())
                 .isEqualTo("http://www.sitemaps.org/schemas/sitemap/0.9");

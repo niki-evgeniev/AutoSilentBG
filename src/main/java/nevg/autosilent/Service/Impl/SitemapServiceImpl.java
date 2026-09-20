@@ -50,6 +50,9 @@ public class SitemapServiceImpl implements SitemapService {
             xml.setPrefix("xhtml", XHTML_NAMESPACE);
             xml.writeStartDocument("UTF-8", "1.0");
             xml.writeCharacters("\n");
+            xml.writeProcessingInstruction("xml-stylesheet",
+                    "type=\"text/xsl\" href=\"/sitemap.xsl\"");
+            xml.writeCharacters("\n\n");
             xml.writeStartElement("", "urlset", SITEMAP_NAMESPACE);
             xml.writeDefaultNamespace(SITEMAP_NAMESPACE);
             xml.writeNamespace("xhtml", XHTML_NAMESPACE);
