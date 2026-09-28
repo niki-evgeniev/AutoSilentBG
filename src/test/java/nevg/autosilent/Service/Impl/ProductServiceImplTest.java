@@ -4,12 +4,15 @@ import nevg.autosilent.Models.Dto.ProductCreateDto;
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
 import nevg.autosilent.Models.Dto.ProductFilterDto;
 import nevg.autosilent.Models.Dto.ProductViewDto;
+import nevg.autosilent.Models.Dto.ProductSoldQuantityDto;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
 import nevg.autosilent.Models.Entity.ProductUrlRedirect;
 import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Models.Entity.User;
+import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Repository.CategoryRepository;
+import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.ProductUrlRedirectRepository;
 import nevg.autosilent.Repository.UserRepository;
@@ -63,6 +66,8 @@ class ProductServiceImplTest {
     @Mock
     private ProductRepository productRepository;
     @Mock
+    private OrderItemRepository orderItemRepository;
+    @Mock
     private ProductUrlRedirectRepository productUrlRedirectRepository;
     @Mock
     private UserRepository userRepository;
@@ -78,7 +83,7 @@ class ProductServiceImplTest {
     @BeforeEach
     void setUp() {
         productService = new ProductServiceImpl(
-                productRepository, productUrlRedirectRepository, userRepository, categoryRepository,
+                productRepository, orderItemRepository, productUrlRedirectRepository, userRepository, categoryRepository,
                 seoService, "https://autosilent.bg");
         ReflectionTestUtils.setField(productService, "imagesDirectory", imagesDirectory);
         Category category = new Category();
@@ -268,14 +273,38 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void getBestSellingProductsMapsTopSoldProducts() {
-        Product product = productWithPictures();
-        when(productRepository.findTop4ByActiveTrueOrderBySoldDescAddDateDesc()).thenReturn(List.of(product));
+    void getBestSellingProductsStartsWithDeliveredSalesAndFillsWithMostViewed() {
+        Product mostViewed = productWithPictures();
+        mostViewed.setId(1L);
+        Product secondMostViewed = productWithPictures();
+        secondMostViewed.setId(2L);
+        Product bestSeller = productWithPictures();
+        bestSeller.setId(3L);
+        Product secondBestSeller = productWithPictures();
+        secondBestSeller.setId(4L);
+        when(productRepository.findAllByActiveTrueOrderByCountDescAddDateDesc())
+                .thenReturn(List.of(mostViewed, secondMostViewed, bestSeller, secondBestSeller));
+        when(orderItemRepository.sumQuantityByProductForStatus(OrderStatus.DELIVERED))
+                .thenReturn(List.of(new ProductSoldQuantityDto(3L, 8), new ProductSoldQuantityDto(4L, 5)));
 
         List<ProductViewDto> result = productService.getBestSellingProducts();
 
-        verify(productRepository).findTop4ByActiveTrueOrderBySoldDescAddDateDesc();
-        assertThat(result).extracting(ProductViewDto::id).containsExactly(7L);
+        assertThat(result).extracting(ProductViewDto::id).containsExactly(3L, 4L, 1L, 2L);
+    }
+
+    @Test
+    void getBestSellingProductsUsesViewsWhenThereAreNoDeliveredSales() {
+        Product mostViewed = productWithPictures();
+        mostViewed.setId(1L);
+        Product secondMostViewed = productWithPictures();
+        secondMostViewed.setId(2L);
+        when(productRepository.findAllByActiveTrueOrderByCountDescAddDateDesc())
+                .thenReturn(List.of(mostViewed, secondMostViewed));
+        when(orderItemRepository.sumQuantityByProductForStatus(OrderStatus.DELIVERED)).thenReturn(List.of());
+
+        List<ProductViewDto> result = productService.getBestSellingProducts();
+
+        assertThat(result).extracting(ProductViewDto::id).containsExactly(1L, 2L);
     }
 
     @Test

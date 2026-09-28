@@ -11,6 +11,7 @@ import nevg.autosilent.Service.Exception.InvalidProductImageException;
 import nevg.autosilent.Service.Exception.ProductAlreadyExistsException;
 import nevg.autosilent.Service.Exception.ProductCreationException;
 import nevg.autosilent.Service.CategoryService;
+import nevg.autosilent.Service.CatalogSeoService;
 import nevg.autosilent.Service.ProductService;
 import nevg.autosilent.Service.SeoService;
 import nevg.autosilent.Utility.CatalogCategoryUrlPolicy;
@@ -43,11 +44,14 @@ public class ProductsController {
     private final ProductService productService;
     private final SeoService seoService;
     private final CategoryService categoryService;
+    private final CatalogSeoService catalogSeoService;
 
-    public ProductsController(ProductService productService, SeoService seoService, CategoryService categoryService) {
+    public ProductsController(ProductService productService, SeoService seoService, CategoryService categoryService,
+                              CatalogSeoService catalogSeoService) {
         this.productService = productService;
         this.seoService = seoService;
         this.categoryService = categoryService;
+        this.catalogSeoService = catalogSeoService;
     }
 
     @GetMapping("/shumoizolaciya")
@@ -138,6 +142,8 @@ public class ProductsController {
         modelAndView.addObject("sortMode", order);
         if (selectedCategory != null) {
             modelAndView.addObject("selectedCategory", selectedCategory);
+        } else {
+            modelAndView.addObject("catalogSeo", catalogSeoService.get());
         }
         return modelAndView;
     }

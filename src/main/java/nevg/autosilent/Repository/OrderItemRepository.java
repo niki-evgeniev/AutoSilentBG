@@ -19,6 +19,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, Long
             from OrderItemEntity item
             where item.product is not null and item.order.orderStatus = :status
             group by item.product.id
+            order by sum(item.quantity) desc, item.product.id asc
             """)
     List<ProductSoldQuantityDto> sumQuantityByProductForStatus(@Param("status") OrderStatus status);
 }

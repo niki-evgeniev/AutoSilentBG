@@ -56,9 +56,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         if (promoCodeRepository.existsByCode(code)) {
             throw new ProductAlreadyExistsException("code", "Вече съществува промокод с тази стойност.");
         }
-        if (request.getDiscountPercent() == null || !ALLOWED_DISCOUNT_SET.contains(request.getDiscountPercent())) {
-            throw new IllegalArgumentException("Невалиден процент за отстъпка.");
-        }
+        validateDiscount(request.getDiscountPercent());
 
         User admin = userRepository.findByEmailIgnoreCase(adminEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Администраторът не е намерен."));
@@ -68,6 +66,20 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         promoCode.setDiscountPercent(request.getDiscountPercent());
         promoCode.setCreatedBy(admin);
         promoCodeRepository.save(promoCode);
+    }
+
+    @Override
+    @Transactional
+    public void updateDiscount(Long id, Integer discountPercent) {
+        validateDiscount(discountPercent);
+        PromoCode promoCode = findById(id);
+        promoCode.setDiscountPercent(discountPercent);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        promoCodeRepository.delete(findById(id));
     }
 
     @Override
@@ -85,5 +97,16 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Override
     public String normalizeCode(String code) {
         return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private void validateDiscount(Integer discountPercent) {
+        if (discountPercent == null || !ALLOWED_DISCOUNT_SET.contains(discountPercent)) {
+            throw new IllegalArgumentException("Невалиден процент за отстъпка.");
+        }
+    }
+
+    private PromoCode findById(Long id) {
+        return promoCodeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Промокодът не е намерен."));
     }
 }

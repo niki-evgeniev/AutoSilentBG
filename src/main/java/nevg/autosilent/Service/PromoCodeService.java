@@ -14,6 +14,10 @@ public interface PromoCodeService {
 
     void create(PromoCodeCreateDto request, String adminEmail);
 
+    void updateDiscount(Long id, Integer discountPercent);
+
+    void delete(Long id);
+
     BigDecimal discountPercent(String code);
 
     String normalizeCode(String code);

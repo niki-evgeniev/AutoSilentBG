@@ -10,8 +10,11 @@
                seoCanonicalUrl=${seoPage != null ? seoPage.canonicalUrl() : seoBulgarianUrl},
                seoName=${selectedCategory == null ? (seoContentEnglish ? 'Car soundproofing and vibration insulation' : 'Автомобилна шумоизолация и виброизолация') : selectedCategory.name() + (seoContentEnglish ? ' – car soundproofing' : ' – автомобилна шумоизолация')},
                seoPageSuffix=${productPage.number == 0 ? '' : (seoContentEnglish ? ' – Page ' : ' – Страница ') + (productPage.number + 1)},
-               seoTitle=${seoName + seoPageSuffix + ' | AutoSilent.bg'},
-               seoDescription=${(selectedCategory == null ? (seoContentEnglish ? 'Browse Vibrofiltr soundproofing and vibration insulation materials for cars, vans and trucks. Compare products, prices and availability.' : 'Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности.') : (seoContentEnglish ? 'Explore ' : 'Разгледайте ') + selectedCategory.name() + (seoContentEnglish ? ' for car soundproofing and vibration insulation. Compare products, prices and availability at AutoSilent.bg.' : ' за автомобилна шумоизолация и виброизолация. Сравнете продукти, цени и наличности в AutoSilent.bg.')) + (productPage.number == 0 ? '' : (seoContentEnglish ? ' Page ' : ' Страница ') + (productPage.number + 1) + '.')},
+               seoTitle=${selectedCategory == null ? (catalogSeo != null ? catalogSeo.title : seoName + ' | AutoSilent.bg') + seoPageSuffix : seoName + seoPageSuffix + ' | AutoSilent.bg'},
+               seoDescription=${(selectedCategory == null ? (catalogSeo != null ? catalogSeo.description : (seoContentEnglish ? 'Browse Vibrofiltr soundproofing and vibration insulation materials for cars, vans and trucks. Compare products, prices and availability.' : 'Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности.')) : (seoContentEnglish ? 'Explore ' : 'Разгледайте ') + selectedCategory.name() + (seoContentEnglish ? ' for car soundproofing and vibration insulation. Compare products, prices and availability at AutoSilent.bg.' : ' за автомобилна шумоизолация и виброизолация. Сравнете продукти, цени и наличности в AutoSilent.bg.')) + (productPage.number == 0 ? '' : (seoContentEnglish ? ' Page ' : ' Страница ') + (productPage.number + 1) + '.')},
+               seoKeywords=${selectedCategory == null and catalogSeo != null ? catalogSeo.keywords : null},
+               rawSeoImage=${selectedCategory == null and catalogSeo != null and catalogSeo.imageUrl != null ? catalogSeo.imageUrl.trim() : ''},
+               seoImage=${#strings.isEmpty(rawSeoImage) ? 'https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png' : (#strings.startsWith(#strings.toLowerCase(rawSeoImage), 'http://') or #strings.startsWith(#strings.toLowerCase(rawSeoImage), 'https://') ? rawSeoImage : (#strings.startsWith(rawSeoImage, '//') ? 'https:' + rawSeoImage : (rawSeoImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? 'https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png' : 'https://autosilent.bg' + (#strings.startsWith(rawSeoImage, '/') ? '' : '/') + rawSeoImage)))},
                seoImageAlt=${seoContentEnglish ? 'Car soundproofing and vibration insulation from AutoSilent.bg' : 'Автомобилна шумоизолация и виброизолация от AutoSilent.bg'},
                seoNoindex=${(search != null and !search.isBlank()) or (filter != null and (filter.hasCatalogFilters() or (filter.search() != null and !filter.search().isBlank()))) or (sortMode != null and !sortMode.isBlank() and sortMode != 'default') or (productPage.number > 0 and productPage.empty) or productPage.size != 9}">
     <meta charset="UTF-8">
@@ -23,6 +26,7 @@
     <meta name="description"
           content="Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности."
           th:content="${seoDescription}">
+    <meta name="keywords" th:if="${seoKeywords != null and !seoKeywords.isBlank()}" th:content="${seoKeywords}">
     <meta name="author" content="AutoSilent.bg">
     <link rel="canonical" href="https://autosilent.bg/shumoizolaciya" th:href="${seoCanonicalUrl}">
     <link rel="alternate" hreflang="bg" href="https://autosilent.bg/shumoizolaciya" th:href="${seoBulgarianUrl}">
@@ -39,9 +43,9 @@
           th:content="${seoDescription}">
     <meta property="og:url" content="https://autosilent.bg/shumoizolaciya" th:content="${seoCanonicalUrl}">
     <meta property="og:image"
-          content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
+          content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png" th:content="${seoImage}">
     <meta property="og:image:secure_url"
-          content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
+          content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png" th:content="${seoImage}">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1672">
     <meta property="og:image:height" content="941">
@@ -55,7 +59,7 @@
           content="Разгледайте материали Vibrofiltr за шумоизолация, звукоизолация и виброизолация на автомобили, бусове и камиони. Сравнете продукти, цени и наличности."
           th:content="${seoDescription}">
     <meta name="twitter:image"
-          content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png">
+          content="https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png" th:content="${seoImage}">
     <meta name="twitter:image:alt" content="Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
           th:content="${seoImageAlt}">
 
@@ -167,8 +171,8 @@
                 {
                     "@type": "ImageObject",
                     "@id": /*[[${seoCanonicalUrl + '#primaryimage'}]]*/ "https://autosilent.bg/shumoizolaciya#primaryimage",
-                    "url": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
-                    "contentUrl": "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "url": /*[[${seoImage}]]*/ "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
+                    "contentUrl": /*[[${seoImage}]]*/ "https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png",
                     "width": 1672,
                     "height": 941,
                     "caption": /*[[${seoImageAlt}]]*/ "Автомобилна шумоизолация и виброизолация от AutoSilent.bg"
@@ -224,8 +228,17 @@
             <div class="row align-items-end g-4">
                 <div class="col-lg-7">
                     <span class="eyebrow" th:text="#{products.eyebrow}">Онлайн магазин</span>
-                    <h1 th:text="#{products.heading}">Автомобилна шумоизолация и виброизолация</h1>
-                    <p th:text="#{products.intro}">Шумоизолация за автомобили, бусове и камиони – виброизолационни, звукопоглъщащи и топлоизолационни материали</p>
+                    <h1 th:text="#{products.heading}">Шумоизолация за коли и автомобилна виброизолация</h1>
+                    <div class="category-intro">
+                        <p th:text="#{products.intro}">
+                            Материали за шумоизолация и виброизолация за коли, бусове, кемпери, каравани и камиони.
+                            Намалете шума от гумите, пътната настилка, двигателя и вибрациите на купето.
+                        </p>
+                        <p th:text="#{products.introSecondary}">
+                            Изберете подходящи материали за врати, под, багажник, калници и таван според зоната и
+                            желания резултат.
+                        </p>
+                    </div>
                 </div>
                 <div class="col-lg-5">
                     <form class="shop-search-box tilt-card"
@@ -517,6 +530,13 @@
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </nav>
+                    <div class="d-flex justify-content-end mt-4" sec:authorize="hasRole('ADMIN')"
+                         th:if="${selectedCategory == null}">
+                        <a class="btn btn-outline-dark custom-outline" target="_blank" rel="noopener"
+                           th:href="@{/admin/settings/catalog-seo}">
+                            <i class="bi bi-search me-2"></i><span th:text="#{products.catalogSeo}">SEO настройки</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

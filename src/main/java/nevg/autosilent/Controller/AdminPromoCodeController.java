@@ -11,7 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -50,6 +52,22 @@ public class AdminPromoCodeController {
         }
 
         redirectAttributes.addFlashAttribute("promoCodeCreated", true);
+        return new ModelAndView("redirect:/admin/settings/promo-codes");
+    }
+
+    @PostMapping("/admin/settings/promo-codes/{id}/discount")
+    public ModelAndView updateDiscount(@PathVariable Long id,
+                                       @RequestParam Integer discountPercent,
+                                       RedirectAttributes redirectAttributes) {
+        promoCodeService.updateDiscount(id, discountPercent);
+        redirectAttributes.addFlashAttribute("promoCodeUpdated", true);
+        return new ModelAndView("redirect:/admin/settings/promo-codes");
+    }
+
+    @PostMapping("/admin/settings/promo-codes/{id}/delete")
+    public ModelAndView delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        promoCodeService.delete(id);
+        redirectAttributes.addFlashAttribute("promoCodeDeleted", true);
         return new ModelAndView("redirect:/admin/settings/promo-codes");
     }
 

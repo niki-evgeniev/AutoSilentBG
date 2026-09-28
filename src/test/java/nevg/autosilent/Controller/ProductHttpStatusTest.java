@@ -2,6 +2,7 @@ package nevg.autosilent.Controller;
 
 import nevg.autosilent.Models.Dto.ProductDetailsDto;
 import nevg.autosilent.Service.CategoryService;
+import nevg.autosilent.Service.CatalogSeoService;
 import nevg.autosilent.Service.ProductService;
 import nevg.autosilent.Service.SeoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,13 +34,15 @@ class ProductHttpStatusTest {
     private SeoService seoService;
     @Mock
     private CategoryService categoryService;
+    @Mock
+    private CatalogSeoService catalogSeoService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         ProductsController controller =
-                new ProductsController(productService, seoService, categoryService);
+                new ProductsController(productService, seoService, categoryService, catalogSeoService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();

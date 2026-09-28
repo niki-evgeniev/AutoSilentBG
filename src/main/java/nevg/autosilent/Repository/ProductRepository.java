@@ -40,7 +40,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByOrderByNameProductAscModelAsc();
 
     @EntityGraph(attributePaths = "pictures")
-    List<Product> findTop4ByActiveTrueOrderBySoldDescAddDateDesc();
+    List<Product> findAllByActiveTrueOrderByCountDescAddDateDesc();
 
     Page<Product> findAllByActiveTrue(Pageable pageable);
 

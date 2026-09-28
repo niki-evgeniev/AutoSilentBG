@@ -32,6 +32,12 @@
         <div th:if="${promoCodeCreated}" class="alert alert-success" th:text="#{admin.promoCodes.created}">Промокодът е
             добавен.
         </div>
+        <div th:if="${promoCodeUpdated}" class="alert alert-success" th:text="#{admin.promoCodes.updated}">
+            Отстъпката е обновена.
+        </div>
+        <div th:if="${promoCodeDeleted}" class="alert alert-success" th:text="#{admin.promoCodes.deleted}">
+            Промокодът е изтрит.
+        </div>
 
         <div class="admin-order-grid">
             <section class="admin-detail-card">
@@ -69,14 +75,38 @@
                             <th th:text="#{admin.promoCodes.discount}">Отстъпка</th>
                             <th th:text="#{admin.promoCodes.createdBy}">Добавен от</th>
                             <th th:text="#{admin.promoCodes.createdAt}">Дата</th>
+                            <th th:text="#{admin.promoCodes.actions}">Действия</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="code : ${promoCodes}">
                             <td><strong th:text="${code.code()}">CODE</strong></td>
-                            <td th:text="|${code.discountPercent()}%|">10%</td>
+                            <td>
+                                <form class="d-flex gap-2" method="post"
+                                      th:action="@{/admin/settings/promo-codes/{id}/discount(id=${code.id()})}">
+                                    <label class="visually-hidden" th:for="|promo-discount-${code.id()}|"
+                                           th:text="#{admin.promoCodes.discount}">Отстъпка</label>
+                                    <select class="form-select form-select-sm" name="discountPercent"
+                                            th:id="|promo-discount-${code.id()}|">
+                                        <option th:each="discount : ${allowedDiscounts}"
+                                                th:value="${discount}"
+                                                th:text="|${discount}%|"
+                                                th:selected="${discount == code.discountPercent()}"></option>
+                                    </select>
+                                    <button class="btn btn-sm btn-outline-primary" type="submit"
+                                            th:text="#{admin.promoCodes.update}">Промени</button>
+                                </form>
+                            </td>
                             <td th:text="${code.createdBy()}">admin@example.com</td>
                             <td th:text="${#temporals.format(code.createdAt(), 'dd.MM.yyyy HH:mm')}">01.01.2026</td>
+                            <td>
+                                <form method="post"
+                                      th:action="@{/admin/settings/promo-codes/{id}/delete(id=${code.id()})}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit"
+                                            th:attr="onclick=|return confirm('#{admin.promoCodes.deleteConfirm}')|"
+                                            th:text="#{admin.promoCodes.delete}">Изтрий</button>
+                                </form>
+                            </td>
                         </tr>
                         </tbody>
                     </table>

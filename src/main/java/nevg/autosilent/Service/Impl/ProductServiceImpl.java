@@ -11,7 +11,9 @@ import nevg.autosilent.Models.Entity.Product;
 import nevg.autosilent.Models.Entity.ProductUrlRedirect;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Models.Enums.CategoryType;
+import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Repository.CategoryRepository;
+import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Repository.ProductUrlRedirectRepository;
 import nevg.autosilent.Repository.UserRepository;
@@ -46,6 +48,8 @@ import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,6 +66,7 @@ public class ProductServiceImpl implements ProductService {
     private static final SecureRandom SKU_RANDOM = new SecureRandom();
 
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ProductUrlRedirectRepository productUrlRedirectRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -70,12 +75,14 @@ public class ProductServiceImpl implements ProductService {
     private final Path imagesDirectory;
 
     public ProductServiceImpl(ProductRepository productRepository,
+                              OrderItemRepository orderItemRepository,
                               ProductUrlRedirectRepository productUrlRedirectRepository,
                               UserRepository userRepository,
                               CategoryRepository categoryRepository,
                               SeoService seoService,
                               @Value("${AutoSilent.site-url:http://localhost:8080}") String siteUrl) {
         this.productRepository = productRepository;
+        this.orderItemRepository = orderItemRepository;
         this.productUrlRedirectRepository = productUrlRedirectRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
@@ -298,7 +305,23 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductViewDto> getBestSellingProducts() {
-        return productRepository.findTop4ByActiveTrueOrderBySoldDescAddDateDesc().stream()
+        List<Product> productsByViews = productRepository.findAllByActiveTrueOrderByCountDescAddDateDesc();
+        Map<Long, Product> activeProducts = productsByViews.stream()
+                .collect(java.util.stream.Collectors.toMap(Product::getId, product -> product));
+        Map<Long, Product> selected = new LinkedHashMap<>();
+
+        orderItemRepository.sumQuantityByProductForStatus(OrderStatus.DELIVERED).stream()
+                .map(sold -> activeProducts.get(sold.productId()))
+                .filter(java.util.Objects::nonNull)
+                .limit(4)
+                .forEach(product -> selected.put(product.getId(), product));
+
+        productsByViews.stream()
+                .filter(product -> !selected.containsKey(product.getId()))
+                .limit(4 - selected.size())
+                .forEach(product -> selected.put(product.getId(), product));
+
+        return selected.values().stream()
                 .map(this::toViewDto)
                 .toList();
     }

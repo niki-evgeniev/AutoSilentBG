@@ -1236,6 +1236,18 @@ a {
     margin: 0;
 }
 
+.category-intro {
+    display: grid;
+    gap: 10px;
+    padding-left: 18px;
+    border-left: 3px solid var(--color-orange);
+}
+
+.category-intro p:last-child {
+    color: #667085;
+    font-size: 16px;
+}
+
 .shop-search-box {
     background: rgba(255, 255, 255, 0.82);
     border: 1px solid rgba(255, 255, 255, 0.9);
