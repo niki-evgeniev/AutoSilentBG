@@ -1,6 +1,7 @@
 package nevg.autosilent.Service;
 
 import nevg.autosilent.Models.Dto.SeoPageMetadata;
+import nevg.autosilent.Service.Impl.SeoUrlServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -10,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SeoUrlServiceTest {
 
-    private final SeoUrlService service = new SeoUrlService("https://autosilent.bg/");
+    private final SeoUrlService service = new SeoUrlServiceImpl("https://autosilent.bg/");
 
     @Test
     void englishCatalogUiCanonicalizesToBulgarianCatalogAndKeepsOnlyPagination() {

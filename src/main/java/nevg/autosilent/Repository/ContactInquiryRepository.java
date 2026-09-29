@@ -7,5 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ContactInquiryRepository extends JpaRepository<ContactInquiry, Long> {
 
+    long countByReadFalse();
+
     Page<ContactInquiry> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

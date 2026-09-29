@@ -1,5 +1,6 @@
 package nevg.autosilent.Service;
 
+import nevg.autosilent.Service.Impl.ClientIpResolverImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -13,7 +14,7 @@ class ClientIpResolverTest {
         request.setRemoteAddr("192.0.2.20");
         request.addHeader("CF-Connecting-IP", "203.0.113.10");
 
-        assertThat(new ClientIpResolver(false).resolve(request)).isEqualTo("192.0.2.20");
+        assertThat(new ClientIpResolverImpl(false).resolve(request)).isEqualTo("192.0.2.20");
     }
 
     @Test
@@ -22,7 +23,7 @@ class ClientIpResolverTest {
         request.setRemoteAddr("192.0.2.20");
         request.addHeader("CF-Connecting-IP", "203.0.113.10");
 
-        assertThat(new ClientIpResolver(true).resolve(request)).isEqualTo("203.0.113.10");
+        assertThat(new ClientIpResolverImpl(true).resolve(request)).isEqualTo("203.0.113.10");
     }
 
     @Test
@@ -31,6 +32,6 @@ class ClientIpResolverTest {
         request.setRemoteAddr("192.0.2.20");
         request.addHeader("CF-Connecting-IP", "attacker.example");
 
-        assertThat(new ClientIpResolver(true).resolve(request)).isEqualTo("192.0.2.20");
+        assertThat(new ClientIpResolverImpl(true).resolve(request)).isEqualTo("192.0.2.20");
     }
 }

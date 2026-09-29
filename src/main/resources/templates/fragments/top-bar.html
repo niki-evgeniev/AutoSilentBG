@@ -101,6 +101,12 @@
             </form>
         </div>
     </div>
+    <div sec:authorize="hasRole('ADMIN')" class="container admin-top-bar-stats" aria-label="Admin statistics">
+        <a th:href="@{/admin/orders(status=NEW)}"><span th:text="#{admin.topBar.newOrders}">New orders</span>: <strong th:text="${adminTopBar.newOrders}">0</strong></a>
+        <a th:href="@{/admin/inquiries}"><span th:text="#{admin.topBar.newInquiries}">New inquiries</span>: <strong th:text="${adminTopBar.newInquiries}">0</strong></a>
+        <a th:href="@{/admin/ip-addresses}"><span th:text="#{admin.ipAddresses.totalVisits}">Total visits</span>: <strong th:text="${adminTopBar.totalVisits}">0</strong></a>
+        <a th:href="@{/admin/ip-addresses}"><span th:text="#{admin.ipAddresses.todayVisits}">Unique visitors today</span>: <strong th:text="${adminTopBar.todayVisitors}">0</strong></a>
+    </div>
 </div>
 </body>
 </html>

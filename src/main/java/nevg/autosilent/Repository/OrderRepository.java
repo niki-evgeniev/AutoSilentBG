@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
+    long countByOrderStatus(OrderStatus orderStatus);
+
     List<OrderEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     Optional<OrderEntity> findByOrderNumber(String orderNumber);
