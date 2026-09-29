@@ -108,8 +108,7 @@ class AdminIpAddressServiceImplTest {
     void visitStatisticsContainsAllVisitsAndUniqueAddressesSeenToday() {
         LocalDate today = LocalDate.now();
         when(repository.sumAllVisits()).thenReturn(321L);
-        when(repository.countAddressesSeenBetween(
-                today.atStartOfDay(), today.plusDays(1).atStartOfDay())).thenReturn(27L);
+        when(repository.countAddressesVisitedOn(today)).thenReturn(27L);
 
         var result = service.getVisitStatistics();
 

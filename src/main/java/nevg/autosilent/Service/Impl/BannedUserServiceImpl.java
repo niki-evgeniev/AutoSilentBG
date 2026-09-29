@@ -53,13 +53,17 @@ public class BannedUserServiceImpl implements BannedUserService {
 
     @Override
     @Transactional
-    public synchronized boolean recordVisitAndCheckIfBanned(String address, String username) {
+    public synchronized boolean recordVisitAndCheckIfBanned(String address,
+                                                             String username,
+                                                             boolean countAsUniqueVisitor) {
         LocalDateTime now = LocalDateTime.now(clock);
         IpAddress ipAddress = findOrCreateForUpdate(address, now);
 
         ipAddress.setLastSeen(now);
         ipAddress.setCountVisits(ipAddress.getCountVisits() + 1);
-        recordDailyVisit(ipAddress, now.toLocalDate());
+        if (countAsUniqueVisitor) {
+            recordDailyVisit(ipAddress, now.toLocalDate());
+        }
         linkUserWhenAvailable(ipAddress, username);
 
         if (hasActiveBan(ipAddress, now)) {

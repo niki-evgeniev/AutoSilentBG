@@ -46,9 +46,11 @@ public class BannedUserInterceptor implements HandlerInterceptor {
         String ipAddress = clientIpResolver.resolve(request);
         Principal principal = request.getUserPrincipal();
         String username = principal == null ? null : principal.getName();
+        boolean countAsUniqueVisitor = !request.isUserInRole("ADMIN");
 
         try {
-            if (!bannedUserService.recordVisitAndCheckIfBanned(ipAddress, username)) return true;
+            if (!bannedUserService.recordVisitAndCheckIfBanned(
+                    ipAddress, username, countAsUniqueVisitor)) return true;
         } catch (RuntimeException exception) {
             LOGGER.warn("IP ban check failed for {}. Allowing the request to preserve availability.",
                     ipAddress, exception);

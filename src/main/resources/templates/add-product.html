@@ -27,7 +27,7 @@
                 </ol>
             </nav>
             <span class="eyebrow" th:text="#{add.catalog}">Управление на каталога</span>
-            <h1 th:text="${editMode} ? #{edit.heading} : #{add.heading}">Добави нов продукт</h1>
+            <h1 th:text="${kitMode == true} ? 'Добави кит' : (${editMode} ? #{edit.heading} : #{add.heading})">Добави нов продукт</h1>
             <p th:text="#{add.intro}">Попълни информацията и добави качествени снимки на продукта.</p>
         </div>
     </section>
@@ -38,7 +38,7 @@
                 <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{add.success}"></span>
             </div>
 
-            <form th:action="${editMode} ? @{/products/{id}/edit(id=${productId})} : @{/products/add}"
+            <form th:action="${editMode} ? @{/products/{id}/edit(id=${productId})} : (${kitMode == true} ? @{/admin/settings/kits} : @{/products/add})"
                   th:object="${product}" method="post"
                   enctype="multipart/form-data" class="product-editor" novalidate>
                 <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
@@ -112,6 +112,7 @@
                                           th:errorclass="is-invalid" rows="14" maxlength="10000"
                                           th:placeholder="#{add.description.placeholder}"></textarea>
                                 <div class="form-hint" th:text="#{add.description.hint}">Между 10 и 10000 символа.</div>
+                                <div class="form-hint" th:if="${kitMode == true}">Опишете продуктите, включени в кита, тук.</div>
                                 <div class="invalid-feedback d-block" th:errors="*{description}"></div>
                             </div>
                         </div>

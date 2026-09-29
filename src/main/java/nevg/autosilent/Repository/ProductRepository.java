@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    Page<Product> findAllByActiveTrueAndCategoryCategoryIgnoreCase(String category, Pageable pageable);
+    Optional<Product> findByUrlAndActiveTrueAndCategoryCategoryIgnoreCase(String url, String category);
 
     @Query("""
             select new nevg.autosilent.Models.Dto.SitemapProductDto(

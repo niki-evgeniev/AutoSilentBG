@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,10 +20,8 @@ public interface IpAddressRepository extends JpaRepository<IpAddress, Long> {
     @Query("select coalesce(sum(ip.countVisits), 0) from IpAddress ip")
     long sumAllVisits();
 
-    @Query("select count(ip) from IpAddress ip " +
-            "where ip.lastSeen >= :startOfDay and ip.lastSeen < :startOfNextDay")
-    long countAddressesSeenBetween(@Param("startOfDay") LocalDateTime startOfDay,
-                                   @Param("startOfNextDay") LocalDateTime startOfNextDay);
+    @Query("select count(ip) from IpAddress ip where ip.visitsDate = :date")
+    long countAddressesVisitedOn(@Param("date") LocalDate date);
 
     @Modifying
     @Query(value = """

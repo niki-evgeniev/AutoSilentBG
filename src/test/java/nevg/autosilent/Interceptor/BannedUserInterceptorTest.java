@@ -61,7 +61,7 @@ class BannedUserInterceptorTest {
     @Test
     void preHandleAllowsRequestWhenAddressIsNotBanned() throws Exception {
         when(clientIpResolver.resolve(request)).thenReturn("203.0.113.10");
-        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null)).thenReturn(false);
+        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null, true)).thenReturn(false);
 
         boolean result = interceptor(true).preHandle(request, response, new Object());
 
@@ -74,19 +74,34 @@ class BannedUserInterceptorTest {
     void preHandlePassesAuthenticatedPrincipalNameToBanService() throws Exception {
         request.setUserPrincipal((Principal) () -> "user@example.com");
         when(clientIpResolver.resolve(request)).thenReturn("203.0.113.10");
-        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", "user@example.com"))
+        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", "user@example.com", true))
                 .thenReturn(false);
 
         boolean result = interceptor(true).preHandle(request, response, new Object());
 
         assertThat(result).isTrue();
-        verify(bannedUserService).recordVisitAndCheckIfBanned("203.0.113.10", "user@example.com");
+        verify(bannedUserService).recordVisitAndCheckIfBanned("203.0.113.10", "user@example.com", true);
+    }
+
+    @Test
+    void preHandleDoesNotCountAuthenticatedAdminAsUniqueVisitor() throws Exception {
+        request.setUserPrincipal((Principal) () -> "admin@example.com");
+        request.addUserRole("ADMIN");
+        when(clientIpResolver.resolve(request)).thenReturn("203.0.113.10");
+        when(bannedUserService.recordVisitAndCheckIfBanned(
+                "203.0.113.10", "admin@example.com", false)).thenReturn(false);
+
+        boolean result = interceptor(true).preHandle(request, response, new Object());
+
+        assertThat(result).isTrue();
+        verify(bannedUserService).recordVisitAndCheckIfBanned(
+                "203.0.113.10", "admin@example.com", false);
     }
 
     @Test
     void preHandleRendersBannedViewWhenAddressIsBanned() throws Exception {
         when(clientIpResolver.resolve(request)).thenReturn("203.0.113.10");
-        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null)).thenReturn(true);
+        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null, true)).thenReturn(true);
         when(thymeleafViewResolver.resolveViewName("bannedUser", Locale.ENGLISH)).thenReturn(bannedView);
 
         boolean result = interceptor(true).preHandle(request, response, new Object());
@@ -100,7 +115,7 @@ class BannedUserInterceptorTest {
     @Test
     void preHandleSendsServiceUnavailableWhenBannedViewCannotBeResolved() throws Exception {
         when(clientIpResolver.resolve(request)).thenReturn("203.0.113.10");
-        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null)).thenReturn(true);
+        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null, true)).thenReturn(true);
         when(thymeleafViewResolver.resolveViewName("bannedUser", Locale.ENGLISH)).thenReturn(null);
 
         boolean result = interceptor(true).preHandle(request, response, new Object());
@@ -113,7 +128,7 @@ class BannedUserInterceptorTest {
     @Test
     void preHandleAllowsRequestWhenBanServiceFails() throws Exception {
         when(clientIpResolver.resolve(request)).thenReturn("203.0.113.10");
-        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null))
+        when(bannedUserService.recordVisitAndCheckIfBanned("203.0.113.10", null, true))
                 .thenThrow(new IllegalStateException("database unavailable"));
 
         boolean result = interceptor(true).preHandle(request, response, new Object());

@@ -34,9 +34,9 @@ class BannedUserServiceImplTest {
                 .thenReturn(Optional.of(ipAddress));
         BannedUserServiceImpl service = serviceWithLimit(2);
 
-        assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isFalse();
-        assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isFalse();
-        assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null)).isTrue();
+        assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null, true)).isFalse();
+        assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null, true)).isFalse();
+        assertThat(service.recordVisitAndCheckIfBanned("192.0.2.10", null, true)).isTrue();
         verify(ipAddressRepository, never())
                 .insertIfAbsent(any(), eq("192.0.2.10"), any());
     }
@@ -49,7 +49,7 @@ class BannedUserServiceImplTest {
         when(ipAddressRepository.findByAddressForUpdate(address))
                 .thenReturn(Optional.empty(), Optional.of(insertedAddress));
 
-        assertThat(serviceWithLimit(100).recordVisitAndCheckIfBanned(address, null)).isFalse();
+        assertThat(serviceWithLimit(100).recordVisitAndCheckIfBanned(address, null, true)).isFalse();
 
         verify(ipAddressRepository, times(1)).insertIfAbsent(any(), eq(address), any());
         assertThat(insertedAddress.getCountVisits()).isEqualTo(1);
@@ -66,7 +66,7 @@ class BannedUserServiceImplTest {
         when(ipAddressRepository.findByAddressForUpdate(ipAddress.getAddress()))
                 .thenReturn(Optional.of(ipAddress));
 
-        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), null);
+        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), null, true);
 
         assertThat(ipAddress.getVisitsToday()).isEqualTo(5);
     }
@@ -79,10 +79,27 @@ class BannedUserServiceImplTest {
         when(ipAddressRepository.findByAddressForUpdate(ipAddress.getAddress()))
                 .thenReturn(Optional.of(ipAddress));
 
-        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), null);
+        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), null, true);
 
         assertThat(ipAddress.getVisitsDate()).isEqualTo(LocalDateTime.now(clock).toLocalDate());
         assertThat(ipAddress.getVisitsToday()).isEqualTo(1);
+    }
+
+    @Test
+    void adminRequestUpdatesLastSeenWithoutMarkingUniqueVisit() {
+        IpAddress ipAddress = storedAddress();
+        LocalDateTime previousLastSeen = LocalDateTime.now(clock).minusHours(2);
+        ipAddress.setLastSeen(previousLastSeen);
+        ipAddress.setVisitsDate(LocalDateTime.now(clock).toLocalDate().minusDays(1));
+        ipAddress.setVisitsToday(12);
+        when(ipAddressRepository.findByAddressForUpdate(ipAddress.getAddress()))
+                .thenReturn(Optional.of(ipAddress));
+
+        serviceWithLimit(100).recordVisitAndCheckIfBanned(ipAddress.getAddress(), "admin@example.com", false);
+
+        assertThat(ipAddress.getLastSeen()).isEqualTo(LocalDateTime.now(clock));
+        assertThat(ipAddress.getVisitsDate()).isEqualTo(LocalDateTime.now(clock).toLocalDate().minusDays(1));
+        assertThat(ipAddress.getVisitsToday()).isEqualTo(12);
     }
 
     @Test
