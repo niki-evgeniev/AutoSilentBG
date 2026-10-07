@@ -16,11 +16,23 @@ public record ProductDetailsDto(
         String description,
         int stock,
         long count,
-        List<String> imageUrls
+        List<String> imageUrls,
+        String secondaryCategory
 ) {
+    public ProductDetailsDto(Long id, String url, String name, String model, String sku,
+                             String category, BigDecimal price, String description, int stock,
+                             long count, List<String> imageUrls) {
+        this(id, url, name, model, sku, category, price, description, stock, count, imageUrls, null);
+    }
+
     public ProductDetailsDto(Long id, String name, String sku, String category, BigDecimal price,
                              String description, int stock, long count, List<String> imageUrls) {
-        this(id, null, name, null, sku, category, price, description, stock, count, imageUrls);
+        this(id, null, name, null, sku, category, price, description, stock, count, imageUrls, null);
+    }
+
+    public String categoryHeading() {
+        return secondaryCategory == null || secondaryCategory.isBlank()
+                ? category : category + " - " + secondaryCategory;
     }
 
     public String displayName() {

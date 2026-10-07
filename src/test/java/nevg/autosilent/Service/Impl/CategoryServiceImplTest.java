@@ -3,6 +3,7 @@ package nevg.autosilent.Service.Impl;
 import nevg.autosilent.Models.Dto.CategoryCreateDto;
 import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Repository.CategoryRepository;
+import nevg.autosilent.Repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,12 +23,14 @@ class CategoryServiceImplTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private ProductRepository productRepository;
 
     private CategoryServiceImpl categoryService;
 
     @BeforeEach
     void setUp() {
-        categoryService = new CategoryServiceImpl(categoryRepository);
+        categoryService = new CategoryServiceImpl(categoryRepository, productRepository);
     }
 
     @Test
@@ -64,6 +67,28 @@ class CategoryServiceImplTest {
                 .containsExactly(
                         org.assertj.core.groups.Tuple.tuple(1L, "Audio"),
                         org.assertj.core.groups.Tuple.tuple(2L, "Изолация"));
+    }
+
+    @Test
+    void deleteRejectsCategoryWithProducts() {
+        when(categoryRepository.findById(4L)).thenReturn(java.util.Optional.of(category(4L, "Audio")));
+        when(productRepository.existsByCategoryId(4L)).thenReturn(true);
+
+        assertThatThrownBy(() -> categoryService.delete(4L))
+                .isInstanceOf(IllegalArgumentException.class);
+        org.mockito.Mockito.verify(categoryRepository, org.mockito.Mockito.never())
+                .delete(org.mockito.ArgumentMatchers.any(Category.class));
+    }
+
+    @Test
+    void deleteRejectsCategoryUsedAsSecondCategory() {
+        when(categoryRepository.findById(4L)).thenReturn(java.util.Optional.of(category(4L, "Audio")));
+        when(productRepository.existsBySecondaryCategoryId(4L)).thenReturn(true);
+
+        assertThatThrownBy(() -> categoryService.delete(4L))
+                .isInstanceOf(IllegalArgumentException.class);
+        org.mockito.Mockito.verify(categoryRepository, org.mockito.Mockito.never())
+                .delete(org.mockito.ArgumentMatchers.any(Category.class));
     }
 
     @Test

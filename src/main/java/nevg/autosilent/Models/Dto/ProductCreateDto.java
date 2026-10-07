@@ -25,6 +25,8 @@ public class ProductCreateDto {
     @NotNull(message = "{validation.product.category.required}")
     private Long categoryId;
 
+    private Long secondaryCategoryId;
+
     @NotNull(message = "{validation.product.price.required}")
     @DecimalMin(value = "0.01", message = "{validation.product.price.min}")
     @Digits(integer = 10, fraction = 2, message = "{validation.product.price.digits}")
@@ -43,6 +45,12 @@ public class ProductCreateDto {
     private List<Long> removedImageIds = new ArrayList<>();
     private Long existingMainImageId;
     private List<ProductImageEditDto> existingImages = new ArrayList<>();
+    private List<KitComponentDto> components = new ArrayList<>();
+
+    public List<KitComponentDto> getComponents() { return components; }
+    public void setComponents(List<KitComponentDto> components) {
+        this.components = components == null ? new ArrayList<>() : components;
+    }
 
     public String getNameProduct() {
         return nameProduct;
@@ -66,6 +74,14 @@ public class ProductCreateDto {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Long getSecondaryCategoryId() {
+        return secondaryCategoryId;
+    }
+
+    public void setSecondaryCategoryId(Long secondaryCategoryId) {
+        this.secondaryCategoryId = secondaryCategoryId;
     }
 
     public BigDecimal getPrice() {

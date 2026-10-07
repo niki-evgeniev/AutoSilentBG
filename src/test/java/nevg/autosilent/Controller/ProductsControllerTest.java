@@ -238,6 +238,7 @@ class ProductsControllerTest {
 
         assertThat(result.getViewName()).isEqualTo("product-details");
         assertThat(result.getModel().get("product")).isSameAs(product);
+        verify(productService).getRelatedProducts(7L);
     }
 
     @Test
@@ -253,6 +254,7 @@ class ProductsControllerTest {
 
         assertThat(result.getViewName()).isEqualTo("product-details");
         assertThat(result.getModel().get("product")).isSameAs(product);
+        verify(productService).getRelatedProducts(7L);
         verify(seoService).getForProduct(7L);
     }
 

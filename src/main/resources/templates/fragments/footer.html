@@ -38,6 +38,8 @@
                 <h3 th:text="#{footer.help}">Помощ</h3>
                 <a href="#" th:text="#{footer.faq}">Често задавани въпроси</a>
                 <a th:href="@{/privacy-policy}" th:text="#{footer.privacy}">Политика за личните данни (GDPR)</a>
+                <button type="button" id="cookie-settings-link" class="cookie-settings-trigger"
+                        th:text="#{cookie.settings}">Настройки на бисквитките</button>
                 <a th:href="@{/payment}" th:text="#{footer.payment}">Плащане</a>
                 <a th:href="@{/contact}" th:text="#{footer.contacts}">Контакти</a>
             </div>
@@ -46,6 +48,11 @@
                 <p class="footer-contact-line"><i class="bi bi-telephone me-2"></i><a class="fw-bold ms-1"
                                                                                       href="tel:+359895020304">+359 895
                     02 03 04</a></p>
+                <p class="footer-contact-line footer-viber-line"><i class="bi bi-chat-dots me-2" aria-hidden="true"></i>
+                    <a class="fw-bold ms-1" href="viber://chat?number=%2B359895020304">
+                        <span th:text="#{footer.viber}">Пиши във Viber</span> · +359 895 02 03 04
+                    </a>
+                </p>
                 <p class="footer-contact-line"><i class="bi bi-envelope me-2"></i><a
                         href="mailto:autosilentbg@gmail.com">autosilentbg@gmail.com</a></p>
                 <p class="footer-address-line"><i class="bi bi-geo-alt me-2"></i><span th:text="#{contact.address}">гр. Горна Оряховица, България</span>
@@ -56,6 +63,61 @@
             запазени.
         </div>
     </div>
+    <dialog id="cookie-consent-dialog" class="cookie-consent-dialog" aria-labelledby="cookie-consent-title"
+            aria-describedby="cookie-consent-description">
+        <div class="cookie-consent-icon" aria-hidden="true"><i class="bi bi-shield-check"></i></div>
+        <h2 id="cookie-consent-title" th:text="#{cookie.title}">Бисквитки</h2>
+        <p id="cookie-consent-description" th:text="#{cookie.description}">
+            Необходимите бисквитки поддържат сайта. Други използваме само с Ваше съгласие.
+        </p>
+        <a class="cookie-consent-policy" th:href="@{/privacy-policy}" th:text="#{cookie.policy}">Научете повече</a>
+        <div class="cookie-consent-actions">
+            <button type="button" class="cookie-consent-essential" data-cookie-choice="necessary"
+                    th:text="#{cookie.necessary}">Само нужните</button>
+            <button type="button" class="btn btn-orange cookie-consent-accept" data-cookie-choice="all"
+                    th:text="#{cookie.accept}">Приемам всички</button>
+        </div>
+    </dialog>
+    <script>
+        (function () {
+            const dialog = document.getElementById('cookie-consent-dialog');
+            const settingsButton = document.getElementById('cookie-settings-link');
+            const storageKey = 'AutoSilent-cookie-consent-v1';
+
+            if (!dialog || !settingsButton) return;
+
+            function savedChoice() {
+                try {
+                    return localStorage.getItem(storageKey);
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            function openDialog() {
+                if (!dialog.open) dialog.showModal();
+            }
+
+            dialog.addEventListener('cancel', function (event) {
+                event.preventDefault();
+            });
+
+            dialog.querySelectorAll('[data-cookie-choice]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    try {
+                        localStorage.setItem(storageKey, button.dataset.cookieChoice);
+                    } catch (error) {
+                        // The choice still closes the dialog when browser storage is unavailable.
+                    }
+                    dialog.close();
+                });
+            });
+
+            settingsButton.addEventListener('click', openDialog);
+
+            if (savedChoice() !== 'all' && savedChoice() !== 'necessary') openDialog();
+        })();
+    </script>
 </footer>
 </body>
 </html>

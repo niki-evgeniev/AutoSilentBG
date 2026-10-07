@@ -43,6 +43,17 @@
                             <span th:text="#{site.addProduct}">Добави продукт</span>
                         </a>
                     </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a class="dropdown-item" th:href="@{/admin/settings/kits}">
+                            <i class="bi bi-boxes me-2"></i><span>Добави китове</span>
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a class="dropdown-item" th:href="@{/admin/settings/categories}">
+                            <i class="bi bi-grid me-2"></i>
+                            <span th:text="#{admin.categories.add}">Добави категория</span>
+                        </a>
+                    </li>
                     <li>
                         <a class="dropdown-item" th:href="@{/admin/orders}">
                             <i class="bi bi-receipt me-2"></i>
@@ -56,20 +67,9 @@
                         </a>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')">
-                        <a class="dropdown-item" th:href="@{/admin/settings/kits}">
-                            <i class="bi bi-boxes me-2"></i><span>Добави китове</span>
-                        </a>
-                    </li>
-                    <li sec:authorize="hasRole('ADMIN')">
                         <a class="dropdown-item" th:href="@{/admin/users}">
                             <i class="bi bi-people me-2"></i>
                             <span th:text="#{admin.users}">Профили</span>
-                        </a>
-                    </li>
-                    <li sec:authorize="hasRole('ADMIN')">
-                        <a class="dropdown-item" th:href="@{/admin/settings/categories}">
-                            <i class="bi bi-grid me-2"></i>
-                            <span th:text="#{admin.categories.add}">Добави категория</span>
                         </a>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')">

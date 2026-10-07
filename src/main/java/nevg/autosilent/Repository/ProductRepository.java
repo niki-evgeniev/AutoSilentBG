@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    boolean existsByCategoryId(Long categoryId);
+    boolean existsBySecondaryCategoryId(Long categoryId);
     Page<Product> findAllByActiveTrueAndCategoryCategoryIgnoreCase(String category, Pageable pageable);
     Optional<Product> findByUrlAndActiveTrueAndCategoryCategoryIgnoreCase(String url, String category);
 
@@ -34,8 +36,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsBySkuIgnoreCase(String sku);
 
     boolean existsByUrl(String url);
+    Optional<Product> findByNameProductIgnoreCaseAndModelIgnoreCase(String nameProduct, String model);
 
-    @EntityGraph(attributePaths = "pictures")
+    @EntityGraph(attributePaths = {"pictures", "category"})
     List<Product> findAllByActiveTrueOrderByAddDateDesc();
 
     @EntityGraph(attributePaths = "category")
@@ -46,12 +49,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findAllByActiveTrue(Pageable pageable);
 
-    Page<Product> findAllByActiveTrueAndCategoryId(Long categoryId, Pageable pageable);
+    @Query("""
+            select p from Product p left join p.secondaryCategory secondary
+            where p.active = true and (p.category.id = :categoryId or secondary.id = :categoryId)
+            """)
+    Page<Product> findAllByActiveTrueAndCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
     @Query(value = """
-            select p from Product p
+            select p from Product p left join p.secondaryCategory secondary
             where p.active = true
-              and (:categoryId is null or p.category.id = :categoryId)
+              and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId)
               and (:brand is null or lower(p.nameProduct) = lower(:brand))
               and (:model is null or lower(p.model) = lower(:model))
               and (:minPrice is null or p.price >= :minPrice)
@@ -62,12 +69,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                    lower(p.model) like lower(concat('%', :search, '%')) or
                    lower(p.sku) like lower(concat('%', :search, '%')) or
                    lower(p.category.category) like lower(concat('%', :search, '%')) or
+                   lower(secondary.category) like lower(concat('%', :search, '%')) or
                    lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
             """,
             countQuery = """
-                    select count(p) from Product p
+                    select count(p) from Product p left join p.secondaryCategory secondary
                     where p.active = true
-                      and (:categoryId is null or p.category.id = :categoryId)
+                      and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId)
                       and (:brand is null or lower(p.nameProduct) = lower(:brand))
                       and (:model is null or lower(p.model) = lower(:model))
                       and (:minPrice is null or p.price >= :minPrice)
@@ -78,6 +86,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                            lower(p.model) like lower(concat('%', :search, '%')) or
                            lower(p.sku) like lower(concat('%', :search, '%')) or
                            lower(p.category.category) like lower(concat('%', :search, '%')) or
+                           lower(secondary.category) like lower(concat('%', :search, '%')) or
                            lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
                     """)
     Page<Product> filterActive(@Param("search") String search,
@@ -107,12 +116,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @EntityGraph(attributePaths = "pictures")
     @Query("""
-            select p from Product p
+            select p from Product p left join p.secondaryCategory secondary
             where p.active = true and (
                 lower(p.nameProduct) like lower(concat('%', :search, '%')) or
                 lower(p.model) like lower(concat('%', :search, '%')) or
                 lower(p.sku) like lower(concat('%', :search, '%')) or
-                        lower(p.category.category) like lower(concat('%', :search, '%')) or
+                lower(p.category.category) like lower(concat('%', :search, '%')) or
+                lower(secondary.category) like lower(concat('%', :search, '%')) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
             )
             order by p.addDate desc
@@ -120,22 +130,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> searchActive(@Param("search") String search);
 
     @Query(value = """
-            select p from Product p
+            select p from Product p left join p.secondaryCategory secondary
             where p.active = true and (
                 lower(p.nameProduct) like lower(concat('%', :search, '%')) or
                 lower(p.model) like lower(concat('%', :search, '%')) or
                 lower(p.sku) like lower(concat('%', :search, '%')) or
                 lower(p.category.category) like lower(concat('%', :search, '%')) or
+                lower(secondary.category) like lower(concat('%', :search, '%')) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
             )
             """,
             countQuery = """
-                        select count(p) from Product p
+                        select count(p) from Product p left join p.secondaryCategory secondary
                         where p.active = true and (
                             lower(p.nameProduct) like lower(concat('%', :search, '%')) or
                             lower(p.model) like lower(concat('%', :search, '%')) or
                             lower(p.sku) like lower(concat('%', :search, '%')) or
-                    lower(p.category.category) like lower(concat('%', :search, '%')) or
+                            lower(p.category.category) like lower(concat('%', :search, '%')) or
+                            lower(secondary.category) like lower(concat('%', :search, '%')) or
                             lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
                         )
                     """)

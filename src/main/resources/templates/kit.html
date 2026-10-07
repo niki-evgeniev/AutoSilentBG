@@ -16,7 +16,7 @@
             <li class="breadcrumb-item"><a th:href="@{/}">Начало</a></li><li class="breadcrumb-item active">Китове</li>
         </ol></nav>
         <div class="section-title text-start"><span>AutoSilent</span><h1>Китове</h1>
-            <p>Комплекти от 2 до 4 продукта.</p></div>
+            <p>Готови комплекти от продукти за шумоизолация.</p></div>
         <div class="row g-4" th:if="${!kits.empty}">
             <div class="col-12 col-sm-6 col-xl-4" th:each="kit : ${kits.content}">
                 <article class="product-card shop-product-card tilt-card">
@@ -42,4 +42,5 @@
 </main>
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/shop.js"></script>
 </body></html>

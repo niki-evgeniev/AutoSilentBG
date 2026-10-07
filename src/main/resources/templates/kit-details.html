@@ -34,6 +34,22 @@
     <div class="product-information-card tilt-card mt-5">
         <h2>Описание</h2><div class="product-description-content" th:utext="${product.description()}"></div>
     </div>
+    <div class="product-information-card tilt-card mt-4" th:if="${!kitItems.empty}">
+        <h2>Продукти в кита</h2>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center gap-3" th:each="item : ${kitItems}">
+                <a class="d-flex align-items-center gap-3 text-decoration-none" th:href="@{/shumoizolaciya/{id}(id=${item.product.id})}">
+                    <span class="kit-product-thumb">
+                        <img th:if="${kitItemImages[item.product.id] != null}" th:src="${kitItemImages[item.product.id]}"
+                             th:alt="${item.product.displayName}" loading="lazy">
+                        <i th:unless="${kitItemImages[item.product.id] != null}" class="bi bi-image" aria-hidden="true"></i>
+                    </span>
+                    <span th:text="${item.product.displayName}">Продукт</span>
+                </a>
+                <span th:text="|${item.quantity} бр.|">1 бр.</span>
+            </li>
+        </ul>
+    </div>
 </section></main><div th:replace="~{fragments/footer :: footer}"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><script src="/js/shop.js"></script>
 </body></html>

@@ -18,9 +18,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("""
             select new nevg.autosilent.Models.Dto.SitemapCategoryDto(
                 c.id, c.category, max(coalesce(p.contentUpdatedAt, p.addDate)))
-            from Category c
-            join c.products p
-            where p.active = true
+            from Category c, Product p
+            where (p.category = c or p.secondaryCategory = c)
+              and p.active = true
             group by c.id, c.category
             order by c.category
             """)

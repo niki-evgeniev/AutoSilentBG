@@ -12,6 +12,7 @@ import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.OrderRepository;
 import nevg.autosilent.Repository.OrderStatusHistoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.KitRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.Exception.OrderCreationException;
 import nevg.autosilent.Service.OrderService;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.HashMap;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -43,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final PromoCodeService promoCodeService;
     private final MessageSource messageSource;
+    private final KitRepository kitRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderItemRepository orderItemRepository,
@@ -50,7 +53,8 @@ public class OrderServiceImpl implements OrderService {
                             ProductRepository productRepository,
                             UserRepository userRepository,
                             PromoCodeService promoCodeService,
-                            MessageSource messageSource) {
+                            MessageSource messageSource,
+                            KitRepository kitRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.statusHistoryRepository = statusHistoryRepository;
@@ -58,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
         this.userRepository = userRepository;
         this.promoCodeService = promoCodeService;
         this.messageSource = messageSource;
+        this.kitRepository = kitRepository;
     }
 
     @Override
@@ -132,6 +137,33 @@ public class OrderServiceImpl implements OrderService {
                                 BigDecimal customerDiscountPercent,
                                 String promoCode) {
         List<PreparedItem> preparedItems = normalize(requests).stream().map(this::prepareItem).toList();
+        Map<Long, Integer> stockNeeded = new HashMap<>();
+        Map<Long, Product> stockProducts = new HashMap<>();
+        for (PreparedItem item : preparedItems) {
+            var kit = kitRepository.findByCatalogProductId(item.product().getId());
+            if (kit.isEmpty()) {
+                stockNeeded.merge(item.product().getId(), item.quantity(), this::addQuantities);
+                stockProducts.put(item.product().getId(), item.product());
+            } else {
+                for (KitItem component : kit.get().getItems()) {
+                    int required;
+                    try {
+                        required = Math.multiplyExact(item.quantity(), component.getQuantity());
+                    } catch (ArithmeticException exception) {
+                        throw new OrderCreationException(message("order.error.quantityTooLarge"));
+                    }
+                    stockNeeded.merge(component.getProduct().getId(), required, this::addQuantities);
+                }
+            }
+        }
+        for (Long id : stockNeeded.keySet().stream().sorted().toList()) {
+            Product stockProduct = productRepository.findActiveByIdForUpdate(id)
+                    .orElseThrow(() -> new OrderCreationException(message("order.error.productUnavailable")));
+            stockProducts.put(id, stockProduct);
+            if (stockProduct.getStock() < stockNeeded.get(id)) {
+                throw new OrderCreationException(message("order.error.insufficientStock", stockProduct.getNameProduct()));
+            }
+        }
         BigDecimal subtotal = preparedItems.stream()
                 .map(item -> item.product().getPrice().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -153,8 +185,11 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
         orderItemRepository.saveAll(orderItems);
 
-        preparedItems.forEach(item -> item.product().setStock(item.product().getStock() - item.quantity()));
-        productRepository.saveAll(preparedItems.stream().map(PreparedItem::product).toList());
+        stockNeeded.forEach((id, quantity) -> {
+            Product stockProduct = stockProducts.get(id);
+            stockProduct.setStock(stockProduct.getStock() - quantity);
+        });
+        productRepository.saveAll(stockProducts.values().stream().toList());
 
         OrderStatusHistoryEntity history = new OrderStatusHistoryEntity();
         history.setOrder(order);
@@ -214,13 +249,22 @@ public class OrderServiceImpl implements OrderService {
         return customerPercent.min(BigDecimal.valueOf(100));
     }
 
+    private int addQuantities(int current, int added) {
+        try {
+            return Math.addExact(current, added);
+        } catch (ArithmeticException exception) {
+            throw new OrderCreationException(message("order.error.quantityTooLarge"));
+        }
+    }
+
     private PreparedItem prepareItem(CartItemOrderDto request) {
         if (request == null || request.productId() == null || request.quantity() < 1) {
             throw new OrderCreationException(message("order.error.invalidItem"));
         }
         Product product = productRepository.findActiveByIdForUpdate(request.productId())
                 .orElseThrow(() -> new OrderCreationException(message("order.error.productUnavailable")));
-        if (product.getStock() < request.quantity()) {
+        if (kitRepository.findByCatalogProductId(product.getId()).isEmpty()
+                && product.getStock() < request.quantity()) {
             throw new OrderCreationException(message("order.error.insufficientStock", product.getNameProduct()));
         }
         return new PreparedItem(product, request.quantity());

@@ -4,6 +4,7 @@ import nevg.autosilent.Models.Dto.CategoryCreateDto;
 import nevg.autosilent.Models.Dto.CategoryViewDto;
 import nevg.autosilent.Models.Entity.Category;
 import nevg.autosilent.Repository.CategoryRepository;
+import nevg.autosilent.Repository.ProductRepository;
 import nevg.autosilent.Service.CategoryService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,27 @@ import java.util.Optional;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Категорията не е намерена."));
+        if (productRepository.existsByCategoryId(id) || productRepository.existsBySecondaryCategoryId(id)) {
+            throw new IllegalArgumentException("Категорията съдържа продукти и не може да бъде изтрита.");
+        }
+        try {
+            categoryRepository.delete(category);
+            categoryRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new IllegalArgumentException("Категорията се използва и не може да бъде изтрита.", exception);
+        }
     }
 
     @Override

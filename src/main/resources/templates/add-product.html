@@ -22,25 +22,26 @@
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
                     <li class="breadcrumb-item"><a th:href="@{/shumoizolaciya}" th:text="#{site.products}">Продукти</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" th:text="#{site.addProduct}">Добави продукт
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${kitMode == true} ? 'Добави кит' : #{site.addProduct}">Добави продукт
                     </li>
                 </ol>
             </nav>
             <span class="eyebrow" th:text="#{add.catalog}">Управление на каталога</span>
             <h1 th:text="${kitMode == true} ? 'Добави кит' : (${editMode} ? #{edit.heading} : #{add.heading})">Добави нов продукт</h1>
-            <p th:text="#{add.intro}">Попълни информацията и добави качествени снимки на продукта.</p>
+            <p th:text="${kitMode == true} ? 'Изберете продуктите и количеството от всеки, които влизат в кита.' : #{add.intro}">Попълни информацията и добави качествени снимки на продукта.</p>
         </div>
     </section>
 
     <section class="product-form-section">
         <div class="container">
             <div th:if="${productSuccess}" class="alert alert-success product-form-alert" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{add.success}"></span>
+                <i class="bi bi-check-circle-fill me-2"></i><span th:text="${kitMode == true} ? 'Китът е добавен успешно.' : #{add.success}"></span>
             </div>
 
             <form th:action="${editMode} ? @{/products/{id}/edit(id=${productId})} : (${kitMode == true} ? @{/admin/settings/kits} : @{/products/add})"
                   th:object="${product}" method="post"
-                  enctype="multipart/form-data" class="product-editor" novalidate>
+                  enctype="multipart/form-data" class="product-editor" novalidate
+                  th:attr="novalidate=${kitMode == true ? null : 'novalidate'}">
                 <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger" role="alert">
                     <i class="bi bi-exclamation-circle-fill me-2"></i>
                     <span th:text="#{form.correctErrors}">Моля, поправете отбелязаните полета.</span>
@@ -60,31 +61,34 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="nameProduct" th:text="#{add.name}">Марка</label>
+                                        <label for="nameProduct" th:text="${kitMode == true} ? 'Тип' : #{add.name}">Марка</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-tag"></i>
                                             <input id="nameProduct" th:field="*{nameProduct}" type="text"
                                                    class="form-control" th:errorclass="is-invalid"
-                                                   th:placeholder="#{add.name.placeholder}" maxlength="150">
+                                                   th:placeholder="#{add.name.placeholder}" maxlength="150"
+                                                   th:required="${kitMode == true}" th:minlength="${kitMode == true ? 2 : null}">
                                         </div>
                                         <div class="invalid-feedback d-block" th:errors="*{nameProduct}"></div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="model" th:text="#{add.model}">Модел</label>
+                                        <label for="model" th:text="${kitMode == true} ? 'Име / предназначение на кита' : #{add.model}">Модел</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-box"></i>
                                             <input id="model" th:field="*{model}" type="text"
                                                    class="form-control" th:errorclass="is-invalid"
-                                                   th:placeholder="#{add.model.placeholder}" maxlength="150">
+                                                   th:placeholder="${kitMode == true} ? 'за предни врати' : #{add.model.placeholder}" maxlength="150"
+                                                   th:required="${kitMode == true}">
                                         </div>
                                         <div class="invalid-feedback d-block" th:errors="*{model}"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row">
+                            <input th:if="${kitMode == true}" type="hidden" th:field="*{categoryId}">
+                            <div class="row" th:unless="${kitMode == true}">
                                 <div class="col-12">
                                     <div class="form-group-custom">
                                         <label for="categoryId" th:text="#{add.category}">Категория</label>
@@ -106,15 +110,57 @@
                             </div>
 
                             <div class="form-group-custom">
+                                <label for="secondaryCategoryId" th:text="#{add.category.secondary}">Втора категория (по избор)</label>
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-grid"></i>
+                                    <select id="secondaryCategoryId" th:field="*{secondaryCategoryId}" class="form-select"
+                                            th:errorclass="is-invalid">
+                                        <option value="" th:text="#{add.category.secondary.none}">Без втора категория</option>
+                                        <option th:each="category : ${categories}"
+                                                th:value="${category.id()}"
+                                                th:text="${category.name()}">Категория</option>
+                                    </select>
+                                </div>
+                                <div class="invalid-feedback d-block" th:errors="*{secondaryCategoryId}"></div>
+                            </div>
+
+                            <div class="form-group-custom">
                                 <label for="description" th:text="#{add.description}">Информация за продукта</label>
                                 <textarea id="description" th:field="*{description}"
                                           class="form-control product-description"
                                           th:errorclass="is-invalid" rows="14" maxlength="10000"
-                                          th:placeholder="#{add.description.placeholder}"></textarea>
+                                          th:placeholder="#{add.description.placeholder}"
+                                          th:required="${kitMode == true}" th:minlength="${kitMode == true ? 10 : null}"></textarea>
                                 <div class="form-hint" th:text="#{add.description.hint}">Между 10 и 10000 символа.</div>
-                                <div class="form-hint" th:if="${kitMode == true}">Опишете продуктите, включени в кита, тук.</div>
+                                <div class="form-hint" th:if="${kitMode == true}">Опишете предназначението и начина на употреба на кита.</div>
                                 <div class="invalid-feedback d-block" th:errors="*{description}"></div>
                             </div>
+                        </div>
+                        <div class="product-editor-card tilt-card mt-4" th:if="${kitMode == true}">
+                            <div class="editor-card-heading"><div class="editor-card-icon"><i class="bi bi-boxes"></i></div>
+                                <div><h2>Продукти в кита</h2><p>Изберете артикулите и количеството от всеки.</p></div></div>
+                            <div id="kitComponents">
+                                <div class="row g-2 mb-3 kit-component-row" th:each="component, stat : *{components}">
+                                    <div class="col-sm-8"><label class="form-label">Продукт</label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="kit-product-thumb kit-product-thumb-editor">
+                                                <img class="kit-component-image" alt="" hidden>
+                                                <i class="bi bi-image kit-component-placeholder" aria-hidden="true"></i>
+                                            </span>
+                                            <select class="form-select kit-component-product" th:field="*{components[__${stat.index}__].productId}" required>
+                                                <option value="">Изберете продукт</option>
+                                                <option th:each="item : ${availableProducts}" th:value="${item.id}"
+                                                        th:attr="data-image=${item.mainImageUrl}"
+                                                        th:text="${item.displayName + ' (налични: ' + item.stock + ')'}"></option>
+                                            </select>
+                                        </div></div>
+                                    <div class="col-sm-3"><label class="form-label">Количество</label>
+                                        <input class="form-control kit-component-quantity" type="number" min="1" step="1"
+                                               th:field="*{components[__${stat.index}__].quantity}" required></div>
+                                    <div class="col-sm-1 d-flex align-items-end"><button class="btn btn-outline-danger kit-component-remove" type="button" aria-label="Премахни"><i class="bi bi-x-lg"></i></button></div>
+                                </div>
+                            </div>
+                            <button id="addKitComponent" class="btn btn-outline-dark" type="button"><i class="bi bi-plus-circle me-2"></i>Добави продукт</button>
                         </div>
                     </div>
 
@@ -122,8 +168,8 @@
                         <div class="product-editor-card mb-4 tilt-card">
                             <div class="editor-card-heading">
                                 <div class="editor-card-icon"><i class="bi bi-cash-coin"></i></div>
-                                <div><h2 th:text="#{add.priceStock}">Цена и наличност</h2>
-                                    <p th:text="#{add.priceStock.text}">Търговски данни за продукта.</p></div>
+                                <div><h2 th:text="${kitMode == true} ? 'Цена на кита' : #{add.priceStock}">Цена и наличност</h2>
+                                    <p th:text="${kitMode == true} ? 'Наличността се определя от продуктите в кита.' : #{add.priceStock.text}">Търговски данни за продукта.</p></div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
@@ -131,11 +177,11 @@
                                         <label for="price" th:text="#{add.price}">Цена (€)</label>
                                         <input id="price" th:field="*{price}" type="number" min="0.01" step="0.01"
                                                class="form-control product-plain-input" th:errorclass="is-invalid"
-                                               placeholder="19.99">
+                                               placeholder="19.99" th:required="${kitMode == true}">
                                         <div class="invalid-feedback d-block" th:errors="*{price}"></div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-6" th:unless="${kitMode == true}">
                                     <div class="form-group-custom">
                                         <label for="stock" th:text="#{add.stock}">Наличност</label>
                                         <input id="stock" th:field="*{stock}" type="number" min="0" step="1"
@@ -182,6 +228,9 @@
                                        accept="image/jpeg,image/png,image/webp" th:required="${!editMode}">
                             </label>
                             <div class="invalid-feedback d-block" th:errors="*{mainImage}"></div>
+                            <div class="form-hint text-danger" th:if="${imageMustBeReselected}">
+                                След грешка във формата браузърът изчиства избраната снимка. Изберете я отново преди запис.
+                            </div>
 
                             <label for="additionalImages" class="product-upload-box secondary-upload">
                                 <i class="bi bi-images"></i>
@@ -207,7 +256,7 @@
                        class="btn btn-outline-dark custom-outline" th:text="#{add.cancel}">Отказ</a>
                     <button type="submit" class="btn btn-orange">
                         <i class="bi me-2" th:classappend="${editMode} ? 'bi-check-circle' : 'bi-plus-circle'"></i><span
-                            th:text="${editMode} ? #{edit.submit} : #{add.submit}">Добави продукта</span>
+                            th:text="${kitMode == true} ? 'Добави кита' : (${editMode} ? #{edit.submit} : #{add.submit})">Добави продукта</span>
                     </button>
                 </div>
             </form>
@@ -218,5 +267,6 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/shop.js"></script>
+<script th:if="${kitMode == true}" src="/js/kit-form.js"></script>
 </body>
 </html>

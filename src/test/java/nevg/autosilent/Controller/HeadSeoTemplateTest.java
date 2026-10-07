@@ -97,6 +97,21 @@ class HeadSeoTemplateTest {
     }
 
     @Test
+    void productMetaKeywordsUseSavedSeoValueWhenPresent() throws IOException {
+        Context context = context("product-details.html", Locale.forLanguageTag("bg"));
+        SeoDto seo = new SeoDto();
+        seo.setKeywords("  виброизолация, шумоизолация  ");
+        context.setVariable("seo", seo);
+
+        RenderedHead head = render("product-details.html", context);
+
+        assertThat(head.document().select("meta[name=keywords]"))
+                .singleElement()
+                .extracting(element -> element.attr("content"))
+                .isEqualTo("виброизолация, шумоизолация");
+    }
+
+    @Test
     void categoryPaginationHasDistinctTitlesAndGraphIds() throws IOException {
         RenderedHead first = render("products.html", catalogContext(0));
         RenderedHead second = render("products.html", catalogContext(1));

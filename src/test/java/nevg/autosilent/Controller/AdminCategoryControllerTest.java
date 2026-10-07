@@ -55,4 +55,15 @@ class AdminCategoryControllerTest {
         assertThat(result.getViewName()).isEqualTo("redirect:/admin/settings/categories");
         assertThat(redirect.getFlashAttributes().get("categoryCreated")).isEqualTo(true);
     }
+
+    @Test
+    void deleteRemovesCategoryAndRedirects() {
+        var redirect = new RedirectAttributesModelMap();
+
+        var result = controller.delete(7L, redirect);
+
+        verify(categoryService).delete(7L);
+        assertThat(result.getViewName()).isEqualTo("redirect:/admin/settings/categories");
+        assertThat(redirect.getFlashAttributes().get("categoryDeleted")).isEqualTo(true);
+    }
 }

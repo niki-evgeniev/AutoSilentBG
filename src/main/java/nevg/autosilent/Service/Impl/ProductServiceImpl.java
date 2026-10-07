@@ -15,6 +15,7 @@ import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.KitRepository;
 import nevg.autosilent.Repository.ProductUrlRedirectRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.Exception.InvalidProductImageException;
@@ -47,6 +48,7 @@ import java.security.SecureRandom;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -66,6 +68,7 @@ public class ProductServiceImpl implements ProductService {
     private static final SecureRandom SKU_RANDOM = new SecureRandom();
 
     private final ProductRepository productRepository;
+    private final KitRepository kitRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductUrlRedirectRepository productUrlRedirectRepository;
     private final UserRepository userRepository;
@@ -80,8 +83,10 @@ public class ProductServiceImpl implements ProductService {
                               UserRepository userRepository,
                               CategoryRepository categoryRepository,
                               SeoService seoService,
+                              KitRepository kitRepository,
                               @Value("${AutoSilent.site-url:http://localhost:8080}") String siteUrl) {
         this.productRepository = productRepository;
+        this.kitRepository = kitRepository;
         this.orderItemRepository = orderItemRepository;
         this.productUrlRedirectRepository = productUrlRedirectRepository;
         this.userRepository = userRepository;
@@ -103,6 +108,7 @@ public class ProductServiceImpl implements ProductService {
         User owner = userRepository.findByEmailIgnoreCase(ownerEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Потребителят не е намерен."));
         Category category = findCategory(request.getCategoryId());
+        Category secondaryCategory = findSecondaryCategory(request.getSecondaryCategoryId(), category);
         List<Path> storedFiles = new ArrayList<>();
         Path productDirectory = imagesDirectory.resolve(toDirectoryName(displayName(
                 request.getNameProduct(), request.getModel()))).normalize();
@@ -120,6 +126,7 @@ public class ProductServiceImpl implements ProductService {
             product.setModel(request.getModel().trim());
             product.setSku(generateUniqueSku());
             product.setCategory(category);
+            product.setSecondaryCategory(secondaryCategory);
             product.setPrice(request.getPrice());
             product.setDescription(ProductDescriptionSanitizer.sanitize(request.getDescription()));
             product.setUrl(uniqueSlug(product.getDisplayName()));
@@ -161,6 +168,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setNameProduct(product.getNameProduct());
         dto.setModel(product.getModel());
         dto.setCategoryId(product.getCategory().getId());
+        dto.setSecondaryCategoryId(product.getSecondaryCategory() == null ? null : product.getSecondaryCategory().getId());
         dto.setPrice(product.getPrice());
         dto.setDescription(product.getDescription());
         dto.setStock(product.getStock());
@@ -180,6 +188,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ProductCreationException("Продуктът не е намерен.", null));
         validateUniqueFields(request, id);
         Category category = findCategory(request.getCategoryId());
+        Category secondaryCategory = findSecondaryCategory(request.getSecondaryCategoryId(), category);
 
         List<MultipartFile> uploads = request.getAdditionalImages().stream()
                 .filter(image -> image != null && !image.isEmpty()).toList();
@@ -249,6 +258,7 @@ public class ProductServiceImpl implements ProductService {
                 product.setUrl(updatedUrl);
             }
             product.setCategory(category);
+            product.setSecondaryCategory(secondaryCategory);
             product.setPrice(request.getPrice());
             product.setDescription(ProductDescriptionSanitizer.sanitize(request.getDescription()));
             product.setStock(request.getStock());
@@ -324,6 +334,32 @@ public class ProductServiceImpl implements ProductService {
         return selected.values().stream()
                 .map(this::toViewDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductViewDto> getRelatedProducts(Long currentProductId) {
+        List<Product> activeProducts = productRepository.findAllByActiveTrueOrderByCountDescAddDateDesc();
+        Map<Long, Product> candidates = new LinkedHashMap<>();
+        activeProducts.stream()
+                .filter(product -> !product.getId().equals(currentProductId))
+                .forEach(product -> candidates.put(product.getId(), product));
+
+        Map<Long, Product> selected = new LinkedHashMap<>();
+        orderItemRepository.sumQuantityByProductForStatus(OrderStatus.DELIVERED).stream()
+                .map(sold -> candidates.get(sold.productId()))
+                .filter(java.util.Objects::nonNull)
+                .limit(6)
+                .forEach(product -> selected.put(product.getId(), product));
+
+        List<Product> remaining = new ArrayList<>(candidates.values());
+        remaining.removeIf(product -> selected.containsKey(product.getId()));
+        Collections.shuffle(remaining);
+        remaining.stream()
+                .limit(6 - selected.size())
+                .forEach(product -> selected.put(product.getId(), product));
+
+        return selected.values().stream().map(this::toViewDto).toList();
     }
 
     @Override
@@ -499,6 +535,12 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    private int availableStock(Product product) {
+        if (!"Кит".equalsIgnoreCase(product.getCategory().getCategory())) return product.getStock();
+        return kitRepository.findByCatalogProductId(product.getId())
+                .map(nevg.autosilent.Models.Entity.Kit::availableStock).orElse(product.getStock());
+    }
+
     private ProductViewDto toViewDto(Product product) {
         String mainImageUrl = product.getPictures().stream()
                 .filter(Picture::isMainImage)
@@ -518,7 +560,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getCategory().getCategory(),
                 product.getPrice(),
                 ProductDescriptionSanitizer.toPlainText(product.getDescription()),
-                product.getStock(),
+                availableStock(product),
                 mainImageUrl
         );
     }
@@ -537,9 +579,10 @@ public class ProductServiceImpl implements ProductService {
                 product.getCategory().getCategory(),
                 product.getPrice(),
                 ProductDescriptionSanitizer.sanitize(product.getDescription()),
-                product.getStock(),
+                availableStock(product),
                 product.getCount(),
-                imageUrls
+                imageUrls,
+                product.getSecondaryCategory() == null ? null : product.getSecondaryCategory().getCategory()
         );
     }
 
@@ -556,6 +599,15 @@ public class ProductServiceImpl implements ProductService {
         }
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ProductCreationException("Избраната категория не съществува.", null));
+    }
+
+    private Category findSecondaryCategory(Long secondaryCategoryId, Category primaryCategory) {
+        if (secondaryCategoryId == null) return null;
+        if (secondaryCategoryId.equals(primaryCategory.getId())) {
+            throw new ProductCreationException("Втората категория трябва да е различна от основната.", null);
+        }
+        return categoryRepository.findById(secondaryCategoryId)
+                .orElseThrow(() -> new ProductCreationException("Втората категория не съществува.", null));
     }
 
     private String uniqueSlug(String displayName) {

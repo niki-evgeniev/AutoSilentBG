@@ -221,15 +221,18 @@ public class ProductsController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Продуктът не е намерен."));
         modelAndView.addObject("product", product);
+        modelAndView.addObject("relatedProducts", productService.getRelatedProducts(product.id()));
         seoService.getForProduct(product.id()).ifPresent(seo -> modelAndView.addObject("seo", seo));
         return modelAndView;
     }
 
     public ModelAndView productDetails(Long id) {
         ModelAndView modelAndView = new ModelAndView("product-details");
-        modelAndView.addObject("product", productService.getActiveProductAndIncrementCount(id)
+        var product = productService.getActiveProductAndIncrementCount(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Продуктът не е намерен.")));
+                        "Продуктът не е намерен."));
+        modelAndView.addObject("product", product);
+        modelAndView.addObject("relatedProducts", productService.getRelatedProducts(product.id()));
         seoService.getForProduct(id).ifPresent(seo -> modelAndView.addObject("seo", seo));
         return modelAndView;
     }

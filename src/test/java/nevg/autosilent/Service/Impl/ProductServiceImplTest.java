@@ -66,6 +66,8 @@ class ProductServiceImplTest {
     @Mock
     private ProductRepository productRepository;
     @Mock
+    private nevg.autosilent.Repository.KitRepository kitRepository;
+    @Mock
     private OrderItemRepository orderItemRepository;
     @Mock
     private ProductUrlRedirectRepository productUrlRedirectRepository;
@@ -84,7 +86,7 @@ class ProductServiceImplTest {
     void setUp() {
         productService = new ProductServiceImpl(
                 productRepository, orderItemRepository, productUrlRedirectRepository, userRepository, categoryRepository,
-                seoService, "https://autosilent.bg");
+                seoService, kitRepository, "https://autosilent.bg");
         ReflectionTestUtils.setField(productService, "imagesDirectory", imagesDirectory);
         Category category = new Category();
         category.setId(3L);
@@ -128,6 +130,34 @@ class ProductServiceImplTest {
         try (var files = Files.list(productDirectory)) {
             assertThat(files).hasSize(3);
         }
+    }
+
+    @Test
+    void createSavesSecondCategory() {
+        ProductCreateDto request = validRequest();
+        request.setSecondaryCategoryId(4L);
+        Category second = new Category();
+        second.setId(4L);
+        second.setCategory("Second category");
+        when(categoryRepository.findById(4L)).thenReturn(Optional.of(second));
+        when(userRepository.findByEmailIgnoreCase("owner@example.com")).thenReturn(Optional.of(new User()));
+
+        productService.create(request, "owner@example.com");
+
+        ArgumentCaptor<Product> saved = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).saveAndFlush(saved.capture());
+        assertThat(saved.getValue().getSecondaryCategory()).isSameAs(second);
+    }
+
+    @Test
+    void createRejectsSameCategoryTwice() {
+        ProductCreateDto request = validRequest();
+        request.setSecondaryCategoryId(request.getCategoryId());
+        when(userRepository.findByEmailIgnoreCase("owner@example.com")).thenReturn(Optional.of(new User()));
+
+        assertThatThrownBy(() -> productService.create(request, "owner@example.com"))
+                .isInstanceOf(ProductCreationException.class);
+        verify(productRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -308,6 +338,41 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void relatedProductsPrioritizeDeliveredSalesAndFillSixWithoutCurrentProduct() {
+        List<Product> products = java.util.stream.LongStream.rangeClosed(1, 9)
+                .mapToObj(id -> {
+                    Product product = productWithPictures();
+                    product.setId(id);
+                    return product;
+                }).toList();
+        when(productRepository.findAllByActiveTrueOrderByCountDescAddDateDesc()).thenReturn(products);
+        when(orderItemRepository.sumQuantityByProductForStatus(OrderStatus.DELIVERED))
+                .thenReturn(List.of(new ProductSoldQuantityDto(1L, 20),
+                        new ProductSoldQuantityDto(3L, 10), new ProductSoldQuantityDto(4L, 5)));
+
+        List<ProductViewDto> result = productService.getRelatedProducts(1L);
+
+        assertThat(result).hasSize(6).extracting(ProductViewDto::id)
+                .startsWith(3L, 4L).doesNotContain(1L).doesNotHaveDuplicates();
+    }
+
+    @Test
+    void relatedProductsChooseAvailableProductsWhenNothingHasSold() {
+        List<Product> products = java.util.stream.LongStream.rangeClosed(1, 4)
+                .mapToObj(id -> {
+                    Product product = productWithPictures();
+                    product.setId(id);
+                    return product;
+                }).toList();
+        when(productRepository.findAllByActiveTrueOrderByCountDescAddDateDesc()).thenReturn(products);
+        when(orderItemRepository.sumQuantityByProductForStatus(OrderStatus.DELIVERED)).thenReturn(List.of());
+
+        List<ProductViewDto> result = productService.getRelatedProducts(1L);
+
+        assertThat(result).extracting(ProductViewDto::id).containsExactlyInAnyOrder(2L, 3L, 4L);
+    }
+
+    @Test
     void searchActiveProductsTrimsQueryAndMapsResults() {
         Product product = productWithPictures();
         when(productRepository.searchActive("phone")).thenReturn(List.of(product));
@@ -428,6 +493,19 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void getActiveProductHeadingIncludesSecondCategory() {
+        Product product = productWithPictures();
+        Category second = new Category();
+        second.setCategory("Soundproofing");
+        product.setSecondaryCategory(second);
+        when(productRepository.findByIdAndActiveTrue(7L)).thenReturn(Optional.of(product));
+
+        ProductDetailsDto details = productService.getActiveProduct(7L).orElseThrow();
+
+        assertThat(details.categoryHeading()).isEqualTo("Accessories - Soundproofing");
+    }
+
+    @Test
     void getActiveProductSanitizesStoredHtmlDescription() {
         Product product = productWithPictures();
         product.setDescription("<p onclick=\"alert(1)\">Тих <strong>продукт</strong></p><script>alert(1)</script>");
@@ -471,6 +549,9 @@ class ProductServiceImplTest {
     @Test
     void getForEditMapsProductFieldsAndExistingImages() {
         Product product = productWithPictures();
+        Category second = new Category();
+        second.setId(4L);
+        product.setSecondaryCategory(second);
         product.getPictures().get(0).setId(11L);
         product.getPictures().get(1).setId(12L);
         when(productRepository.findWithPicturesById(7L)).thenReturn(Optional.of(product));
@@ -479,6 +560,7 @@ class ProductServiceImplTest {
 
         assertThat(result.getNameProduct()).isEqualTo("Phone Case");
         assertThat(result.getCategoryId()).isEqualTo(3L);
+        assertThat(result.getSecondaryCategoryId()).isEqualTo(4L);
         assertThat(result.getPrice()).isEqualByComparingTo("12.50");
         assertThat(result.getDescription()).isEqualTo("Protective case");
         assertThat(result.getStock()).isEqualTo(8);
@@ -523,6 +605,10 @@ class ProductServiceImplTest {
         product.getPictures().get(0).setId(11L);
         product.getPictures().get(1).setId(12L);
         ProductCreateDto request = validRequest();
+        request.setSecondaryCategoryId(4L);
+        Category second = new Category();
+        second.setId(4L);
+        when(categoryRepository.findById(4L)).thenReturn(Optional.of(second));
         request.setMainImage(null);
         request.setAdditionalImages(List.of());
         request.setExistingMainImageId(11L);
@@ -531,6 +617,7 @@ class ProductServiceImplTest {
         productService.update(7L, request);
 
         assertThat(product.getUrl()).isEqualTo("product-one-model-one");
+        assertThat(product.getSecondaryCategory()).isSameAs(second);
         ArgumentCaptor<ProductUrlRedirect> redirect =
                 ArgumentCaptor.forClass(ProductUrlRedirect.class);
         verify(productUrlRedirectRepository).save(redirect.capture());

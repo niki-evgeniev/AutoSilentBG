@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -43,6 +44,17 @@ public class AdminCategoryController {
         }
 
         redirectAttributes.addFlashAttribute("categoryCreated", true);
+        return new ModelAndView("redirect:/admin/settings/categories");
+    }
+
+    @PostMapping("/admin/settings/categories/{id}/delete")
+    public ModelAndView delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            categoryService.delete(id);
+            redirectAttributes.addFlashAttribute("categoryDeleted", true);
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("categoryDeleteError", exception.getMessage());
+        }
         return new ModelAndView("redirect:/admin/settings/categories");
     }
 

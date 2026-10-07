@@ -11,9 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
             '#footer': 'contacts'
         };
         const activeNavigation = hashNavigation[window.location.hash] ||
+            (window.location.pathname.startsWith('/contact') ? 'contacts' :
             (window.location.pathname.startsWith('/shumoizolaciya/kit') ? 'kits' :
                 (window.location.pathname.startsWith('/products') || window.location.pathname.startsWith('/shumoizolaciya') ? 'products' :
-                (window.location.pathname === '/' ? 'home' : null)));
+                (window.location.pathname === '/' ? 'home' : null))));
 
         navLinks.forEach(function (link) {
             const isActive = link.dataset.nav === activeNavigation;

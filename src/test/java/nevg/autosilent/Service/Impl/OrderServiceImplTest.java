@@ -7,6 +7,7 @@ import nevg.autosilent.Models.Entity.OrderItemEntity;
 import nevg.autosilent.Models.Entity.OrderStatusHistoryEntity;
 import nevg.autosilent.Models.Entity.Picture;
 import nevg.autosilent.Models.Entity.Product;
+import nevg.autosilent.Models.Entity.Kit;
 import nevg.autosilent.Models.Entity.User;
 import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Service.Exception.OrderCreationException;
@@ -14,6 +15,7 @@ import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.OrderRepository;
 import nevg.autosilent.Repository.OrderStatusHistoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.KitRepository;
 import nevg.autosilent.Repository.UserRepository;
 import nevg.autosilent.Service.PromoCodeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +47,7 @@ class OrderServiceImplTest {
     @Mock OrderItemRepository orderItemRepository;
     @Mock OrderStatusHistoryRepository historyRepository;
     @Mock ProductRepository productRepository;
+    @Mock KitRepository kitRepository;
     @Mock UserRepository userRepository;
     @Mock PromoCodeService promoCodeService;
     @Mock MessageSource messageSource;
@@ -54,7 +57,7 @@ class OrderServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new OrderServiceImpl(orderRepository, orderItemRepository, historyRepository,
-                productRepository, userRepository, promoCodeService, messageSource);
+                productRepository, userRepository, promoCodeService, messageSource, kitRepository);
         lenient().when(messageSource.getMessage(anyString(), any(), any(Locale.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         lenient().when(promoCodeService.discountPercent(any())).thenReturn(BigDecimal.ZERO);
@@ -121,6 +124,28 @@ class OrderServiceImplTest {
         assertThat(itemsCaptor.getValue()).singleElement()
                 .satisfies(item -> assertThat(item.getQuantity()).isEqualTo(3));
         assertThat(product.getStock()).isZero();
+    }
+
+    @Test
+    void kitOrderUsesComponentQuantitiesAndRejectsInsufficientStock() {
+        Product catalogProduct = product(8L, "Door kit", "KIT-8", "30.00", Integer.MAX_VALUE);
+        Product insulation = product(3L, "Insulation", "SKU-3", "7.00", 3);
+        insulation.setActive(true);
+        Kit kit = new Kit();
+        kit.setCatalogProduct(catalogProduct);
+        kit.addItem(insulation, 2);
+        when(productRepository.findActiveByIdForUpdate(8L)).thenReturn(Optional.of(catalogProduct));
+        when(productRepository.findActiveByIdForUpdate(3L)).thenReturn(Optional.of(insulation));
+        when(kitRepository.findByCatalogProductId(8L)).thenReturn(Optional.of(kit));
+
+        service.createGuestOrder("guest@example.com", "Ivan", "Ivanov", "0888123456", null,
+                List.of(new CartItemOrderDto(8L, 1)), null);
+
+        assertThat(insulation.getStock()).isEqualTo(1);
+        assertThat(catalogProduct.getStock()).isEqualTo(Integer.MAX_VALUE);
+        assertThatThrownBy(() -> service.createGuestOrder("guest@example.com", "Ivan", "Ivanov",
+                "0888123456", null, List.of(new CartItemOrderDto(8L, 1)), null))
+                .isInstanceOf(OrderCreationException.class);
     }
 
     @Test
