@@ -1129,6 +1129,17 @@ a {
     font-size: 13px;
 }
 
+.footer .footer-creator-link {
+    display: inline;
+    margin-bottom: 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.footer .footer-creator-link:hover {
+    color: var(--color-orange);
+}
+
 @media (min-width: 992px) and (max-width: 1199px) {
     .hero-slide-card {
         grid-template-columns: minmax(0, 1.12fr) minmax(190px, .88fr);
@@ -2874,7 +2885,7 @@ a {
     position: relative;
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 32px;
+    padding: 0 50px;
 }
 
 .related-products-swiper {
@@ -2933,21 +2944,43 @@ a {
 
 .related-products-nav {
     position: absolute;
-    top: 42%;
+    top: 50%;
     z-index: 2;
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
-    border: 1px solid #e5e7eb;
-    border-radius: 50%;
-    background: #fff;
-    color: var(--color-dark);
-    box-shadow: 0 8px 20px rgba(25, 25, 25, .1);
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid rgba(255, 106, 0, .4);
+    border-radius: 14px;
+    background: linear-gradient(145deg, #303030, #171717);
+    color: #ff923f;
+    box-shadow: 0 10px 24px rgba(25, 25, 25, .2), inset 0 1px 0 rgba(255, 255, 255, .12);
+    font-size: 17px;
+    transform: translateY(-50%);
+    transition: transform .2s ease, box-shadow .2s ease, color .2s ease, background .2s ease;
 }
 
-.related-products-nav:hover {
-    color: var(--color-orange);
+.related-products-nav i {
+    line-height: 1;
+}
+
+.related-products-nav:hover:not(.swiper-button-disabled) {
+    border-color: var(--color-orange);
+    background: linear-gradient(145deg, var(--color-orange), var(--color-orange-dark));
+    color: #fff;
+    box-shadow: 0 12px 26px rgba(255, 106, 0, .3);
+    transform: translateY(calc(-50% - 2px));
+}
+
+.related-products-nav:focus-visible {
+    outline: 3px solid rgba(255, 106, 0, .35);
+    outline-offset: 3px;
+}
+
+.related-products-nav.swiper-button-disabled {
+    opacity: .4;
+    cursor: default;
 }
 
 .related-products-prev { left: 0; }
@@ -2963,8 +2996,8 @@ a {
 
 @media (max-width: 575.98px) {
     .related-products-section { padding-bottom: 56px; }
-    .related-products-carousel { max-width: 320px; padding: 0 26px; }
-    .related-products-nav { width: 28px; height: 28px; }
+    .related-products-carousel { max-width: 320px; padding: 0 40px; }
+    .related-products-nav { width: 34px; height: 34px; border-radius: 11px; font-size: 14px; }
 }
 
 /* Cart */

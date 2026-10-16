@@ -203,6 +203,23 @@ class HeadSeoTemplateTest {
         assertThat(head.node("ItemList").path("itemListElement")).isEmpty();
     }
 
+    @Test
+    void catalogKitUsesItsKitDetailsUrlInStructuredData() throws IOException {
+        Context context = context("products.html", Locale.forLanguageTag("bg"));
+        ProductViewDto kit = new ProductViewDto(7L, "front-door-kit", "Кит", "за врати", "KIT-7",
+                "Кит", new BigDecimal("19.90"), "Описание на кита", 2, null);
+        context.setVariable("products", List.of(kit));
+        context.setVariable("productPage", new PageImpl<>(List.of(kit), PageRequest.of(0, 9), 1));
+
+        RenderedHead head = render("products.html", context);
+
+        JsonNode item = head.node("ItemList").path("itemListElement").path(0);
+        assertThat(item.path("url").asText())
+                .isEqualTo("https://autosilent.bg/shumoizolaciya/kit/front-door-kit");
+        assertThat(item.path("item").path("offers").path("url").asText())
+                .isEqualTo("https://autosilent.bg/shumoizolaciya/kit/front-door-kit");
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"index.html", "products.html", "product-details.html"})
     void specialCharactersCannotCloseTheJsonLdScript(String template) throws IOException {

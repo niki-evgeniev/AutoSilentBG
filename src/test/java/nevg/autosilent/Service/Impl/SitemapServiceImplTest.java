@@ -13,13 +13,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,16 +36,18 @@ class SitemapServiceImplTest {
     void sitemapContainsPublicPagesAndActiveProductsWithReliableLastModifiedDate() throws Exception {
         when(productRepository.findAllActiveForSitemap()).thenReturn(List.of(
                 new SitemapProductDto("vibrofiltr-2-0", LocalDateTime.of(2026, 7, 21, 14, 30)),
-                new SitemapProductDto("special-and-safe", null)
+                new SitemapProductDto("special-and-safe", null),
+                new SitemapProductDto("vibrofiltr-2-0", LocalDateTime.of(2026, 7, 21, 14, 30))
         ));
+        when(productRepository.findAllActiveKitsForSitemap()).thenReturn(List.of(
+                new SitemapProductDto("front-door-kit", LocalDateTime.of(2026, 7, 22, 11, 0))));
         when(categoryRepository.findAllWithActiveProductsForSitemap()).thenReturn(List.of(
                 new SitemapCategoryDto(1L, "Звукоизолация",
                         LocalDateTime.of(2026, 7, 19, 10, 0)),
                 new SitemapCategoryDto(3L, "Звукоизолация",
                         LocalDateTime.of(2026, 7, 20, 10, 0))
         ));
-        SitemapServiceImpl service = new SitemapServiceImpl(
-                productRepository, categoryRepository, "https://shop.example/");
+        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository);
 
         String sitemap = service.generateSitemap();
         Document document = parse(sitemap);
@@ -52,74 +56,54 @@ class SitemapServiceImplTest {
                 "http://www.sitemaps.org/schemas/sitemap/0.9", "loc");
         NodeList lastModified = document.getElementsByTagNameNS(
                 "http://www.sitemaps.org/schemas/sitemap/0.9", "lastmod");
-        NodeList alternates = document.getElementsByTagNameNS(
-                "http://www.w3.org/1999/xhtml", "link");
 
-        assertThat(sitemap).startsWith("""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-
-                """);
+        assertThat(sitemap).startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset")
+                .doesNotContain("xml-stylesheet");
         assertThat(root.getLocalName()).isEqualTo("urlset");
         assertThat(root.getNamespaceURI())
                 .isEqualTo("http://www.sitemaps.org/schemas/sitemap/0.9");
-        assertThat(root.lookupNamespaceURI("xhtml"))
-                .isEqualTo("http://www.w3.org/1999/xhtml");
+        assertThat(root.lookupNamespaceURI("xhtml")).isNull();
         assertThat(textValues(locations)).containsExactly(
-                "https://shop.example/",
-                "https://shop.example/?lang=en",
-                "https://shop.example/contact",
-                "https://shop.example/contact?lang=en",
-                "https://shop.example/shumoizolaciya",
-                "https://shop.example/shumoizolaciya/category/3/zvukoizolatsiya",
-                "https://shop.example/shumoizolaciya/vibrofiltr-2-0",
-                "https://shop.example/shumoizolaciya/special-and-safe"
+                "https://autosilent.bg/",
+                "https://autosilent.bg/?lang=en",
+                "https://autosilent.bg/contact",
+                "https://autosilent.bg/contact?lang=en",
+                "https://autosilent.bg/shumoizolaciya",
+                "https://autosilent.bg/shumoizolaciya/kit",
+                "https://autosilent.bg/shumoizolaciya/category/3/zvukoizolatsiya",
+                "https://autosilent.bg/shumoizolaciya/vibrofiltr-2-0",
+                "https://autosilent.bg/shumoizolaciya/special-and-safe",
+                "https://autosilent.bg/shumoizolaciya/kit/front-door-kit"
         );
-        assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-21");
+        assertThat(textValues(lastModified)).containsExactly("2026-07-20", "2026-07-21", "2026-07-22");
         assertThat(lastModified.item(0).getParentNode().getLocalName()).isEqualTo("url");
-        assertThat(alternates.getLength()).isEqualTo(12);
-        assertThat(alternates.item(0).getNamespaceURI())
-                .isEqualTo("http://www.w3.org/1999/xhtml");
-        assertThat(alternates.item(0).getAttributes().getNamedItem("hreflang").getNodeValue())
-                .isEqualTo("bg");
         assertThat(textValues(locations)).noneMatch(url ->
                 url.contains("/category/1/zvukoizolatsiya")
                         || url.contains("/shumoizolaciya?lang=en")
                         || url.contains("/category/3/zvukoizolatsiya?lang=en")
                         || url.contains("/vibrofiltr-2-0?lang=en")
                         || url.contains("/special-and-safe?lang=en"));
+        assertThat(textValues(locations)).doesNotHaveDuplicates()
+                .allMatch(url -> url.startsWith("https://autosilent.bg/"));
+        assertThat(sitemap).doesNotContain("<priority>", "<changefreq>", "http://autosilent.bg",
+                "www.autosilent.bg", "xmlns:xhtml", "xhtml:link");
         assertThat(document.getElementsByTagName("priority").getLength()).isZero();
         assertThat(document.getElementsByTagName("changefreq").getLength()).isZero();
     }
 
     @Test
-    void robotsTxtUsesProductionSitemapAndConfiguredCrawlerRules() {
-        SitemapServiceImpl service = new SitemapServiceImpl(
-                productRepository, categoryRepository, "https://shop.example");
+    void xmlWriterEscapesAmpersandsInQueryParameters() throws Exception {
+        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository);
+        StringWriter output = new StringWriter();
+        XMLStreamWriter xml = XMLOutputFactory.newFactory().createXMLStreamWriter(output);
+        xml.writeStartElement("urlset");
+        service.writeUrl(xml, "https://autosilent.bg/contact?lang=en&ref=a&b", null);
+        xml.writeEndElement();
+        xml.close();
 
-        assertThat(service.generateRobotsTxt())
-                .isEqualTo("""
-                        User-agent: *
-                        Disallow: /admin/
-                        Disallow: /login
-                        Disallow: /register
-                        Disallow: /cart
-                        Disallow: /checkout
-                        Disallow: /profile/
-                        Disallow: /orders/
-                        Disallow: /api/
-                        Disallow: /search
-
-                        Sitemap: https://autosilent.bg/sitemap.xml
-                        """);
-    }
-
-    @Test
-    void invalidSiteUrlIsRejectedAtStartup() {
-        assertThatThrownBy(() -> new SitemapServiceImpl(
-                productRepository, categoryRepository, "shop.example"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("absolute HTTP(S) URL");
+        assertThat(output.toString()).contains("?lang=en&amp;ref=a&amp;b");
+        assertThat(parse(output.toString()).getElementsByTagName("loc").item(0).getTextContent())
+                .isEqualTo("https://autosilent.bg/contact?lang=en&ref=a&b");
     }
 
     private Document parse(String xml) throws Exception {

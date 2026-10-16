@@ -103,7 +103,7 @@
                         {
                             "@type": "ListItem",
                             "position": 2,
-                            "name": /*[[${seoContentEnglish ? 'Products' : 'Продукти'}]]*/ "Продукти",
+                            "name": /*[[${seoContentEnglish ? 'Soundproofing' : 'Шумоизолация'}]]*/ "Шумоизолация",
                             "item": "https://autosilent.bg/shumoizolaciya"
                         }
                         /*[# th:if="${selectedCategory != null}"]*/,
@@ -122,16 +122,16 @@
                     "name": /*[[${seoName + seoPageSuffix}]]*/ "Автомобилна шумоизолация и виброизолация",
                     "numberOfItems": /*[[${productPage.totalElements}]]*/ 0,
                     "itemListElement": [
-                        /*[# th:each="product, stat : ${products}" th:with="rawImage=${product.mainImageUrl() == null ? '' : product.mainImageUrl().trim()}, productImage=${#strings.isEmpty(rawImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawImage), 'https://') or #strings.startsWith(#strings.toLowerCase(rawImage), 'http://') ? rawImage : (#strings.startsWith(rawImage, '//') ? 'https:' + rawImage : (rawImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawImage, '/') ? '' : '/') + rawImage)))}"]*/
+                        /*[# th:each="product, stat : ${products}" th:with="rawImage=${product.mainImageUrl() == null ? '' : product.mainImageUrl().trim()}, productImage=${#strings.isEmpty(rawImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawImage), 'https://') or #strings.startsWith(#strings.toLowerCase(rawImage), 'http://') ? rawImage : (#strings.startsWith(rawImage, '//') ? 'https:' + rawImage : (rawImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawImage, '/') ? '' : '/') + rawImage)))}, productUrl=${'https://autosilent.bg/shumoizolaciya/' + (product.category() == 'Кит' ? 'kit/' : '') + product.url()}"]*/
                         {
                             "@type": "ListItem",
                             "position": /*[[${productPage.number * productPage.size + stat.count}]]*/ 1,
-                            "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                            "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                             "item": {
                                 "@type": "Product",
-                                "@id": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url() + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
+                                "@id": /*[[${productUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
                                 "name": /*[[${product.displayName()}]]*/ "Product",
-                                "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                                "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                                 "inLanguage": "bg-BG",
                                 "description": /*[[${product.plainDescription()}]]*/ "Product description",
                                 "sku": /*[[${product.sku()}]]*/ "SKU",
@@ -149,8 +149,8 @@
                                 /*[# th:if="${product.price() != null and product.price().signum() >= 0}"]*/,
                                 "offers": {
                                     "@type": "Offer",
-                                    "@id": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url() + '#offer'}]]*/ "https://autosilent.bg/shumoizolaciya/product#offer",
-                                    "url": /*[[${'https://autosilent.bg/shumoizolaciya/' + product.url()}]]*/ "https://autosilent.bg/shumoizolaciya/product",
+                                    "@id": /*[[${productUrl + '#offer'}]]*/ "https://autosilent.bg/shumoizolaciya/product#offer",
+                                    "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
                                     "priceCurrency": "EUR",
                                     "price": /*[[${product.price()}]]*/ 0,
                                     "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
@@ -221,7 +221,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
-                    <li class="breadcrumb-item active" aria-current="page" th:text="#{site.products}">Продукти</li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="#{site.categories}">Шумоизолация</li>
                 </ol>
             </nav>
 
@@ -445,7 +445,7 @@
                                      th:data-product-name="${product.displayName()}"
                                      th:data-product-price="${product.price()}"
                                      th:data-product-image="${product.mainImageUrl()}"
-                                     th:data-product-url="@{/shumoizolaciya/{url}(url=${product.url()})}">
+                                     th:data-product-url="${product.category() == 'Кит'} ? @{/shumoizolaciya/kit/{url}(url=${product.url()})} : @{/shumoizolaciya/{url}(url=${product.url()})}">
                                 <form sec:authorize="isAuthenticated()" method="post"
                                       th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
                                     <input type="hidden" name="source" value="products">
@@ -456,7 +456,7 @@
                                 <a sec:authorize="isAnonymous()" class="wishlist-btn" th:href="@{/user/sign_in}"
                                    th:aria-label="#{favorites.loginRequired}"><i class="bi bi-heart"></i></a>
                                 <a class="product-image"
-                                   th:href="@{/shumoizolaciya/{url}(url=${product.url()})}"
+                                   th:href="${product.category() == 'Кит'} ? @{/shumoizolaciya/kit/{url}(url=${product.url()})} : @{/shumoizolaciya/{url}(url=${product.url()})}"
                                    th:aria-label="${product.displayName()}">
                                     <img th:if="${product.mainImageUrl() != null}"
                                          th:src="${product.mainImageUrl()}"
@@ -475,7 +475,7 @@
                                     </div>
                                     <h3 class="text-center">
                                         <a class="product-name-link"
-                                           th:href="@{/shumoizolaciya/{url}(url=${product.url()})}"
+                                           th:href="${product.category() == 'Кит'} ? @{/shumoizolaciya/kit/{url}(url=${product.url()})} : @{/shumoizolaciya/{url}(url=${product.url()})}"
                                            th:text="${product.displayName()}">Марка и модел</a>
                                     </h3>
                                     <p class="product-card-description"
@@ -488,7 +488,7 @@
                                     </div>
                                     <div class="product-card-actions">
                                         <a class="btn btn-outline-dark custom-outline"
-                                           th:href="@{/shumoizolaciya/{url}(url=${product.url()})}">
+                                           th:href="${product.category() == 'Кит'} ? @{/shumoizolaciya/kit/{url}(url=${product.url()})} : @{/shumoizolaciya/{url}(url=${product.url()})}">
                                             <span th:text="#{products.more}">Виж повече</span>
                                         </a>
                                         <button class="btn btn-orange add-cart"

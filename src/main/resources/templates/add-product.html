@@ -61,12 +61,12 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="nameProduct" th:text="${kitMode == true} ? 'Тип' : #{add.name}">Марка</label>
+                                        <label for="nameProduct" th:text="#{add.name}">Марка</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-tag"></i>
                                             <input id="nameProduct" th:field="*{nameProduct}" type="text"
                                                    class="form-control" th:errorclass="is-invalid"
-                                                   th:placeholder="#{add.name.placeholder}" maxlength="150"
+                                                   th:placeholder="${kitMode == true} ? #{kit.brand.placeholder} : #{add.name.placeholder}" maxlength="150"
                                                    th:required="${kitMode == true}" th:minlength="${kitMode == true ? 2 : null}">
                                         </div>
                                         <div class="invalid-feedback d-block" th:errors="*{nameProduct}"></div>
@@ -74,12 +74,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group-custom">
-                                        <label for="model" th:text="${kitMode == true} ? 'Име / предназначение на кита' : #{add.model}">Модел</label>
+                                        <label for="model" th:text="${kitMode == true} ? #{kit.purpose} : #{add.model}">Предназначение на кита</label>
                                         <div class="input-icon-wrap">
                                             <i class="bi bi-box"></i>
                                             <input id="model" th:field="*{model}" type="text"
                                                    class="form-control" th:errorclass="is-invalid"
-                                                   th:placeholder="${kitMode == true} ? 'за предни врати' : #{add.model.placeholder}" maxlength="150"
+                                                   th:placeholder="${kitMode == true} ? #{kit.purpose.placeholder} : #{add.model.placeholder}" maxlength="150"
                                                    th:required="${kitMode == true}">
                                         </div>
                                         <div class="invalid-feedback d-block" th:errors="*{model}"></div>
@@ -109,7 +109,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group-custom">
+                            <div class="form-group-custom" th:unless="${kitMode == true}">
                                 <label for="secondaryCategoryId" th:text="#{add.category.secondary}">Втора категория (по избор)</label>
                                 <div class="input-icon-wrap">
                                     <i class="bi bi-grid"></i>
@@ -122,6 +122,24 @@
                                     </select>
                                 </div>
                                 <div class="invalid-feedback d-block" th:errors="*{secondaryCategoryId}"></div>
+                            </div>
+
+                            <div class="form-group-custom" th:if="${kitMode == true}">
+                                <label th:text="#{kit.categories.label}">Категории на кита (до 3)</label>
+                                <p class="form-hint" th:text="#{kit.categories.hint}">Категория „Кит“ се добавя автоматично.</p>
+                                <div class="row g-3">
+                                    <div class="col-md-4" th:each="index : ${#numbers.sequence(0, 2)}">
+                                        <label class="form-label" th:for="|kitCategory${index}|"
+                                               th:text="#{kit.categories.choice(${index + 1})}">Категория</label>
+                                        <select class="form-select" th:id="|kitCategory${index}|"
+                                                th:field="*{kitCategoryIds[__${index}__]}">
+                                            <option value="" th:text="#{kit.categories.none}">Без категория</option>
+                                            <option th:each="category : ${categories}"
+                                                    th:value="${category.id()}"
+                                                    th:text="${category.name()}">Категория</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group-custom">

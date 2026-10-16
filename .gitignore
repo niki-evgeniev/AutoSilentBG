@@ -1,6 +1,7 @@
 HELP.md
 .gradle
 build/
+/sitemap/*.xml
 /ProductImages/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/

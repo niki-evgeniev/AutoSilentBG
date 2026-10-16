@@ -33,8 +33,13 @@ class KitPageRenderTest {
             assertThat(response.getStatus()).isEqualTo(200);
             assertThat(response.getContentAsString())
                     .contains("components[0].productId", "components[0].quantity", "Добави продукт");
-            assertThat(org.jsoup.Jsoup.parse(response.getContentAsString())
-                    .selectFirst("form.product-editor").hasAttr("novalidate")).isFalse();
+            assertThat(response.getContentAsString())
+                    .contains("kitCategoryIds[0]", "kitCategoryIds[1]", "kitCategoryIds[2]");
+            var document = org.jsoup.Jsoup.parse(response.getContentAsString());
+            assertThat(document.selectFirst("form.product-editor").hasAttr("novalidate")).isFalse();
+            assertThat(document.selectFirst("label[for=nameProduct]").text()).isEqualTo("Марка");
+            assertThat(document.selectFirst("label[for=model]").text()).isEqualTo("Предназначение на кита");
+            assertThat(document.selectFirst("#nameProduct").val()).isEmpty();
         } finally {
             SecurityContextHolder.clearContext();
         }
@@ -51,7 +56,7 @@ class KitPageRenderTest {
             var response = MockMvcBuilders.webAppContextSetup(context).build()
                     .perform(multipart("/admin/settings/kits")
                             .file(new MockMultipartFile("mainImage", "kit.png", "image/png", new byte[]{1, 2, 3}))
-                            .param("nameProduct", "Кит")
+                            .param("nameProduct", "Vibrofiltr")
                             .param("model", "за предни врати")
                             .param("description", "Кит за предни врати")
                             .param("price", "0")
@@ -66,7 +71,7 @@ class KitPageRenderTest {
 
             var retryWithoutImage = MockMvcBuilders.webAppContextSetup(context).build()
                     .perform(multipart("/admin/settings/kits")
-                            .param("nameProduct", "Кит")
+                            .param("nameProduct", "Vibrofiltr")
                             .param("model", "за предни врати")
                             .param("description", "Кит за предни врати")
                             .param("price", "29.99")

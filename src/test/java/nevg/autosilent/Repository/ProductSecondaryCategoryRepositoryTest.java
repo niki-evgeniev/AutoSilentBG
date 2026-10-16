@@ -31,6 +31,9 @@ class ProductSecondaryCategoryRepositoryTest {
         Category secondary = new Category();
         secondary.setCategory("Secondary-" + suffix);
         secondary = categories.saveAndFlush(secondary);
+        Category additional = new Category();
+        additional.setCategory("Additional-" + suffix);
+        additional = categories.saveAndFlush(additional);
 
         User owner = new User();
         owner.setEmail("owner-" + suffix + "@example.com");
@@ -44,6 +47,7 @@ class ProductSecondaryCategoryRepositoryTest {
         product.setUrl("product-" + suffix);
         product.setCategory(primary);
         product.setSecondaryCategory(secondary);
+        product.getAdditionalCategories().add(additional);
         product.setPrice(BigDecimal.TEN);
         product.setDescription("Test product");
         product.setStock(1);
@@ -57,8 +61,17 @@ class ProductSecondaryCategoryRepositoryTest {
                 .extracting(Product::getId).contains(product.getId());
         assertThat(products.findAllByActiveTrueAndCategoryId(secondary.getId(), page))
                 .extracting(Product::getId).contains(product.getId());
+        assertThat(products.filterActive(null, null, null, null, null, false, additional.getId(), page))
+                .extracting(Product::getId).contains(product.getId());
+        assertThat(products.findAllByActiveTrueAndCategoryId(additional.getId(), page))
+                .extracting(Product::getId).contains(product.getId());
+        assertThat(products.searchActive("Additional-" + suffix))
+                .extracting(Product::getId).contains(product.getId());
         assertThat(products.existsBySecondaryCategoryId(secondary.getId())).isTrue();
+        assertThat(products.existsByAdditionalCategoryId(additional.getId())).isTrue();
+        assertThat(categories.findAdditionalCategoryNamesByProductId(product.getId()))
+                .containsExactly(additional.getCategory());
         assertThat(categories.findAllWithActiveProductsForSitemap())
-                .extracting("id").contains(secondary.getId());
+                .extracting("id").contains(secondary.getId(), additional.getId());
     }
 }

@@ -29,7 +29,8 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Категорията не е намерена."));
-        if (productRepository.existsByCategoryId(id) || productRepository.existsBySecondaryCategoryId(id)) {
+        if (productRepository.existsByCategoryId(id) || productRepository.existsBySecondaryCategoryId(id)
+                || productRepository.existsByAdditionalCategoryId(id)) {
             throw new IllegalArgumentException("Категорията съдържа продукти и не може да бъде изтрита.");
         }
         try {

@@ -26,6 +26,7 @@ public class ProductCreateDto {
     private Long categoryId;
 
     private Long secondaryCategoryId;
+    private List<Long> kitCategoryIds = new ArrayList<>(java.util.Arrays.asList(null, null, null));
 
     @NotNull(message = "{validation.product.price.required}")
     @DecimalMin(value = "0.01", message = "{validation.product.price.min}")
@@ -82,6 +83,14 @@ public class ProductCreateDto {
 
     public void setSecondaryCategoryId(Long secondaryCategoryId) {
         this.secondaryCategoryId = secondaryCategoryId;
+    }
+
+    public List<Long> getKitCategoryIds() {
+        return kitCategoryIds;
+    }
+
+    public void setKitCategoryIds(List<Long> kitCategoryIds) {
+        this.kitCategoryIds = kitCategoryIds == null ? new ArrayList<>() : kitCategoryIds;
     }
 
     public BigDecimal getPrice() {

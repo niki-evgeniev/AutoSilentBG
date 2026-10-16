@@ -92,6 +92,17 @@ class CategoryServiceImplTest {
     }
 
     @Test
+    void deleteRejectsCategoryUsedAsAdditionalCategory() {
+        when(categoryRepository.findById(4L)).thenReturn(java.util.Optional.of(category(4L, "Audio")));
+        when(productRepository.existsByAdditionalCategoryId(4L)).thenReturn(true);
+
+        assertThatThrownBy(() -> categoryService.delete(4L))
+                .isInstanceOf(IllegalArgumentException.class);
+        org.mockito.Mockito.verify(categoryRepository, org.mockito.Mockito.never())
+                .delete(org.mockito.ArgumentMatchers.any(Category.class));
+    }
+
+    @Test
     void getByIdReturnsCategoryWithSeoSlug() {
         Category category = category(3L, "Звукоизолация");
         when(categoryRepository.findById(3L)).thenReturn(java.util.Optional.of(category));

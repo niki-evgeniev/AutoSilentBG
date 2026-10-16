@@ -53,6 +53,8 @@ class KitControllerTest {
                 .thenReturn(Optional.of(catalogProduct));
         when(kits.findByCatalogProductUrlAndCatalogProductActiveTrue("front-doors"))
                 .thenReturn(Optional.of(kit));
+        when(categories.findAdditionalCategoryNamesByProductId(10L))
+                .thenReturn(List.of("Врати", "Звукоизолация"));
         when(productService.getActiveProductByUrlAndIncrementCount("front-doors"))
                 .thenReturn(Optional.of(details(10L, "front-doors", List.of("/kit.png"))));
         when(productService.getActiveProductByUrl("insulation"))
@@ -66,6 +68,8 @@ class KitControllerTest {
         Map<?, ?> images = (Map<?, ?>) page.getModel().get("kitItemImages");
         assertThat(images.get(20L)).isEqualTo("/insulation.png");
         assertThat(images.containsKey(30L)).isFalse();
+        assertThat(page.getModel().get("kitCategories"))
+                .isEqualTo(List.of("Врати", "Звукоизолация"));
     }
 
     private ProductDetailsDto details(Long id, String url, List<String> images) {

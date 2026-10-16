@@ -59,8 +59,17 @@
                 </p>
             </div>
         </div>
-        <div class="footer-bottom text-center" th:text="#{footer.copyright}">© 2026 AutoSilent - Всички права
-            запазени.
+        <div class="footer-bottom">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-6 text-center text-md-end">
+                    <span th:text="#{footer.copyright}">© 2026 AutoSilent - Всички права запазени.</span>
+                </div>
+                <div class="col-md-6 text-center text-md-start">
+                    <span th:text="#{footer.createdBy}">Създаден от:</span>
+                    <a class="footer-creator-link" href="https://m.facebook.com/Psyhopath/"
+                       target="_blank" rel="noopener noreferrer">Nikolay Ivanov</a>
+                </div>
+            </div>
         </div>
     </div>
     <dialog id="cookie-consent-dialog" class="cookie-consent-dialog" aria-labelledby="cookie-consent-title"

@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 
 @Entity
@@ -37,6 +39,15 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "secondary_category_id")
     private Category secondaryCategory;
+
+    @ManyToMany
+    @JoinTable(name = "product_additional_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"),
+            uniqueConstraints = @UniqueConstraint(name = "uk_product_additional_category",
+                    columnNames = {"product_id", "category_id"}))
+    @OrderBy("category ASC")
+    private Set<Category> additionalCategories = new LinkedHashSet<>();
 
     @Column(name = "price", nullable = false, precision = 12, scale = 2)
     private BigDecimal price;

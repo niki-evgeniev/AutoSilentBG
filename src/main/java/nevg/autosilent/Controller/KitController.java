@@ -25,6 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -64,6 +66,9 @@ public class KitController {
                     kit.get().availableStock(), product.count(), product.imageUrls(), product.secondaryCategory());
         }
         var items = kit.map(value -> value.getItems()).orElseGet(java.util.List::of);
+        List<String> kitCategories = new ArrayList<>();
+        if (product.secondaryCategory() != null) kitCategories.add(product.secondaryCategory());
+        kitCategories.addAll(categories.findAdditionalCategoryNamesByProductId(product.id()));
         Map<Long, String> itemImages = new HashMap<>();
         for (var item : items) {
             productService.getActiveProductByUrl(item.getProduct().getUrl())
@@ -71,14 +76,14 @@ public class KitController {
                     .ifPresent(image -> itemImages.put(item.getProduct().getId(), image));
         }
         return new ModelAndView("kit-details").addObject("product", product)
-                .addObject("kitItems", items).addObject("kitItemImages", itemImages);
+                .addObject("kitItems", items).addObject("kitItemImages", itemImages)
+                .addObject("kitCategories", kitCategories);
     }
 
     @GetMapping("/admin/settings/kits")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView add() {
         ProductCreateDto product = new ProductCreateDto();
-        product.setNameProduct("Кит");
         product.setCategoryId(kitCategory().getId());
         product.getComponents().add(new KitComponentDto());
         return form(product);
@@ -116,6 +121,7 @@ public class KitController {
         return new ModelAndView("add-product").addObject("product", product)
                 .addObject("kitMode", true).addObject("editMode", false)
                 .addObject("categories", categories.findAllByOrderByCategoryAsc().stream()
+                        .filter(category -> !"Кит".equalsIgnoreCase(category.getCategory()))
                         .map(category -> new CategoryViewDto(category.getId(), category.getCategory())).toList())
                 .addObject("availableProducts", productService.getActiveProducts().stream()
                         .filter(item -> !"Кит".equalsIgnoreCase(item.category())).toList());

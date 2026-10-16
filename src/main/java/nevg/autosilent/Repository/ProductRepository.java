@@ -19,6 +19,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByCategoryId(Long categoryId);
     boolean existsBySecondaryCategoryId(Long categoryId);
+    @Query("select count(p) > 0 from Product p join p.additionalCategories category where category.id = :categoryId")
+    boolean existsByAdditionalCategoryId(@Param("categoryId") Long categoryId);
     Page<Product> findAllByActiveTrueAndCategoryCategoryIgnoreCase(String category, Pageable pageable);
     Optional<Product> findByUrlAndActiveTrueAndCategoryCategoryIgnoreCase(String url, String category);
 
@@ -26,10 +28,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             select new nevg.autosilent.Models.Dto.SitemapProductDto(
                 p.url, coalesce(p.contentUpdatedAt, p.addDate))
             from Product p
-            where p.active = true
+            where p.active = true and lower(p.category.category) <> 'кит'
             order by p.url
             """)
     List<SitemapProductDto> findAllActiveForSitemap();
+
+    @Query("""
+            select new nevg.autosilent.Models.Dto.SitemapProductDto(
+                p.url, coalesce(p.contentUpdatedAt, p.addDate))
+            from Product p
+            where p.active = true and lower(p.category.category) = 'кит'
+            order by p.url
+            """)
+    List<SitemapProductDto> findAllActiveKitsForSitemap();
 
     boolean existsByNameProductIgnoreCaseAndModelIgnoreCase(String nameProduct, String model);
 
@@ -51,14 +62,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("""
             select p from Product p left join p.secondaryCategory secondary
-            where p.active = true and (p.category.id = :categoryId or secondary.id = :categoryId)
+            where p.active = true and (p.category.id = :categoryId or secondary.id = :categoryId
+                or exists (select 1 from Product tagged join tagged.additionalCategories extra
+                           where tagged = p and extra.id = :categoryId))
             """)
     Page<Product> findAllByActiveTrueAndCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
     @Query(value = """
             select p from Product p left join p.secondaryCategory secondary
             where p.active = true
-              and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId)
+              and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId
+                   or exists (select 1 from Product tagged join tagged.additionalCategories extra
+                              where tagged = p and extra.id = :categoryId))
               and (:brand is null or lower(p.nameProduct) = lower(:brand))
               and (:model is null or lower(p.model) = lower(:model))
               and (:minPrice is null or p.price >= :minPrice)
@@ -70,12 +85,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                    lower(p.sku) like lower(concat('%', :search, '%')) or
                    lower(p.category.category) like lower(concat('%', :search, '%')) or
                    lower(secondary.category) like lower(concat('%', :search, '%')) or
+                   exists (select 1 from Product tagged join tagged.additionalCategories extra
+                           where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                    lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
             """,
             countQuery = """
                     select count(p) from Product p left join p.secondaryCategory secondary
                     where p.active = true
-                      and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId)
+                      and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId
+                           or exists (select 1 from Product tagged join tagged.additionalCategories extra
+                                      where tagged = p and extra.id = :categoryId))
                       and (:brand is null or lower(p.nameProduct) = lower(:brand))
                       and (:model is null or lower(p.model) = lower(:model))
                       and (:minPrice is null or p.price >= :minPrice)
@@ -87,6 +106,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                            lower(p.sku) like lower(concat('%', :search, '%')) or
                            lower(p.category.category) like lower(concat('%', :search, '%')) or
                            lower(secondary.category) like lower(concat('%', :search, '%')) or
+                           exists (select 1 from Product tagged join tagged.additionalCategories extra
+                                   where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                            lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
                     """)
     Page<Product> filterActive(@Param("search") String search,
@@ -123,6 +144,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                 lower(p.sku) like lower(concat('%', :search, '%')) or
                 lower(p.category.category) like lower(concat('%', :search, '%')) or
                 lower(secondary.category) like lower(concat('%', :search, '%')) or
+                exists (select 1 from Product tagged join tagged.additionalCategories extra
+                        where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
             )
             order by p.addDate desc
@@ -137,6 +160,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                 lower(p.sku) like lower(concat('%', :search, '%')) or
                 lower(p.category.category) like lower(concat('%', :search, '%')) or
                 lower(secondary.category) like lower(concat('%', :search, '%')) or
+                exists (select 1 from Product tagged join tagged.additionalCategories extra
+                        where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                 lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
             )
             """,
@@ -148,6 +173,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                             lower(p.sku) like lower(concat('%', :search, '%')) or
                             lower(p.category.category) like lower(concat('%', :search, '%')) or
                             lower(secondary.category) like lower(concat('%', :search, '%')) or
+                            exists (select 1 from Product tagged join tagged.additionalCategories extra
+                                    where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                             lower(coalesce(p.description, '')) like lower(concat('%', :search, '%'))
                         )
                     """)
