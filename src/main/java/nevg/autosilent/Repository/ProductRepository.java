@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    long countByActiveTrue();
     boolean existsByCategoryId(Long categoryId);
     boolean existsBySecondaryCategoryId(Long categoryId);
     @Query("select count(p) > 0 from Product p join p.additionalCategories category where category.id = :categoryId")

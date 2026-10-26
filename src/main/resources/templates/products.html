@@ -122,45 +122,12 @@
                     "name": /*[[${seoName + seoPageSuffix}]]*/ "Автомобилна шумоизолация и виброизолация",
                     "numberOfItems": /*[[${productPage.totalElements}]]*/ 0,
                     "itemListElement": [
-                        /*[# th:each="product, stat : ${products}" th:with="rawImage=${product.mainImageUrl() == null ? '' : product.mainImageUrl().trim()}, productImage=${#strings.isEmpty(rawImage) ? null : (#strings.startsWith(#strings.toLowerCase(rawImage), 'https://') or #strings.startsWith(#strings.toLowerCase(rawImage), 'http://') ? rawImage : (#strings.startsWith(rawImage, '//') ? 'https:' + rawImage : (rawImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? null : 'https://autosilent.bg' + (#strings.startsWith(rawImage, '/') ? '' : '/') + rawImage)))}, productUrl=${'https://autosilent.bg/shumoizolaciya/' + (product.category() == 'Кит' ? 'kit/' : '') + product.url()}"]*/
+                        /*[# th:each="product, stat : ${products}" th:with="productUrl=${'https://autosilent.bg/shumoizolaciya/' + (product.category() == 'Кит' ? 'kit/' : '') + product.url()}"]*/
                         {
                             "@type": "ListItem",
                             "position": /*[[${productPage.number * productPage.size + stat.count}]]*/ 1,
                             "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
-                            "item": {
-                                "@type": "Product",
-                                "@id": /*[[${productUrl + '#product'}]]*/ "https://autosilent.bg/shumoizolaciya/product#product",
-                                "name": /*[[${product.displayName()}]]*/ "Product",
-                                "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
-                                "inLanguage": "bg-BG",
-                                "description": /*[[${product.plainDescription()}]]*/ "Product description",
-                                "sku": /*[[${product.sku()}]]*/ "SKU",
-                                "category": /*[[${product.category()}]]*/ "Category",
-                                "brand": {
-                                    "@type": "Brand",
-                                    "name": /*[[${product.name()}]]*/ "Brand"
-                                }
-                                /*[# th:if="${product.model() != null and !product.model().isBlank()}"]*/,
-                                "model": /*[[${product.model()}]]*/ "Model"
-                                /*[/]*/
-                                /*[# th:if="${productImage != null}"]*/,
-                                "image": /*[[${productImage}]]*/ "https://autosilent.bg/images/product.webp"
-                                /*[/]*/
-                                /*[# th:if="${product.price() != null and product.price().signum() >= 0}"]*/,
-                                "offers": {
-                                    "@type": "Offer",
-                                    "@id": /*[[${productUrl + '#offer'}]]*/ "https://autosilent.bg/shumoizolaciya/product#offer",
-                                    "url": /*[[${productUrl}]]*/ "https://autosilent.bg/shumoizolaciya/product",
-                                    "priceCurrency": "EUR",
-                                    "price": /*[[${product.price()}]]*/ 0,
-                                    "availability": /*[[${product.stock() > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}]]*/ "https://schema.org/OutOfStock",
-                                    "itemCondition": "https://schema.org/NewCondition",
-                                    "seller": {
-                                        "@id": "https://autosilent.bg/#organization"
-                                    }
-                                }
-                                /*[/]*/
-                            }
+                            "name": /*[[${product.displayName()}]]*/ "Product"
                         }
                         /*[# th:unless="${stat.last}"]*/
                         ,
@@ -460,7 +427,8 @@
                                    th:aria-label="${product.displayName()}">
                                     <img th:if="${product.mainImageUrl() != null}"
                                          th:src="${product.mainImageUrl()}"
-                                         th:alt="${product.displayName()}">
+                                         th:alt="${product.displayName()}"
+                                         loading="lazy" decoding="async">
                                     <i th:unless="${product.mainImageUrl() != null}"
                                        class="bi bi-box-seam product-placeholder-icon"></i>
                                 </a>
@@ -508,27 +476,29 @@
 
                     <nav class="shop-pagination" th:if="${productPage.totalPages > 1}"
                          th:aria-label="#{products.pagination}">
-                        <a th:href="${selectedCategory == null}
-                            ? @{/shumoizolaciya(lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}
-                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number - 1})}"
-                           th:classappend="${productPage.first} ? ' disabled'"
+                        <a th:if="${!productPage.first}"
+                           th:href="${paginationLinks[productPage.number - 1]}"
                            th:aria-label="#{products.previous}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
+                        <span th:if="${productPage.first}" class="disabled" aria-disabled="true"
+                              th:aria-label="#{products.previous}">
+                            <i class="bi bi-chevron-left"></i>
+                        </span>
                         <a th:each="pageNumber : ${#numbers.sequence(0, productPage.totalPages - 1)}"
-                           th:href="${selectedCategory == null}
-                               ? @{/shumoizolaciya(lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}
-                               : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${pageNumber})}"
+                           th:href="${paginationLinks[pageNumber]}"
                            th:classappend="${pageNumber == productPage.number} ? ' active'"
                            th:text="${pageNumber + 1}"
                            th:aria-label="#{products.page(${pageNumber + 1})}">1</a>
-                        <a th:href="${selectedCategory == null}
-                            ? @{/shumoizolaciya(lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}
-                            : @{/shumoizolaciya/category/{categoryId}/{slug}(categoryId=${selectedCategory.id()},slug=${selectedCategory.slug()},lang=${#locale.language == 'en' ? 'en' : null},search=${filter.search()},brand=${filter.brand()},model=${filter.model()},minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},order=${sortMode},page=${productPage.number + 1})}"
-                           th:classappend="${productPage.last} ? ' disabled'"
+                        <a th:if="${!productPage.last}"
+                           th:href="${paginationLinks[productPage.number + 1]}"
                            th:aria-label="#{products.next}">
                             <i class="bi bi-chevron-right"></i>
                         </a>
+                        <span th:if="${productPage.last}" class="disabled" aria-disabled="true"
+                              th:aria-label="#{products.next}">
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
                     </nav>
                     <div class="d-flex justify-content-end mt-4" sec:authorize="hasRole('ADMIN')"
                          th:if="${selectedCategory == null}">

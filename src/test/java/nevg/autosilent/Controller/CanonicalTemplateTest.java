@@ -99,10 +99,11 @@ class CanonicalTemplateTest {
         assertThat(graph.path(1).path("itemListElement")).hasSize(3);
         assertThat(graph.path(2).path("numberOfItems").asLong()).isEqualTo(10);
         assertThat(graph.path(2).path("itemListElement").path(0).path("position").asInt()).isEqualTo(10);
-        assertThat(graph.path(2).path("itemListElement").path(0).path("item").path("name").asText())
+        assertThat(graph.path(2).path("itemListElement").path(0).path("name").asText())
                 .isEqualTo("Vibrofiltr \"Special\" 2 mm");
-        assertThat(graph.path(2).path("itemListElement").path(0).path("item").path("description").asText())
-                .isEqualTo("Описание & характеристики");
+        assertThat(graph.path(2).path("itemListElement").path(0).path("url").asText())
+                .isEqualTo("https://autosilent.bg/shumoizolaciya/vibrofiltr-special");
+        assertThat(graph.path(2).path("itemListElement").path(0).has("item")).isFalse();
         assertThat(graph.path(0).path("isPartOf").path("@id").asText())
                 .isEqualTo("https://autosilent.bg/#website");
         assertThat(graph.path(3).path("@type").asText()).isEqualTo("ImageObject");

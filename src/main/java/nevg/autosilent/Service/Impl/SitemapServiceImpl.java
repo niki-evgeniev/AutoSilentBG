@@ -57,6 +57,10 @@ public class SitemapServiceImpl implements SitemapService {
             for (String path : BULGARIAN_ONLY_STATIC_PUBLIC_PATHS) {
                 writeUrlOnce(xml, SITE_URL + path, null, includedUrls);
             }
+            long catalogPages = (productRepository.countByActiveTrue() + 8) / 9;
+            for (long page = 1; page < catalogPages; page++) {
+                writeUrlOnce(xml, SITE_URL + "/shumoizolaciya?page=" + page, null, includedUrls);
+            }
             writeUrlOnce(xml, SITE_URL + "/shumoizolaciya/kit", null, includedUrls);
             for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
                 if (CatalogCategoryUrlPolicy.isRootCatalogCategory(category.id())) {

@@ -79,7 +79,7 @@ class ProductsControllerTest {
         when(productService.filterActiveProducts(filter, sortedPageable)).thenReturn(new PageImpl<>(products));
 
         ModelAndView result = productsController.products(
-                null, null, null, null, null, false, "default", pageable);
+                null, null, null, null, null, false, "default", pageable, new MockHttpServletRequest());
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(products);
@@ -95,10 +95,84 @@ class ProductsControllerTest {
                 .thenReturn(new PageImpl<>(List.of()));
 
         ModelAndView result = productsController.products(
-                null, null, null, null, null, false, "default", pageable);
+                null, null, null, null, null, false, "default", pageable, new MockHttpServletRequest());
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("products")).isEqualTo(List.of());
+    }
+
+    @Test
+    void pageZeroRedirectsToCleanCatalogUrlWithFilters() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("page", "0");
+
+        ModelAndView result = productsController.products(
+                "  door panel  ", null, null, null, null, false,
+                "default", PageRequest.of(0, 9), request);
+
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+        assertThat(result.getViewName())
+                .isEqualTo("redirect:/shumoizolaciya?search=door%20panel");
+        verify(productService, never()).filterActiveProducts(any(), any());
+    }
+
+    @Test
+    void ignoredPageSizeRedirectsToRealCatalogPage() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("page", "01");
+        request.setParameter("size", "100");
+
+        ModelAndView result = productsController.products(
+                null, null, null, null, null, false,
+                "default", PageRequest.of(1, 100), request);
+
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
+        assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya?page=1");
+        verify(productService, never()).filterActiveProducts(any(), any());
+    }
+
+    @Test
+    void negativeAndNonNumericPagesReturnNotFound() {
+        for (String value : List.of("-1", "not-a-page")) {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setParameter("page", value);
+
+            assertThatThrownBy(() -> productsController.products(
+                    null, null, null, null, null, false,
+                    "default", PageRequest.of(0, 9), request))
+                    .isInstanceOf(ResponseStatusException.class)
+                    .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode())
+                            .isEqualTo(HttpStatus.NOT_FOUND));
+        }
+    }
+
+    @Test
+    void nonexistentLaterPageReturnsNotFound() {
+        Pageable requested = defaultCatalogPage(10);
+        when(productService.filterActiveProducts(any(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), requested, 20));
+
+        assertThatThrownBy(() -> productsController.products(
+                null, null, null, null, null, false,
+                "default", PageRequest.of(10, 9), new MockHttpServletRequest()))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    void paginationUsesCleanCanonicalUrls() {
+        ProductViewDto product = new ProductViewDto(1L, "Product", "SKU-1", "Category",
+                BigDecimal.TEN, "Description", 2, null);
+        when(productService.filterActiveProducts(any(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(product), defaultCatalogPage(0), 19));
+
+        ModelAndView result = productsController.products(
+                null, null, null, null, null, false,
+                "default", PageRequest.of(0, 9), new MockHttpServletRequest());
+
+        assertThat(result.getModel().get("paginationLinks")).isEqualTo(List.of(
+                "/shumoizolaciya", "/shumoizolaciya?page=1", "/shumoizolaciya?page=2"));
     }
 
     @Test
@@ -107,11 +181,14 @@ class ProductsControllerTest {
         ProductFilterDto filter = new ProductFilterDto(
                 "  lamp  ", "  Brand  ", " Model ", new BigDecimal("10"), new BigDecimal("50"), true, null);
         when(productService.filterActiveProducts(filter, defaultCatalogPage(2)))
-                .thenReturn(new PageImpl<>(List.of()));
+                .thenReturn(new PageImpl<>(List.of(new ProductViewDto(1L, "Product", "SKU-1",
+                        "Category", BigDecimal.TEN, "Description", 2, null)),
+                        defaultCatalogPage(2), 28));
 
         ModelAndView result = productsController.products(
                 "  lamp  ", "  Brand  ", " Model ",
-                new BigDecimal("10"), new BigDecimal("50"), true, "default", pageable);
+                new BigDecimal("10"), new BigDecimal("50"), true, "default", pageable,
+                new MockHttpServletRequest());
 
         assertThat(result.getModel().get("search")).isEqualTo("lamp");
         assertThat(result.getModel().get("filter")).isEqualTo(filter);
@@ -131,7 +208,7 @@ class ProductsControllerTest {
 
         ModelAndView result = productsController.productsByCategory(
                 3L, "zvukoizolatsiya", null, "Brand", "Model",
-                null, new BigDecimal("100"), true, "default", pageable);
+                null, new BigDecimal("100"), true, "default", pageable, new MockHttpServletRequest());
 
         assertThat(result.getViewName()).isEqualTo("products");
         assertThat(result.getModel().get("selectedCategory")).isSameAs(category);
@@ -143,7 +220,7 @@ class ProductsControllerTest {
     void rootCatalogCategoryRedirectsPermanentlyToCatalog() {
         ModelAndView result = productsController.productsByCategory(
                 1L, "zvukoizolatsiya", null, null, null,
-                null, null, false, "default", PageRequest.of(0, 9));
+                null, null, false, "default", PageRequest.of(0, 9), new MockHttpServletRequest());
 
         assertThat(result.getViewName()).isEqualTo("redirect:/shumoizolaciya");
         assertThat(result.getStatus()).isEqualTo(HttpStatus.MOVED_PERMANENTLY);
@@ -170,7 +247,7 @@ class ProductsControllerTest {
 
         ModelAndView result = productsController.productsByCategory(
                 3L, "wrong", null, null, null,
-                null, null, false, "default", PageRequest.of(0, 9));
+                null, null, false, "default", PageRequest.of(0, 9), new MockHttpServletRequest());
 
         assertThat(result.getViewName())
                 .isEqualTo("redirect:/shumoizolaciya/category/3/zvukoizolatsiya");
@@ -216,7 +293,8 @@ class ProductsControllerTest {
                 .thenReturn(new PageImpl<>(List.of()));
 
         ModelAndView result = productsController.products(
-                null, null, null, null, null, false, mode, PageRequest.of(0, 9));
+                null, null, null, null, null, false, mode, PageRequest.of(0, 9),
+                new MockHttpServletRequest());
 
         var pageable = org.mockito.ArgumentCaptor.forClass(Pageable.class);
         verify(productService).filterActiveProducts(any(), pageable.capture());

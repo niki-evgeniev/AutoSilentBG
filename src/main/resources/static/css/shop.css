@@ -1868,7 +1868,8 @@ a {
     margin-top: 36px;
 }
 
-.shop-pagination a {
+.shop-pagination a,
+.shop-pagination span {
     width: 42px;
     height: 42px;
     display: grid;
@@ -1886,7 +1887,7 @@ a {
     color: #fff;
 }
 
-.shop-pagination a.disabled {
+.shop-pagination span.disabled {
     opacity: 0.45;
     pointer-events: none;
 }

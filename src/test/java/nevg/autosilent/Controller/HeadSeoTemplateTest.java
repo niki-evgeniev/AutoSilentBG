@@ -216,8 +216,34 @@ class HeadSeoTemplateTest {
         JsonNode item = head.node("ItemList").path("itemListElement").path(0);
         assertThat(item.path("url").asText())
                 .isEqualTo("https://autosilent.bg/shumoizolaciya/kit/front-door-kit");
-        assertThat(item.path("item").path("offers").path("url").asText())
-                .isEqualTo("https://autosilent.bg/shumoizolaciya/kit/front-door-kit");
+        assertThat(item.path("name").asText()).isEqualTo(kit.displayName());
+        assertThat(item.has("item")).isFalse();
+        assertThat(head.graph().toString()).doesNotContain("\"@type\":\"Product\"");
+    }
+
+    @Test
+    void paginationRendersOnlyValidNavigationTargets() throws IOException {
+        String template = Files.readString(Path.of("src/main/resources/templates/products.html"),
+                StandardCharsets.UTF_8);
+        int start = template.indexOf("<nav class=\"shop-pagination\"");
+        String navigation = template.substring(start, template.indexOf("</nav>", start) + 6);
+        Context context = new Context();
+        context.setVariable("productPage", new PageImpl<>(
+                List.of(view(7L, "Vibrofiltr", null, 2)), PageRequest.of(0, 9), 19));
+        context.setVariable("paginationLinks", List.of(
+                "/shumoizolaciya", "/shumoizolaciya?page=1", "/shumoizolaciya?page=2"));
+        SpringTemplateEngine engine = new SpringTemplateEngine();
+        StringTemplateResolver resolver = new StringTemplateResolver();
+        resolver.setTemplateMode("HTML");
+        engine.setTemplateResolver(resolver);
+
+        Document rendered = Jsoup.parse(engine.process(navigation, context));
+
+        assertThat(rendered.select("nav a[href]")).extracting(link -> link.attr("href"))
+                .containsExactly("/shumoizolaciya", "/shumoizolaciya?page=1",
+                        "/shumoizolaciya?page=2", "/shumoizolaciya?page=1");
+        assertThat(rendered.select("nav a[href*=\"page=-1\"]")).isEmpty();
+        assertThat(rendered.select("nav span[aria-disabled=true]")).hasSize(1);
     }
 
     @ParameterizedTest
@@ -233,6 +259,8 @@ class HeadSeoTemplateTest {
 
         RenderedHead head = render(template, context);
         JsonNode productNode = template.equals("product-details.html") ? head.node("Product")
+                : template.equals("products.html")
+                ? head.node("ItemList").path("itemListElement").path(0)
                 : head.node("ItemList").path("itemListElement").path(0).path("item");
 
         assertThat(head.document().select("meta[name=injected]")).isEmpty();
@@ -308,7 +336,7 @@ class HeadSeoTemplateTest {
             "http://cdn.example.com/product.webp, http://cdn.example.com/product.webp"
     })
     void productImageUrlsAreAbsoluteInEveryHead(String source, String expected) throws IOException {
-        for (String template : List.of("index.html", "products.html", "product-details.html")) {
+        for (String template : List.of("index.html", "product-details.html")) {
             Context context = context(template, Locale.forLanguageTag("bg"));
             ProductViewDto product = view(7L, "Vibrofiltr", source, 3);
             context.setVariable("product", details("Vibrofiltr", List.of(source), 3));
@@ -334,7 +362,7 @@ class HeadSeoTemplateTest {
     @ParameterizedTest
     @ValueSource(strings = {"data:image/png;base64,AAAA", "javascript:alert(1)"})
     void unsupportedImageSchemesAreOmittedFromProductData(String source) throws IOException {
-        for (String template : List.of("index.html", "products.html", "product-details.html")) {
+        for (String template : List.of("index.html", "product-details.html")) {
             Context context = context(template, Locale.forLanguageTag("bg"));
             ProductViewDto product = view(7L, "Vibrofiltr", source, 3);
             context.setVariable("product", details("Vibrofiltr", List.of(source), 3));
@@ -360,7 +388,7 @@ class HeadSeoTemplateTest {
     @ValueSource(strings = {"-0.01"})
     void missingOrNegativePricesDoNotAdvertiseOffers(String amount) throws IOException {
         BigDecimal price = amount == null ? null : new BigDecimal(amount);
-        for (String template : List.of("index.html", "products.html", "product-details.html")) {
+        for (String template : List.of("index.html", "product-details.html")) {
             Context context = context(template, Locale.forLanguageTag("bg"));
             ProductViewDto product = new ProductViewDto(7L, "product-7", "Vibrofiltr", "2 mm",
                     "SKU-7", CATEGORY.name(), price, "Product description", 3, null);

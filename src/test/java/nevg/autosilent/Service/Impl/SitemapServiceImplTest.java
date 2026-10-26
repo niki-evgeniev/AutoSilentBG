@@ -106,6 +106,24 @@ class SitemapServiceImplTest {
                 .isEqualTo("https://autosilent.bg/contact?lang=en&ref=a&b");
     }
 
+    @Test
+    void sitemapListsOnlyExistingCatalogPagesWithoutInventedDates() throws Exception {
+        when(productRepository.countByActiveTrue()).thenReturn(19L);
+        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository);
+
+        Document document = parse(service.generateSitemap());
+        List<String> urls = textValues(document.getElementsByTagNameNS(
+                "http://www.sitemaps.org/schemas/sitemap/0.9", "loc"));
+
+        assertThat(urls).contains("https://autosilent.bg/shumoizolaciya?page=1",
+                "https://autosilent.bg/shumoizolaciya?page=2")
+                .doesNotContain("https://autosilent.bg/shumoizolaciya?page=0",
+                        "https://autosilent.bg/shumoizolaciya?page=3")
+                .doesNotHaveDuplicates();
+        assertThat(document.getElementsByTagNameNS(
+                "http://www.sitemaps.org/schemas/sitemap/0.9", "lastmod").getLength()).isZero();
+    }
+
     private Document parse(String xml) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);

@@ -61,6 +61,22 @@ class AutoSilentApplicationTests {
     }
 
     @Test
+    void catalogPageZeroRedirectsWithoutDoubleEncodingAndNegativePageIsMissing() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+        var firstPage = mockMvc.perform(get("/shumoizolaciya")
+                        .param("page", "0").param("search", "door panel"))
+                .andReturn().getResponse();
+        var negativePage = mockMvc.perform(get("/shumoizolaciya").param("page", "-1"))
+                .andReturn().getResponse();
+
+        assertThat(firstPage.getStatus()).isEqualTo(301);
+        assertThat(firstPage.getHeader("Location"))
+                .isEqualTo("/shumoizolaciya?search=door%20panel");
+        assertThat(negativePage.getStatus()).isEqualTo(404);
+    }
+
+    @Test
     void sitemapIsXmlWithoutVisualization() throws Exception {
         Path sitemapFile = Path.of("build", "test-sitemap", "sitemap.xml");
         assertThat(Files.exists(sitemapFile)).isTrue();

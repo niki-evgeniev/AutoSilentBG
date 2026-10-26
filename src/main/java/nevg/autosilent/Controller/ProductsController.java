@@ -33,10 +33,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 @Controller
 public class ProductsController {
@@ -63,12 +66,15 @@ public class ProductsController {
                                  @RequestParam(name = "inStock", defaultValue = "false") boolean inStock,
                                  @RequestParam(name = "order", defaultValue = "default") String order,
                                  @PageableDefault(size = 9, sort = {"nameProduct", "model", "id"},
-                                         direction = Sort.Direction.ASC) Pageable pageable) {
+                                         direction = Sort.Direction.ASC) Pageable pageable,
+                                 HttpServletRequest request) {
         ProductFilterDto filter = new ProductFilterDto(
                 search, brand, model, minPrice, maxPrice, inStock, null);
 
-        return catalog(filter, catalogPageable(pageable, order),
-                null, normalizeOrder(order));
+        String normalizedOrder = normalizeOrder(order);
+        ModelAndView pageZero = normalizeFirstPage(request, "/shumoizolaciya", filter, normalizedOrder);
+        return pageZero != null ? pageZero : catalog(filter, catalogPageable(pageable, order),
+                null, normalizedOrder);
     }
 
     @GetMapping({"/products", "/products/"})
@@ -87,7 +93,8 @@ public class ProductsController {
                                            @RequestParam(name = "inStock", defaultValue = "false") boolean inStock,
                                            @RequestParam(name = "order", defaultValue = "default") String order,
                                            @PageableDefault(size = 9, sort = {"nameProduct", "model", "id"},
-                                                   direction = Sort.Direction.ASC) Pageable pageable) {
+                                                   direction = Sort.Direction.ASC) Pageable pageable,
+                                           HttpServletRequest request) {
         if (CatalogCategoryUrlPolicy.isRootCatalogCategory(categoryId)) {
             return permanentRedirect("/shumoizolaciya", null);
         }
@@ -103,7 +110,11 @@ public class ProductsController {
 
         ProductFilterDto filter = new ProductFilterDto(
                 search, brand, model, minPrice, maxPrice, inStock, categoryId);
-        return catalog(filter, catalogPageable(pageable, order), category, normalizeOrder(order));
+        String normalizedOrder = normalizeOrder(order);
+        String path = "/shumoizolaciya/category/" + category.id() + "/" + category.slug();
+        ModelAndView pageZero = normalizeFirstPage(request, path, filter, normalizedOrder);
+        return pageZero != null ? pageZero : catalog(filter, catalogPageable(pageable, order),
+                category, normalizedOrder);
     }
 
     @GetMapping("/products/category/{categoryId}/{slug}")
@@ -131,6 +142,11 @@ public class ProductsController {
                                  CategoryViewDto selectedCategory,
                                  String order) {
         var productPage = productService.filterActiveProducts(filter, pageable);
+        if (pageable.getPageNumber() > 0 && pageable.getPageNumber() >= productPage.getTotalPages()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Страницата не е намерена.");
+        }
+        String path = selectedCategory == null ? "/shumoizolaciya"
+                : "/shumoizolaciya/category/" + selectedCategory.id() + "/" + selectedCategory.slug();
         ModelAndView modelAndView = new ModelAndView("products");
         modelAndView.addObject("productPage", productPage);
         modelAndView.addObject("products", productPage.getContent());
@@ -140,6 +156,8 @@ public class ProductsController {
         modelAndView.addObject("filter", filter);
         modelAndView.addObject("search", filter.search() == null ? "" : filter.search());
         modelAndView.addObject("sortMode", order);
+        modelAndView.addObject("paginationLinks", IntStream.range(0, productPage.getTotalPages())
+                .mapToObj(page -> catalogPageUrl(path, filter, order, page)).toList());
         if (selectedCategory != null) {
             modelAndView.addObject("selectedCategory", selectedCategory);
         } else {
@@ -148,9 +166,67 @@ public class ProductsController {
         return modelAndView;
     }
 
+    private ModelAndView normalizeFirstPage(HttpServletRequest request, String path,
+                                            ProductFilterDto filter, String order) {
+        if (request == null) {
+            return null;
+        }
+        String rawPage = request.getParameter("page");
+        int page = 0;
+        if (rawPage != null) {
+            try {
+                page = Integer.parseInt(rawPage);
+            } catch (NumberFormatException exception) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Страницата не е намерена.");
+            }
+            if (page < 0) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Страницата не е намерена.");
+            }
+        }
+        if ((rawPage != null && (page == 0 || !rawPage.equals(Integer.toString(page))))
+                || request.getParameter("size") != null) {
+            ModelAndView redirect = new ModelAndView("redirect:" + catalogPageUrl(path, filter, order, page));
+            redirect.setStatus(HttpStatus.MOVED_PERMANENTLY);
+            return redirect;
+        }
+        return null;
+    }
+
+    private String catalogPageUrl(String path, ProductFilterDto filter, String order, int page) {
+        UriComponentsBuilder url = UriComponentsBuilder.fromPath(path);
+        if ("en".equals(LocaleContextHolder.getLocale().getLanguage())) {
+            url.queryParam("lang", "en");
+        }
+        if (filter.search() != null) {
+            url.queryParam("search", filter.search());
+        }
+        if (filter.brand() != null) {
+            url.queryParam("brand", filter.brand());
+        }
+        if (filter.model() != null) {
+            url.queryParam("model", filter.model());
+        }
+        if (filter.minPrice() != null) {
+            url.queryParam("minPrice", filter.minPrice());
+        }
+        if (filter.maxPrice() != null) {
+            url.queryParam("maxPrice", filter.maxPrice());
+        }
+        if (filter.inStock()) {
+            url.queryParam("inStock", true);
+        }
+        if (!"default".equals(order)) {
+            url.queryParam("order", order);
+        }
+        if (page > 0) {
+            url.queryParam("page", page);
+        }
+        return url.build().encode().toUriString();
+    }
+
     private Pageable catalogPageable(Pageable pageable, String order) {
         int page = pageable == null ? 0 : Math.max(pageable.getPageNumber(), 0);
-        int size = pageable == null ? 9 : pageable.getPageSize();
+        int size = 9;
         Sort brandAndModel = Sort.by(Sort.Direction.ASC, "nameProduct", "model", "id");
         Sort sort = switch (normalizeOrder(order)) {
             case "bestSelling" -> Sort.by(Sort.Direction.DESC, "sold").and(brandAndModel);
