@@ -58,6 +58,7 @@
                     <strong th:text="#{product.price(${item.totalPrice()})}"></strong>
                 </article>
 
+                <div th:replace="~{fragments/order-delivery :: delivery(${order.delivery()})}"></div>
                 <div class="admin-order-totals">
                     <div>
                         <span th:text="#{admin.order.subtotal}">Междинна сума</span>
@@ -65,7 +66,8 @@
                     </div>
                     <div>
                         <span th:text="#{admin.order.delivery}">Доставка</span>
-                        <strong th:text="#{product.price(${order.deliveryPrice()})}"></strong>
+                        <strong th:if="${order.delivery() != null}" th:text="#{shipping.paidByRecipient}"></strong>
+                        <strong th:unless="${order.delivery() != null}" th:text="#{product.price(${order.deliveryPrice()})}"></strong>
                     </div>
                     <div class="text-success"
                          th:if="${order.discountPrice() != null and order.discountPrice().signum() > 0}">

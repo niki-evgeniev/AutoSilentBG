@@ -1,0 +1,11 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"><body>
+<section th:fragment="delivery(delivery)" th:if="${delivery != null}" class="admin-detail-card my-4">
+    <h2 class="h5" th:text="#{shipping.heading}">Доставка</h2>
+    <p><strong th:text="${#messages.msg('delivery.type.' + delivery.type().name())}"></strong></p>
+    <p th:text="|${delivery.city()} ${delivery.postcode() ?: ''}|"></p>
+    <p th:if="${delivery.officeName() != null}" th:text="|${delivery.officeName()} (${delivery.officeCode()})|"></p>
+    <p th:text="${delivery.address()}"></p>
+    <p class="small text-muted" th:text="#{shipping.customerPays}">Доставката се поема от клиента по тарифата на Еконт.</p>
+</section>
+</body></html>

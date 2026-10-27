@@ -160,7 +160,7 @@ class UserControllerTest {
         UserOrderDetailDto order = new UserOrderDetailDto(
                 "NRT-123", OrderStatus.NEW, new BigDecimal("20.00"), BigDecimal.ZERO, BigDecimal.ZERO,
                 null, BigDecimal.ZERO, new BigDecimal("20.00"), null,
-                List.of());
+                List.of(), null);
         when(userOrderService.getOrder("NRT-123", "user@example.com")).thenReturn(order);
 
         ModelAndView result = userController.userOrder("NRT-123", currentUser());

@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta name="robots" content="noindex">
     <meta charset="UTF-8">
@@ -19,6 +19,7 @@
             <h1 th:text="#{admin.orders.heading}">Всички поръчки</h1>
         </div>
 
+        <a sec:authorize="hasRole('ADMIN')" class="btn btn-outline-dark mb-3" th:href="@{/admin/settings/econt}" th:text="#{econt.admin.title}">Еконт</a>
         <form class="shop-search-box mb-4" th:action="@{/admin/orders}" method="get" role="search">
             <i class="bi bi-search"></i>
             <label class="visually-hidden" for="orderSearch"

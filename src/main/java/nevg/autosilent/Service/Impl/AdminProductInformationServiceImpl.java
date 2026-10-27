@@ -7,6 +7,8 @@ import nevg.autosilent.Models.Entity.Product;
 import nevg.autosilent.Models.Enums.OrderStatus;
 import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.KitRepository;
+import nevg.autosilent.Models.Entity.Kit;
 import nevg.autosilent.Service.AdminProductInformationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +23,21 @@ public class AdminProductInformationServiceImpl implements AdminProductInformati
 
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private final KitRepository kitRepository;
 
     public AdminProductInformationServiceImpl(ProductRepository productRepository,
-                                              OrderItemRepository orderItemRepository) {
+                                              OrderItemRepository orderItemRepository,
+                                              KitRepository kitRepository) {
         this.productRepository = productRepository;
         this.orderItemRepository = orderItemRepository;
+        this.kitRepository = kitRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public AdminProductInformationPageDto getProductInformation() {
+        Map<Long, Kit> kitsByProductId = kitRepository.findAll().stream()
+                .collect(Collectors.toMap(kit -> kit.getCatalogProduct().getId(), kit -> kit));
         Map<Long, Long> soldByProductId = orderItemRepository
                 .sumQuantityByProductForStatus(OrderStatus.DELIVERED)
                 .stream()
@@ -38,7 +45,7 @@ public class AdminProductInformationServiceImpl implements AdminProductInformati
         List<AdminProductInformationDto> products = productRepository
                 .findAllByOrderByNameProductAscModelAsc()
                 .stream()
-                .map(product -> toDto(product, soldByProductId.getOrDefault(product.getId(), 0L)))
+                .map(product -> toDto(product, soldByProductId.getOrDefault(product.getId(), 0L), kitsByProductId.get(product.getId())))
                 .toList();
 
         AdminProductInformationSummaryDto summary = new AdminProductInformationSummaryDto(
@@ -54,8 +61,9 @@ public class AdminProductInformationServiceImpl implements AdminProductInformati
         return new AdminProductInformationPageDto(products, summary);
     }
 
-    private AdminProductInformationDto toDto(Product product, long sold) {
+    private AdminProductInformationDto toDto(Product product, long sold, Kit kit) {
         BigDecimal price = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
+        int stock = kit == null ? product.getStock() : kit.availableStock();
         return new AdminProductInformationDto(
                 product.getId(),
                 product.getUrl(),
@@ -63,12 +71,13 @@ public class AdminProductInformationServiceImpl implements AdminProductInformati
                 product.getSku(),
                 product.getCategory().getCategory(),
                 price,
-                product.getStock(),
+                stock,
                 sold,
                 product.getCount(),
-                price.multiply(BigDecimal.valueOf(product.getStock())),
+                price.multiply(BigDecimal.valueOf(stock)),
                 product.isActive(),
-                product.getAddDate()
+                product.getAddDate(),
+                kit == null
         );
     }
 }

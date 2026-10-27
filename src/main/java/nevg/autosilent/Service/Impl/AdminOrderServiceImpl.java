@@ -111,7 +111,8 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 order.getOrderStatus(), order.getSubtotalPrice(), order.getDeliveryPrice(),
                 order.getDiscountPrice(), order.getPromoCode(), order.getPromoDiscountPercent(),
                 order.getTotalPrice(), order.getCustomerNote(),
-                order.getAdminNote(), order.getCreatedAt(), items, history);
+                order.getAdminNote(), order.getCreatedAt(), items, history,
+                nevg.autosilent.Models.Dto.OrderDeliveryDto.from(order));
     }
 
     @Override

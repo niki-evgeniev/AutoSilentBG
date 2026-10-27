@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface ContactInquiryRepository extends JpaRepository<ContactInquiry, Long> {
 
+    boolean existsByIpAddressAndSubjectStartingWithAndCreatedAtAfter(
+            String ipAddress, String subject, java.time.LocalDateTime since);
+
     long countByReadFalse();
 
     Page<ContactInquiry> findAllByOrderByCreatedAtDesc(Pageable pageable);

@@ -21,6 +21,9 @@ import java.time.LocalDateTime;
 @Setter
 public class OrderEntity extends BaseEntity {
 
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    private OrderAddressEntity address;
+
     @Column(name = "order_number", nullable = false, unique = true, length = 50)
     private String orderNumber;
 

@@ -30,11 +30,14 @@ public class OrderController {
     private final OrderService orderService;
     private final PromoCodeService promoCodeService;
     private final MessageSource messageSource;
+    private final nevg.autosilent.Service.CheckoutOrderService checkoutOrders;
 
-    public OrderController(OrderService orderService, PromoCodeService promoCodeService, MessageSource messageSource) {
+    public OrderController(OrderService orderService, PromoCodeService promoCodeService, MessageSource messageSource,
+                           nevg.autosilent.Service.CheckoutOrderService checkoutOrders) {
         this.orderService = orderService;
         this.promoCodeService = promoCodeService;
         this.messageSource = messageSource;
+        this.checkoutOrders = checkoutOrders;
     }
 
     @PostMapping("/cart")
@@ -44,11 +47,7 @@ public class OrderController {
             @AuthenticationPrincipal ShopUserDetails currentUser,
             Locale locale) {
         try {
-            String orderNumber = currentUser == null
-                    ? orderService.createGuestOrder(request.email(), request.firstName(), request.lastName(),
-                    request.phone(), request.customerNote(), request.items(), request.promoCode())
-                    : orderService.createRegisteredOrder(currentUser.getUsername(), request.firstName(),
-                    request.lastName(), request.phone(), request.customerNote(), request.items(), request.promoCode());
+            String orderNumber = checkoutOrders.create(request, currentUser == null ? null : currentUser.getUsername());
             return ResponseEntity.ok(Map.of(
                     "orderNumber", orderNumber,
                     "redirectUrl", "/orders/success/" + orderNumber));
@@ -81,6 +80,20 @@ public class OrderController {
         } catch (IllegalArgumentException | OrderCreationException exception) {
             return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
         }
+    }
+
+    @GetMapping("/checkout/delivery")
+    public ModelAndView delivery(@AuthenticationPrincipal ShopUserDetails currentUser) {
+        ModelAndView result = checkout(currentUser);
+        result.setViewName("checkout-delivery");
+        return result;
+    }
+
+    @GetMapping("/checkout/customer")
+    @ResponseBody
+    public CheckoutCustomerDto customer(@AuthenticationPrincipal ShopUserDetails currentUser) {
+        return currentUser == null ? new CheckoutCustomerDto("", "", "", "")
+                : orderService.getCheckoutCustomer(currentUser.getUsername());
     }
 
     @PostMapping("/quick")

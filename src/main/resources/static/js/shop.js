@@ -229,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateCartHeader(readCart());
     renderCart();
+    window.addEventListener('autosilent:cart-refresh', renderCart);
 
     const quickOrderForm = document.querySelector('.quick-order-form');
     if (quickOrderForm) {
@@ -247,6 +248,31 @@ document.addEventListener('DOMContentLoaded', function () {
         const promoApplyButton = document.getElementById('checkoutPromoApply');
         const promoMessage = document.getElementById('checkoutPromoMessage');
         const baseDiscountPercent = Math.min(100, Math.max(0, Number(document.body.dataset.discountPercent) || 0));
+        const draftKey = 'AutoSilent-checkout';
+        const identity = document.body.dataset.customerEmail || '';
+        let draft = null;
+        try { draft = JSON.parse(sessionStorage.getItem(draftKey)); } catch (_) { /* No saved draft. */ }
+        if (draft && draft.identity === identity && Date.now() - draft.savedAt < 86400000) {
+            ['firstName', 'lastName', 'email', 'phone', 'customerNote'].forEach(function (key) {
+                const ids = {firstName: 'checkoutFirstName', lastName: 'checkoutLastName', email: 'checkoutEmail', phone: 'checkoutPhone', customerNote: 'customerNote'};
+                const field = document.getElementById(ids[key]);
+                if (field) field.value = draft[key] || '';
+            });
+            if (promoCodeInput) promoCodeInput.value = draft.promoCode || '';
+        } else { draft = null; }
+
+        function saveCheckoutDraft() {
+            const previous = draft || {};
+            draft = {...previous, identity: identity, savedAt: Date.now(),
+                firstName: document.getElementById('checkoutFirstName').value.trim(),
+                lastName: document.getElementById('checkoutLastName').value.trim(),
+                email: document.getElementById('checkoutEmail')?.value.trim() || identity,
+                phone: document.getElementById('checkoutPhone').value.trim(),
+                customerNote: document.getElementById('customerNote').value.trim(),
+                promoCode: document.body.dataset.appliedPromoCode || ''};
+            sessionStorage.setItem(draftKey, JSON.stringify(draft));
+        }
+        window.addEventListener('pagehide', saveCheckoutDraft);
 
         function clearPromoCode() {
             document.body.dataset.discountPercent = String(baseDiscountPercent);
@@ -260,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (promoCodeInput) {
             promoCodeInput.addEventListener('input', function () {
-                if (!promoCodeInput.value.trim()) clearPromoCode();
+                clearPromoCode();
             });
         }
 
@@ -273,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 promoApplyButton.disabled = true;
+                checkoutButton.disabled = true;
                 try {
                     const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
@@ -307,6 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     renderCart();
                 } finally {
                     promoApplyButton.disabled = false;
+                    checkoutButton.disabled = false;
                 }
             });
         }
@@ -363,37 +391,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            checkoutButton.disabled = true;
             try {
-                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-                const headers = {'Content-Type': 'application/json'};
-                if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
-
-                const response = await fetch('/orders/cart', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({
-                        items: items,
-                        firstName: firstName.value.trim(),
-                        lastName: lastName.value.trim(),
-                        email: email ? email.value.trim() : null,
-                        phone: phone.value.trim(),
-                        customerNote: customerNote ? customerNote.value.trim() : '',
-                        promoCode: document.body.dataset.appliedPromoCode || ''
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || document.body.dataset.orderFailed || 'Order creation failed.');
-
-                localStorage.removeItem(cartStorageKey);
-                window.location.href = result.redirectUrl;
+                if (!items.length) return;
+                saveCheckoutDraft();
+                window.location.href = '/orders/checkout/delivery';
             } catch (error) {
                 errorBox.textContent = error.message;
                 errorBox.hidden = false;
                 checkoutButton.disabled = false;
             }
         });
+
+        if (draft?.promoCode && promoApplyButton) promoApplyButton.click();
 
         document.querySelectorAll('.checkout-required').forEach(function (field) {
             field.addEventListener('input', function () {

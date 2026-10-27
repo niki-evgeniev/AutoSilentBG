@@ -24,7 +24,7 @@
       th:data-phone-invalid="#{checkout.phoneInvalid}"
       th:data-promo-apply="#{checkout.promo.apply}"
       th:data-promo-applied="#{checkout.promo.applied}"
-      th:data-discount-percent="${customer.discountPercent()}">
+      th:data-discount-percent="${customer.discountPercent()}" th:data-customer-email="${customer.email()}">
 <div th:replace="~{fragments/top-bar :: topBar}"></div>
 <div th:replace="~{fragments/header :: header}"></div>
 
@@ -37,7 +37,7 @@
             </ol>
         </nav>
         <div class="section-title text-start">
-            <span th:text="#{checkout.eyebrow}">Последна стъпка</span>
+            <span th:text="#{checkout.stepOne}">Стъпка 1 от 2 · Данни</span>
             <h1 th:text="#{checkout.heading}">Завършване на поръчката</h1>
         </div>
 
@@ -91,7 +91,7 @@
                 <div class="checkout-payment-note"><i class="bi bi-cash-coin"></i><span th:text="#{checkout.cashOnly}">Плащане с наложен платеж</span>
                 </div>
                 <div><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
-                <div class="cart-summary-total"><span th:text="#{cart.total}">Крайна сума</span><strong
+                <div class="cart-summary-total"><span th:text="#{shipping.productsTotal}">Продукти без доставка</span><strong
                         id="cartSummaryTotal">0.00 €</strong></div>
                 <div class="checkout-discount-row">
                     <span><span th:text="#{checkout.discount}">Отстъпки</span> <strong
@@ -99,8 +99,9 @@
                     <strong id="checkoutDiscountAmount">-0.00 €</strong>
                 </div>
                 <div id="checkoutError" class="alert alert-danger" hidden></div>
+                <p class="small text-muted" th:text="#{shipping.customerPays}">Доставката се поема от клиента по тарифата на Еконт.</p>
                 <button id="cartCheckoutButton" class="btn btn-orange w-100" type="button"
-                        th:text="#{checkout.confirm}">Потвърди поръчката
+                        th:text="#{checkout.toDelivery}">Към доставка
                 </button>
             </aside>
         </div>

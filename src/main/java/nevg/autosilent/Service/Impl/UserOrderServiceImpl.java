@@ -61,7 +61,8 @@ public class UserOrderServiceImpl implements UserOrderService {
         return new UserOrderDetailDto(
                 order.getOrderNumber(), order.getOrderStatus(), order.getSubtotalPrice(),
                 order.getDeliveryPrice(), order.getDiscountPrice(), order.getPromoCode(),
-                order.getPromoDiscountPercent(), order.getTotalPrice(), order.getCreatedAt(), items);
+                order.getPromoDiscountPercent(), order.getTotalPrice(), order.getCreatedAt(), items,
+                nevg.autosilent.Models.Dto.OrderDeliveryDto.from(order));
     }
 
     private User findUser(String userEmail) {

@@ -16,6 +16,7 @@ public record CartOrderDto(
         @Email @Size(max = 255) String email,
         @NotBlank @Pattern(regexp = "^(?=(?:.*\\d){7,})[+]?[0-9 ()-]{7,20}$") String phone,
         @Size(max = 2000) String customerNote,
-        @Size(max = 40) String promoCode
+        @Size(max = 40) String promoCode,
+        @jakarta.validation.constraints.NotNull @Valid CheckoutDeliveryDto delivery
 ) {
 }

@@ -3915,3 +3915,14 @@ a {
     height: 52px;
     flex-basis: 52px;
 }
+/* Checkout delivery and product questions */
+.courier-choice { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; padding: 1rem; border: 2px solid #164a88; border-radius: 12px; background: #f0f6ff; color: #164a88; font-size: 1.3rem; }
+.delivery-type-options { display: flex; flex-wrap: wrap; gap: 1rem; }
+.delivery-type-options label { padding: .7rem 1rem; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; }
+.delivery-recipient { white-space: pre-line; overflow-wrap: anywhere; }
+.delivery-summary-row { display: flex; justify-content: space-between; }
+#deliveryForm .cart-summary-total { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem; }
+.product-question form { background: #fafafa; }
+.product-question .form-label { display: block; }
+.product-stock-input { min-width: 100px; max-width: 140px; }
+.product-stock-input.stock-edited { border-color: #ef8d16; background-color: #fff6e8; }

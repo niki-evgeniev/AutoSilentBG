@@ -32,7 +32,8 @@ public record AdminOrderDetailDto(
         String adminNote,
         LocalDateTime createdAt,
         List<AdminOrderItemDto> items,
-        List<AdminOrderHistoryDto> history
+        List<AdminOrderHistoryDto> history,
+        OrderDeliveryDto delivery
 ) {
     public BigDecimal discountPercent() {
         if (discountPrice == null || discountPrice.signum() <= 0

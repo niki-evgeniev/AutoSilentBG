@@ -20,6 +20,8 @@
                galleryImages=${#sets.toSet(normalizedGalleryImages)},
                hasOffer=${product.price() != null and product.price().signum() >= 0}">
     <meta charset="UTF-8">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <title th:text="${pageTitle}">Продукт | AutoSilent.bg</title>
@@ -287,6 +289,34 @@
                             </button>
                         </div>
 
+                        <div class="product-question mt-3">
+                            <button class="btn btn-outline-dark w-100" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#productQuestionPanel" aria-expanded="false" aria-controls="productQuestionPanel">
+                                <i class="bi bi-chat-square-text me-2"></i><span th:text="#{question.button}">Имам въпрос</span>
+                            </button>
+                            <div class="collapse" id="productQuestionPanel">
+                                <form id="productQuestionForm" class="border rounded p-3 mt-2"
+                                      th:data-url="@{/products/{id}/question(id=${product.id()})}"
+                                      th:data-success="#{question.success}" th:data-error="#{question.error}"
+                                      th:data-throttled="#{question.throttled}">
+                                    <label for="questionName" class="form-label" th:text="#{form.firstName}">Име</label>
+                                    <input id="questionName" name="name" class="form-control mb-3" autocomplete="name" required minlength="2" maxlength="100">
+                                    <label for="questionPhone" class="form-label" th:text="#{form.phone}">Телефон</label>
+                                    <input id="questionPhone" name="phone" class="form-control mb-3" type="tel" autocomplete="tel" required
+                                           pattern="(?=(?:.*\d){7,})[+]?[0-9 ()-]{7,20}">
+                                    <label for="questionEmail" class="form-label" th:text="#{form.email}">Имейл</label>
+                                    <input id="questionEmail" name="email" class="form-control mb-3" type="email" autocomplete="email" required maxlength="254">
+                                    <label for="questionText" class="form-label" th:text="#{question.label}">Вашият въпрос</label>
+                                    <textarea id="questionText" name="question" class="form-control mb-3" rows="4" required minlength="5" maxlength="4000"></textarea>
+                                    <p id="questionResult" role="status" aria-live="polite" hidden></p>
+                                    <button class="btn btn-orange w-100" type="submit" th:text="#{question.send}">Изпрати</button>
+                                </form>
+                            </div>
+                            <p class="fs-6 fw-semibold mt-3 mb-0 text-center"><a href="viber://chat?number=%2B359895020304">
+                                <i class="bi bi-chat-dots me-1"></i><span th:text="#{question.viber}">Или ни пишете във Viber</span> · +359 895 02 03 04
+                            </a></p>
+                        </div>
+
                         <div class="product-details-assurances">
                             <div><i class="bi bi-truck"></i><span><strong th:text="#{details.fastDelivery}">Бърза доставка</strong><span
                                     th:text="#{details.deliveryTime}">1–2 работни дни</span></span></div>
@@ -408,5 +438,6 @@
         });
     });
 </script>
+<script src="/js/product-question.js"></script>
 </body>
 </html>

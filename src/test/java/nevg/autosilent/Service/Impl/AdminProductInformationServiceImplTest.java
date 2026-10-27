@@ -19,8 +19,9 @@ class AdminProductInformationServiceImplTest {
 
     private final ProductRepository repository = mock(ProductRepository.class);
     private final OrderItemRepository orderItemRepository = mock(OrderItemRepository.class);
+    private final nevg.autosilent.Repository.KitRepository kitRepository = mock(nevg.autosilent.Repository.KitRepository.class);
     private final AdminProductInformationServiceImpl service =
-            new AdminProductInformationServiceImpl(repository, orderItemRepository);
+            new AdminProductInformationServiceImpl(repository, orderItemRepository, kitRepository);
 
     @Test
     void returnsProductRowsAndCalculatedSummary() {
@@ -59,5 +60,20 @@ class AdminProductInformationServiceImplTest {
         product.setCount(views);
         product.setActive(active);
         return product;
+    }
+
+    @Test
+    void kitAvailabilityComesFromComponentsAndCannotBeEditedDirectly() {
+        Product component = product(1L, "Component", "A", new BigDecimal("10"), 8, 0, true);
+        Product catalogProduct = product(2L, "Kit", "B", new BigDecimal("25"), Integer.MAX_VALUE, 0, true);
+        var kit = new nevg.autosilent.Models.Entity.Kit();
+        kit.setCatalogProduct(catalogProduct); kit.addItem(component, 2);
+        when(kitRepository.findAll()).thenReturn(List.of(kit));
+        when(repository.findAllByOrderByNameProductAscModelAsc()).thenReturn(List.of(component, catalogProduct));
+        var result = service.getProductInformation();
+        assertThat(result.products().getFirst().stockEditable()).isTrue();
+        assertThat(result.products().getLast().stockEditable()).isFalse();
+        assertThat(result.products().getLast().stock()).isEqualTo(4);
+        assertThat(result.products().getLast().stockValue()).isEqualByComparingTo("100");
     }
 }

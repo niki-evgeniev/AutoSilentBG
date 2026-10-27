@@ -15,6 +15,7 @@ public record AdminProductInformationDto(
         long views,
         BigDecimal stockValue,
         boolean active,
-        LocalDateTime addedAt
+        LocalDateTime addedAt,
+        boolean stockEditable
 ) {
 }

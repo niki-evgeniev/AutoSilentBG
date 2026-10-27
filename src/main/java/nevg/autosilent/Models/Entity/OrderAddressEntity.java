@@ -19,13 +19,13 @@ public class OrderAddressEntity extends BaseEntity {
     @Column(name = "country", nullable = false, length = 100)
     private String country = "България";
 
-    @Column(name = "city", nullable = false, length = 100)
+    @Column(name = "city", nullable = false, length = 255)
     private String city;
 
     @Column(name = "postcode", length = 20)
     private String postcode;
 
-    @Column(name = "address_line", length = 255)
+    @Column(name = "address_line", length = 1000)
     private String addressLine;
 
     @Column(name = "courier_office_name", length = 255)

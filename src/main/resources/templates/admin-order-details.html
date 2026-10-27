@@ -49,7 +49,7 @@
                         <div><span th:text="#{admin.order.subtotal}">Междинна сума</span><strong
                                 th:text="#{product.price(${order.subtotalPrice()})}"></strong></div>
                         <div><span th:text="#{admin.order.delivery}">Доставка</span><strong
-                                th:text="#{product.price(${order.deliveryPrice()})}"></strong></div>
+                                th:text="${order.delivery() != null ? #messages.msg('shipping.paidByRecipient') : #messages.msg('product.price', order.deliveryPrice())}"></strong></div>
                         <div class="text-success"
                              th:if="${order.discountPrice() != null and order.discountPrice().signum() > 0}">
                             <span><span th:text="#{admin.order.discount}">Отстъпка</span> (<span
@@ -80,6 +80,7 @@
             </div>
 
             <aside>
+                <div th:replace="~{fragments/order-delivery :: delivery(${order.delivery()})}"></div>
                 <section class="admin-detail-card">
                     <h2 th:text="#{admin.order.customer}">Клиент</h2>
                     <p><strong th:text="|${order.customerFirstName()} ${order.customerLastName()}|"></strong></p>

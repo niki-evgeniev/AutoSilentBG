@@ -35,6 +35,67 @@ class AutoSilentApplicationTests {
     }
 
     @Test
+    @org.springframework.transaction.annotation.Transactional
+    void adminInformationRendersEditableStockAndSavesOnlySubmittedProducts() throws Exception {
+        var categories = context.getBean(nevg.autosilent.Repository.CategoryRepository.class);
+        var products = context.getBean(nevg.autosilent.Repository.ProductRepository.class);
+        var category = new nevg.autosilent.Models.Entity.Category();
+        category.setCategory("Stock test " + java.util.UUID.randomUUID()); categories.save(category);
+        var product = new nevg.autosilent.Models.Entity.Product();
+        product.setNameProduct("Stock test"); product.setSku("STOCK-" + java.util.UUID.randomUUID());
+        product.setUrl("stock-" + java.util.UUID.randomUUID()); product.setCategory(category);
+        product.setUser(context.getBean(nevg.autosilent.Repository.UserRepository.class).findAll().getFirst());
+        product.setPrice(new java.math.BigDecimal("10")); product.setStock(5); products.saveAndFlush(product);
+        var roles = List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"));
+        var principal = new nevg.autosilent.Models.Security.ShopUserDetails("admin@example.com", "test", "Admin", roles);
+        var authentication = org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated(principal, "test", roles);
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
+            var response = mvc.perform(get("/admin/settings/information").principal(authentication)).andReturn().getResponse();
+            assertThat(response.getStatus()).isEqualTo(200);
+            var page = Jsoup.parse(response.getContentAsString(StandardCharsets.UTF_8));
+            var input = page.selectFirst("#stock-" + product.getId());
+            assertThat(input.attr("value")).isEqualTo("5");
+            assertThat(input.attr("min")).isEqualTo("0");
+            assertThat(page.selectFirst("#stockUpdateButton").text()).isEqualTo("Обнови наличност");
+            String body = "{\"changes\":[{\"productId\":" + product.getId() + ",\"originalStock\":5,\"stock\":12}]}";
+            var saved = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .post("/admin/settings/information/stock").principal(authentication)
+                    .contentType("application/json").content(body)).andReturn().getResponse();
+            assertThat(saved.getStatus()).isEqualTo(200);
+            assertThat(saved.getContentAsString()).contains("\"updated\":1");
+            assertThat(products.findById(product.getId()).orElseThrow().getStock()).isEqualTo(12);
+            var stale = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .post("/admin/settings/information/stock").principal(authentication)
+                    .contentType("application/json").content(body)).andReturn().getResponse();
+            assertThat(stale.getStatus()).isEqualTo(409);
+            assertThat(products.findById(product.getId()).orElseThrow().getStock()).isEqualTo(12);
+        } finally { org.springframework.security.core.context.SecurityContextHolder.clearContext(); }
+    }
+
+    @Test
+    void bothCheckoutStepsRenderForGuestsWithCsrfAndEcontOnly() throws Exception {
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            for (String path : List.of("/orders/checkout", "/orders/checkout/delivery")) {
+                var response = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + path)).GET().build(),
+                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                assertThat(response.statusCode()).isEqualTo(200);
+                var page = Jsoup.parse(response.body());
+                assertThat(page.selectFirst("meta[name=_csrf]").attr("content")).isNotBlank();
+                if (path.endsWith("delivery")) {
+                    assertThat(page.selectFirst("#deliveryForm")).isNotNull();
+                    assertThat(page.selectFirst(".courier-choice").text()).contains("ЕКОНТ");
+                    assertThat(page.selectFirst("#deliveryConfirm").hasAttr("disabled")).isTrue();
+                    assertThat(page.text()).doesNotContain("Speedy", "Спиди");
+                } else {
+                    assertThat(page.selectFirst("#cartCheckoutButton").text()).isEqualTo("Към доставка");
+                }
+            }
+        }
+    }
+
+    @Test
     void productsPageRendersWithCombinedFilters() throws Exception {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 

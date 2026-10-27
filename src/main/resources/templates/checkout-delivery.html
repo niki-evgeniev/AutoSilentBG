@@ -1,0 +1,92 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:text="#{shipping.title}">Доставка - AutoSilent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/shop.css" rel="stylesheet">
+</head>
+<body th:data-currency="#{site.currency}" th:data-cart-quantity="#{cart.quantity}" th:data-cart-remove="#{cart.remove}"
+      th:data-cart-increase="#{cart.increase}" th:data-cart-decrease="#{cart.decrease}"
+      th:data-discount-percent="${customer.discountPercent()}" th:data-customer-email="${customer.email()}"
+      th:data-order-failed="#{order.failed}" th:data-shipping-error="#{shipping.loadError}"
+      th:data-select-city="#{shipping.selectCity}" th:data-select-office="#{shipping.selectOffice}"
+      th:data-no-offices="#{shipping.noOffices}" th:data-shipping-invalid="#{shipping.invalid}">
+<div th:replace="~{fragments/top-bar :: topBar}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
+<main class="cart-page">
+    <section class="container py-5">
+        <nav aria-label="breadcrumb"><ol class="breadcrumb custom-breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/cart}" th:text="#{cart.title}">Кошница</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/orders/checkout}" th:text="#{checkout.details}">Данни</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="#{shipping.heading}">Доставка</li>
+        </ol></nav>
+        <div class="section-title text-start">
+            <span th:text="#{shipping.stepTwo}">Стъпка 2 от 2 · Доставка</span>
+            <h1 th:text="#{shipping.heading}">Доставка</h1>
+        </div>
+        <div class="cart-layout">
+            <section class="cart-items-card">
+                <h2 class="h4 mb-4" th:text="#{checkout.products}">Продукти</h2>
+                <div id="cartItems"></div>
+                <div id="cartEmpty" class="cart-empty" hidden>
+                    <h2 th:text="#{cart.empty}">Кошницата е празна</h2>
+                    <a class="btn btn-orange" th:href="@{/shumoizolaciya}" th:text="#{cart.browse}">Разгледай продуктите</a>
+                </div>
+            </section>
+            <aside id="cartSummary" class="cart-summary-card checkout-card">
+                <form id="deliveryForm">
+                    <h2 th:text="#{shipping.courier}">Куриер</h2>
+                    <button class="courier-choice mb-3" type="button" aria-pressed="true">
+                        <i class="bi bi-truck" aria-hidden="true"></i><strong>ЕКОНТ</strong><i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                    </button>
+                    <fieldset class="mb-3">
+                        <legend class="h6" th:text="#{shipping.method}">Начин на доставка</legend>
+                        <div class="delivery-type-options">
+                            <label><input type="radio" name="deliveryType" value="OFFICE" checked> <span th:text="#{shipping.toOffice}">До офис</span></label>
+                            <label><input type="radio" name="deliveryType" value="ADDRESS"> <span th:text="#{shipping.toAddress}">До адрес</span></label>
+                        </div>
+                    </fieldset>
+                    <label class="form-label" for="deliveryCity" th:text="#{shipping.city}">Населено място</label>
+                    <input id="deliveryCity" class="form-control mb-3" type="search" list="deliveryCities" autocomplete="off"
+                           required th:placeholder="#{shipping.selectCity}" disabled>
+                    <datalist id="deliveryCities"></datalist>
+                    <div id="officeFields">
+                        <label class="form-label" for="deliveryOffice" th:text="#{shipping.office}">Офис на Еконт</label>
+                        <select id="deliveryOffice" class="form-select mb-2" required disabled></select>
+                        <p id="officeAddress" class="small text-muted"></p>
+                    </div>
+                    <div id="addressFields" hidden>
+                        <label class="form-label" for="deliveryAddress" th:text="#{shipping.address}">Точен адрес</label>
+                        <textarea id="deliveryAddress" class="form-control mb-3" rows="3" minlength="5" maxlength="255"
+                                  autocomplete="street-address" th:placeholder="#{shipping.addressPlaceholder}" disabled></textarea>
+                    </div>
+                    <div id="shippingLoadError" class="alert alert-warning" role="status" hidden></div>
+                    <button id="shippingRetry" class="btn btn-outline-dark btn-sm mb-3" type="button" hidden th:text="#{shipping.retry}">Опитай отново</button>
+                    <hr>
+                    <h3 class="h6" th:text="#{shipping.recipient}">Получател</h3>
+                    <p id="deliveryRecipient" class="small delivery-recipient"></p>
+                    <a th:href="@{/orders/checkout}" class="small" th:text="#{shipping.editDetails}">Редактирай данните</a>
+                    <div class="checkout-payment-note mt-3"><i class="bi bi-cash-coin"></i><span th:text="#{checkout.cashOnly}">Плащане с наложен платеж</span></div>
+                    <div class="delivery-summary-row"><span th:text="#{cart.products}">Продукти</span><strong id="cartSummaryCount">0</strong></div>
+                    <div class="checkout-discount-row"><span th:text="#{checkout.discount}">Отстъпки</span><strong id="checkoutDiscountPercent">0%</strong><strong id="checkoutDiscountAmount">0 €</strong></div>
+                    <div class="cart-summary-total"><span th:text="#{shipping.productsTotal}">Продукти без доставка</span><strong id="cartSummaryTotal">0.00 €</strong></div>
+                    <p class="small text-muted mt-3" th:text="#{shipping.customerPays}">Доставката се поема от клиента по тарифата на Еконт.</p>
+                    <div id="checkoutError" class="alert alert-danger" role="alert" hidden></div>
+                    <button id="deliveryConfirm" class="btn btn-orange w-100" type="submit" disabled th:text="#{checkout.confirm}">Потвърди поръчката</button>
+                </form>
+            </aside>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/shop.js"></script>
+<script src="/js/checkout-delivery.js"></script>
+</body>
+</html>

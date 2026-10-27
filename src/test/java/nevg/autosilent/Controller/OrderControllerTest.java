@@ -44,18 +44,19 @@ class OrderControllerTest {
     @Mock
     private MessageSource messageSource;
 
+    @Mock private nevg.autosilent.Service.CheckoutOrderService checkoutOrders;
+
     private OrderController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new OrderController(orderService, promoCodeService, messageSource);
+        controller = new OrderController(orderService, promoCodeService, messageSource, checkoutOrders);
     }
 
     @Test
     void cartOrderCreatesGuestOrderWithoutAuthenticatedUser() {
         CartOrderDto request = cartOrder();
-        when(orderService.createGuestOrder(
-                "ivan@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items(), "SAVE10"))
+        when(checkoutOrders.create(request, null))
                 .thenReturn("NRT-GUEST");
 
         var response = controller.createCartOrder(request, null, Locale.ENGLISH);
@@ -67,8 +68,7 @@ class OrderControllerTest {
     @Test
     void cartOrderCreatesOrderAndReturnsSuccessUrl() {
         CartOrderDto request = cartOrder();
-        when(orderService.createRegisteredOrder(
-                "user@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items(), "SAVE10"))
+        when(checkoutOrders.create(request, "user@example.com"))
                 .thenReturn("NRT-123");
 
         var response = controller.createCartOrder(request, currentUser(), Locale.ENGLISH);
@@ -83,8 +83,7 @@ class OrderControllerTest {
     void cartOrderReturnsBadRequestWhenServiceRejectsOrder() {
         CartOrderDto request = cartOrder();
         doThrow(new OrderCreationException("Out of stock"))
-                .when(orderService).createRegisteredOrder(
-                        "user@example.com", "Ivan", "Ivanov", "0888123456", "Call first", request.items(), "SAVE10");
+                .when(checkoutOrders).create(request, "user@example.com");
 
         var response = controller.createCartOrder(request, currentUser(), Locale.ENGLISH);
 
@@ -189,7 +188,8 @@ class OrderControllerTest {
     private CartOrderDto cartOrder() {
         return new CartOrderDto(
                 List.of(new CartItemOrderDto(7L, 2)),
-                "Ivan", "Ivanov", "ivan@example.com", "0888123456", "Call first", "SAVE10");
+                "Ivan", "Ivanov", "ivan@example.com", "0888123456", "Call first", "SAVE10",
+                new nevg.autosilent.Models.Dto.CheckoutDeliveryDto(1L, "OFFICE", 2L, null));
     }
 
     private QuickOrderDto quickOrder() {

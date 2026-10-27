@@ -17,5 +17,7 @@ spring:
       mode: never
 
 AutoSilent:
+  econt:
+    sync-enabled: false
   sitemap-directory: ./build/test-sitemap
   remember.me.key: test-only-remember-me-key

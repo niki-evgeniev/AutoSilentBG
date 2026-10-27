@@ -98,7 +98,7 @@ class AdminOrderControllerTest {
                 PaymentStatus.PENDING, OrderStatus.NEW,
                 new BigDecimal("25.00"), BigDecimal.ZERO, BigDecimal.ZERO,
                 null, BigDecimal.ZERO, new BigDecimal("25.00"), null, null,
-                LocalDateTime.of(2026, 7, 4, 12, 0), List.of(), List.of()
+                LocalDateTime.of(2026, 7, 4, 12, 0), List.of(), List.of(), null
         );
     }
 

@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Product p where p.id = :id")
+    Optional<Product> findByIdForStockUpdate(@Param("id") Long id);
+
     long countByActiveTrue();
     boolean existsByCategoryId(Long categoryId);
     boolean existsBySecondaryCategoryId(Long categoryId);

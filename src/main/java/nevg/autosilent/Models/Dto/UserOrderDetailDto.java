@@ -16,6 +16,7 @@ public record UserOrderDetailDto(
         BigDecimal promoDiscountPercent,
         BigDecimal totalPrice,
         LocalDateTime createdAt,
-        List<AdminOrderItemDto> items
+        List<AdminOrderItemDto> items,
+        OrderDeliveryDto delivery
 ) {
 }

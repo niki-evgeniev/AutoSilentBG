@@ -218,7 +218,7 @@ class AdminOrderServiceImplTest {
                 DeliveryType.STORE_PICKUP, PaymentMethod.CASH_ON_DELIVERY, PaymentStatus.PENDING,
                 OrderStatus.NEW, new BigDecimal("100.00"), BigDecimal.ZERO,
                 new BigDecimal("20.00"), null, BigDecimal.ZERO, new BigDecimal("80.00"), null, null,
-                LocalDateTime.now(), List.of(), List.of());
+                LocalDateTime.now(), List.of(), List.of(), null);
 
         assertThat(dto.discountPercent()).isEqualByComparingTo("20");
     }
@@ -230,7 +230,7 @@ class AdminOrderServiceImplTest {
                 DeliveryType.STORE_PICKUP, PaymentMethod.CASH_ON_DELIVERY, PaymentStatus.PENDING,
                 OrderStatus.NEW, new BigDecimal("100.00"), BigDecimal.ZERO,
                 new BigDecimal("30.00"), null, BigDecimal.ZERO, new BigDecimal("70.00"), null, null,
-                LocalDateTime.now(), List.of(), List.of());
+                LocalDateTime.now(), List.of(), List.of(), null);
 
         assertThat(dto.discountPercentText()).isEqualTo("30");
     }
