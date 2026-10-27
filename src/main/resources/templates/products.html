@@ -16,7 +16,7 @@
                rawSeoImage=${selectedCategory == null and catalogSeo != null and catalogSeo.imageUrl != null ? catalogSeo.imageUrl.trim() : ''},
                seoImage=${#strings.isEmpty(rawSeoImage) ? 'https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png' : (#strings.startsWith(#strings.toLowerCase(rawSeoImage), 'http://') or #strings.startsWith(#strings.toLowerCase(rawSeoImage), 'https://') ? rawSeoImage : (#strings.startsWith(rawSeoImage, '//') ? 'https:' + rawSeoImage : (rawSeoImage.matches('^[a-zA-Z][a-zA-Z0-9+.-]*:.*') ? 'https://autosilent.bg/images/1d6f677d-efad-4099-8eec-d437f0cd576e.png' : 'https://autosilent.bg' + (#strings.startsWith(rawSeoImage, '/') ? '' : '/') + rawSeoImage)))},
                seoImageAlt=${seoContentEnglish ? 'Car soundproofing and vibration insulation from AutoSilent.bg' : 'Автомобилна шумоизолация и виброизолация от AutoSilent.bg'},
-               seoNoindex=${(search != null and !search.isBlank()) or (filter != null and (filter.hasCatalogFilters() or (filter.search() != null and !filter.search().isBlank()))) or (sortMode != null and !sortMode.isBlank() and sortMode != 'default') or (productPage.number > 0 and productPage.empty) or productPage.size != 9}">
+               seoNoindex=${(search != null and !search.isBlank()) or (filter != null and (filter.hasCatalogFilters() or (filter.search() != null and !filter.search().isBlank()))) or (sortMode != null and !sortMode.isBlank() and sortMode != 'default') or (selectedCategory != null and productPage.empty) or (productPage.number > 0 and productPage.empty) or productPage.size != 9}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#080808">
@@ -263,14 +263,7 @@
                             <h3 th:text="#{site.categories}">Категории</h3>
                             <a class="category-filter-link" th:each="category : ${categories}"
                                th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                               th:href="${category.rootCatalogCategory()}
-                                   ? @{/shumoizolaciya}
-                                   : @{/shumoizolaciya/category/{categoryId}/{slug}(
-                                       categoryId=${category.id()},slug=${category.slug()},
-                                       lang=${#locale.language == 'en' ? 'en' : null},
-                                       search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
-                                       minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
-                                       order=${sortMode})}">
+                               th:href="${categoryUrls[category.id()]}">
                                 <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                             </a>
                         </div>
@@ -530,14 +523,7 @@
                 <h3 th:text="#{site.categories}">Категории</h3>
                 <a class="category-filter-link" th:each="category : ${categories}"
                    th:classappend="${selectedCategory != null && selectedCategory.id() == category.id()} ? ' active'"
-                   th:href="${category.rootCatalogCategory()}
-                       ? @{/shumoizolaciya}
-                       : @{/shumoizolaciya/category/{categoryId}/{slug}(
-                           categoryId=${category.id()},slug=${category.slug()},
-                           lang=${#locale.language == 'en' ? 'en' : null},
-                           search=${filter.search()},brand=${filter.brand()},model=${filter.model()},
-                           minPrice=${filter.minPrice()},maxPrice=${filter.maxPrice()},inStock=${filter.inStock()},
-                           order=${sortMode})}">
+                   th:href="${categoryUrls[category.id()]}">
                     <i class="bi bi-grid"></i><span th:text="${category.name()}">Категория</span>
                 </a>
             </div>

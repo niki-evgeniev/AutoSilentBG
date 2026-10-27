@@ -142,4 +142,21 @@ class AutoSilentApplicationTests {
             }
         }
     }
+
+    @Test
+    void kitCatalogLanguageQueryRendersEnglishInterface() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(
+                URI.create("http://localhost:" + port + "/shumoizolaciya/kit?lang=en"))
+                .GET().build();
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpResponse<String> response = client.send(request,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            assertThat(response.statusCode()).isEqualTo(200);
+            var page = Jsoup.parse(response.body());
+            assertThat(page.selectFirst("html").attr("lang")).isEqualTo("en");
+            assertThat(page.selectFirst(".section-title h1").text()).isEqualTo("Kits");
+            assertThat(page.selectFirst("link[rel=canonical]").attr("href"))
+                    .isEqualTo("https://autosilent.bg/shumoizolaciya/kit");
+        }
+    }
 }

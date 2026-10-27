@@ -131,9 +131,9 @@ class CanonicalTemplateTest {
     void rootCatalogCategoryLinksPointDirectlyToCatalog() throws IOException {
         String html = template("products.html");
 
-        assertThat(html.split("\\$\\{category\\.rootCatalogCategory\\(\\)\\}", -1).length - 1)
+        assertThat(html.split("\\$\\{categoryUrls\\[category\\.id\\(\\)\\]\\}", -1).length - 1)
                 .isEqualTo(2);
-        assertThat(html).contains("? @{/shumoizolaciya}");
+        assertThat(html).doesNotContain("inStock=${filter.inStock()},");
     }
 
     @Test

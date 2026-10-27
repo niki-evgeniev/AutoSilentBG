@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -38,6 +39,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -173,6 +176,27 @@ class ProductsControllerTest {
 
         assertThat(result.getModel().get("paginationLinks")).isEqualTo(List.of(
                 "/shumoizolaciya", "/shumoizolaciya?page=1", "/shumoizolaciya?page=2"));
+    }
+
+    @Test
+    void categoryLinksKeepActiveFiltersWithoutEmptyParameters() {
+        CategoryViewDto root = new CategoryViewDto(1L, "Звукоизолация");
+        CategoryViewDto category = new CategoryViewDto(3L, "Шумоизолация");
+        when(categoryService.getAll()).thenReturn(List.of(root, category));
+        when(productService.filterActiveProducts(any(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+        LocaleContextHolder.setLocale(Locale.forLanguageTag("bg"));
+        try {
+            ModelAndView result = productsController.products(
+                    null, "Vibrofiltr & More", null, null, null, false,
+                    "default", PageRequest.of(0, 9), new MockHttpServletRequest());
+
+            assertThat(result.getModel().get("categoryUrls")).isEqualTo(Map.of(
+                    1L, "/shumoizolaciya",
+                    3L, "/shumoizolaciya/category/3/shumoizolatsiya?brand=Vibrofiltr%20%26%20More"));
+        } finally {
+            LocaleContextHolder.resetLocaleContext();
+        }
     }
 
     @Test

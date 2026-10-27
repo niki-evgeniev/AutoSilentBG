@@ -37,6 +37,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -147,10 +149,18 @@ public class ProductsController {
         }
         String path = selectedCategory == null ? "/shumoizolaciya"
                 : "/shumoizolaciya/category/" + selectedCategory.id() + "/" + selectedCategory.slug();
+        var categories = categoryService.getAll();
+        Map<Long, String> categoryUrls = new HashMap<>();
+        for (CategoryViewDto category : categories) {
+            String categoryPath = "/shumoizolaciya/category/" + category.id() + "/" + category.slug();
+            categoryUrls.put(category.id(), category.rootCatalogCategory()
+                    ? "/shumoizolaciya" : catalogPageUrl(categoryPath, filter, order, 0));
+        }
         ModelAndView modelAndView = new ModelAndView("products");
         modelAndView.addObject("productPage", productPage);
         modelAndView.addObject("products", productPage.getContent());
-        modelAndView.addObject("categories", categoryService.getAll());
+        modelAndView.addObject("categories", categories);
+        modelAndView.addObject("categoryUrls", categoryUrls);
         modelAndView.addObject("brands", productService.getActiveBrands());
         modelAndView.addObject("models", productService.getActiveModels());
         modelAndView.addObject("filter", filter);

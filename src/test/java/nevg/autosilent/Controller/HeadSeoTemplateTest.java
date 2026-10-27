@@ -167,7 +167,7 @@ class HeadSeoTemplateTest {
 
     @ParameterizedTest
     @CsvSource({
-            "0, 9, true, false",
+            "0, 9, true, true",
             "1, 9, false, false",
             "2, 9, true, true",
             "0, 18, false, true",
@@ -187,6 +187,17 @@ class HeadSeoTemplateTest {
         assertHeadConsistency(head);
         assertThat(head.meta("name", "robots")).contains("follow");
         assertThat(head.meta("name", "robots").contains("noindex")).isEqualTo(noindex);
+    }
+
+    @Test
+    void emptyMainCatalogKeepsItsIndexableLandingPage() throws IOException {
+        Context context = context("products.html", Locale.forLanguageTag("bg"));
+        context.setVariable("products", List.of());
+        context.setVariable("productPage", new PageImpl<>(List.of(), PageRequest.of(0, 9), 0));
+
+        RenderedHead head = render("products.html", context);
+
+        assertThat(head.meta("name", "robots")).doesNotContain("noindex");
     }
 
     @ParameterizedTest
