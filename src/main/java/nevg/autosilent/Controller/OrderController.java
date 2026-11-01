@@ -51,7 +51,7 @@ public class OrderController {
             return ResponseEntity.ok(Map.of(
                     "orderNumber", orderNumber,
                     "redirectUrl", "/orders/success/" + orderNumber));
-        } catch (OrderCreationException exception) {
+        } catch (OrderCreationException | IllegalArgumentException exception) {
             return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
         }
     }
@@ -65,6 +65,16 @@ public class OrderController {
         modelAndView.addObject("customer", customer);
         modelAndView.addObject("guestCheckout", currentUser == null);
         return modelAndView;
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> invalidRequest(
+            org.springframework.web.bind.MethodArgumentNotValidException exception, Locale locale) {
+        boolean missingDelivery = exception.getBindingResult().getFieldErrors().stream()
+                .anyMatch(error -> "delivery".equals(error.getField()) && "NotNull".equals(error.getCode()));
+        String key = missingDelivery ? "order.error.deliveryStepRequired" : "order.error.invalidCheckout";
+        return ResponseEntity.badRequest().body(Map.of("error", messageSource.getMessage(key, null, locale)));
     }
 
     @PostMapping("/promo-code")

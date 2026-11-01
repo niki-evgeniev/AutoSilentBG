@@ -73,6 +73,9 @@
                         </a>
                     </li>
                     <li sec:authorize="hasRole('ADMIN')">
+                        <a class="dropdown-item" th:href="@{/admin/settings/promotions}">
+                            <i class="bi bi-tags me-2"></i><span th:text="#{promotion.heading}">Промоции</span>
+                        </a>
                         <a class="dropdown-item" th:href="@{/admin/settings/promo-codes}">
                             <i class="bi bi-ticket-perforated me-2"></i>
                             <span th:text="#{admin.promoCodes.heading}">Промокодове</span>

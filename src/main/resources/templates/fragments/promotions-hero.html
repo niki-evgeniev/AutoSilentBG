@@ -1,0 +1,26 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"><body>
+<section th:fragment="hero" class="shop-hero-small page-3d-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb"><ol class="breadcrumb custom-breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}" th:text="#{site.home}">Начало</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="#{promotion.heading}">Промоции</li>
+        </ol></nav>
+        <div class="row align-items-end g-4">
+            <div class="col-lg-7">
+                <span class="eyebrow" th:text="#{products.eyebrow}">Онлайн магазин</span>
+                <h1 th:text="#{products.heading}">Шумоизолация за коли и автомобилна виброизолация</h1>
+                <div class="category-intro"><p th:text="#{products.intro}"></p><p th:text="#{products.introSecondary}"></p></div>
+            </div>
+            <div class="col-lg-5">
+                <form class="shop-search-box tilt-card" th:action="@{/promocii}" method="get" role="search">
+                    <input th:if="${#locale.language == 'en'}" type="hidden" name="lang" value="en">
+                    <i class="bi bi-search"></i>
+                    <label class="visually-hidden" for="promotionHeroSearch" th:text="#{site.search}"></label>
+                    <input id="promotionHeroSearch" name="search" type="search" maxlength="150" th:value="${search}" th:placeholder="#{products.search.placeholder}">
+                    <button type="submit" th:text="#{site.search}">Търси</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body></html>

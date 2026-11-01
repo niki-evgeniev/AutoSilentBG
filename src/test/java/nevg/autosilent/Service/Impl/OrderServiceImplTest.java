@@ -57,7 +57,7 @@ class OrderServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new OrderServiceImpl(orderRepository, orderItemRepository, historyRepository,
-                productRepository, userRepository, promoCodeService, messageSource, kitRepository);
+                productRepository, userRepository, promoCodeService, messageSource, kitRepository, org.mockito.Mockito.mock(nevg.autosilent.Repository.PromotionRepository.class));
         lenient().when(messageSource.getMessage(anyString(), any(), any(Locale.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         lenient().when(promoCodeService.discountPercent(any())).thenReturn(BigDecimal.ZERO);

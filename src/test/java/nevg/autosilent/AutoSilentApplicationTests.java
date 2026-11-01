@@ -35,6 +35,69 @@ class AutoSilentApplicationTests {
     }
 
     @Test
+    void onlyAdminCanSeeAndDeleteAnOrderWithAllDependentRecordsAndValidCsrf() throws Exception {
+        var orders = context.getBean(nevg.autosilent.Repository.OrderRepository.class);
+        var items = context.getBean(nevg.autosilent.Repository.OrderItemRepository.class);
+        var history = context.getBean(nevg.autosilent.Repository.OrderStatusHistoryRepository.class);
+        var addresses = context.getBean(nevg.autosilent.Repository.OrderAddressRepository.class);
+        var order = new nevg.autosilent.Models.Entity.OrderEntity();
+        order.setOrderNumber("DELETE-" + java.util.UUID.randomUUID());
+        order.setCustomerFirstName("Delete"); order.setCustomerLastName("Test"); order.setCustomerPhone("0888123456");
+        order.setDeliveryType(nevg.autosilent.Models.Enums.DeliveryType.ECONT_ADDRESS);
+        order.setPaymentMethod(nevg.autosilent.Models.Enums.PaymentMethod.CASH_ON_DELIVERY);
+        order.setPaymentStatus(nevg.autosilent.Models.Enums.PaymentStatus.PENDING);
+        order.setOrderStatus(nevg.autosilent.Models.Enums.OrderStatus.NEW);
+        order.setSubtotalPrice(java.math.BigDecimal.TEN); order.setTotalPrice(java.math.BigDecimal.TEN);
+        orders.saveAndFlush(order);
+        var item = new nevg.autosilent.Models.Entity.OrderItemEntity();
+        item.setOrder(order); item.setProductName("Delete test"); item.setQuantity(1);
+        item.setUnitPrice(java.math.BigDecimal.TEN); item.setTotalPrice(java.math.BigDecimal.TEN); items.saveAndFlush(item);
+        var entry = new nevg.autosilent.Models.Entity.OrderStatusHistoryEntity();
+        entry.setOrder(order); entry.setNewStatus(nevg.autosilent.Models.Enums.OrderStatus.NEW); history.saveAndFlush(entry);
+        var address = new nevg.autosilent.Models.Entity.OrderAddressEntity();
+        address.setOrder(order); address.setCity("Test"); address.setAddressLine("Test address"); addresses.saveAndFlush(address);
+
+        var mvc = MockMvcBuilders.webAppContextSetup(context)
+                .addFilters(context.getBean("springSecurityFilterChain", jakarta.servlet.Filter.class)).build();
+        for (String role : List.of("MODERATOR", "ADMIN")) {
+            var session = new org.springframework.mock.web.MockHttpSession();
+            var roles = List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role));
+            var principal = new nevg.autosilent.Models.Security.ShopUserDetails("test@example.com", "test", "Test", roles);
+            var auth = org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated(principal, "test", roles);
+            session.setAttribute(org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    new org.springframework.security.core.context.SecurityContextImpl(auth));
+            var pageResult = mvc.perform(get("/admin/orders").session(session)).andReturn();
+            assertThat(pageResult.getResponse().getStatus()).isEqualTo(200);
+            var page = Jsoup.parse(pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
+            var token = (org.springframework.security.web.csrf.CsrfToken) pageResult.getRequest()
+                    .getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+            if ("MODERATOR".equals(role)) {
+                assertThat(page.select(".order-delete-form")).isEmpty();
+                var denied = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/admin/orders/" + order.getId() + "/delete").session(session)
+                        .param(token.getParameterName(), token.getToken())).andReturn().getResponse();
+                assertThat(denied.getStatus()).isEqualTo(403);
+                assertThat(orders.existsById(order.getId())).isTrue();
+            } else {
+                assertThat(page.selectFirst("form[action='/admin/orders/" + order.getId() + "/delete'] button")
+                        .hasClass("btn-outline-danger")).isTrue();
+                var noCsrf = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/admin/orders/" + order.getId() + "/delete").session(session)).andReturn().getResponse();
+                assertThat(noCsrf.getStatus()).isEqualTo(403);
+                var deleted = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/admin/orders/" + order.getId() + "/delete").session(session)
+                        .param(token.getParameterName(), token.getToken())).andReturn().getResponse();
+                assertThat(deleted.getStatus()).isEqualTo(302);
+                assertThat(deleted.getRedirectedUrl()).isEqualTo("/admin/orders");
+            }
+        }
+        assertThat(orders.existsById(order.getId())).isFalse();
+        assertThat(items.findByOrderId(order.getId())).isEmpty();
+        assertThat(history.findByOrderIdOrderByChangedAtDesc(order.getId())).isEmpty();
+        assertThat(addresses.findByOrderId(order.getId())).isEmpty();
+    }
+
+    @Test
     @org.springframework.transaction.annotation.Transactional
     void adminInformationRendersEditableStockAndSavesOnlySubmittedProducts() throws Exception {
         var categories = context.getBean(nevg.autosilent.Repository.CategoryRepository.class);
@@ -83,7 +146,21 @@ class AutoSilentApplicationTests {
                 assertThat(response.statusCode()).isEqualTo(200);
                 var page = Jsoup.parse(response.body());
                 assertThat(page.selectFirst("meta[name=_csrf]").attr("content")).isNotBlank();
+                String script = page.selectFirst("script[src^=/js/shop-]").attr("src");
+                assertThat(script).matches("/js/shop-[a-f0-9]{32}\\.js");
+                assertThat(script).isEqualTo("/js/shop-" + org.springframework.util.DigestUtils.md5DigestAsHex(
+                        Files.readAllBytes(Path.of("src/main/resources/static/js/shop.js"))) + ".js");
+                String css = page.selectFirst("link[href^=/css/shop-]").attr("href");
+                assertThat(css).matches("/css/shop-[a-f0-9]{32}\\.css");
+                var javascript = client.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + script)).GET().build(),
+                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                assertThat(javascript.statusCode()).isEqualTo(200);
+                assertThat(javascript.body()).isEqualTo(Files.readString(Path.of("src/main/resources/static/js/shop.js"), StandardCharsets.UTF_8));
                 if (path.endsWith("delivery")) {
+                    assertThat(page.select("datalist")).isEmpty();
+                    assertThat(page.selectFirst("#deliveryCity").attr("role")).isEqualTo("combobox");
+                    assertThat(page.selectFirst("#deliveryCities").attr("role")).isEqualTo("listbox");
+                    assertThat(page.selectFirst("script[src^=/js/city-picker-]")).isNotNull();
                     assertThat(page.selectFirst("#deliveryForm")).isNotNull();
                     assertThat(page.selectFirst(".courier-choice").text()).contains("ЕКОНТ");
                     assertThat(page.selectFirst("#deliveryConfirm").hasAttr("disabled")).isTrue();
@@ -93,6 +170,22 @@ class AutoSilentApplicationTests {
                 }
             }
         }
+    }
+
+    @Test
+    void legacyCheckoutPayloadGetsActionableErrorWithoutCreatingAnOrder() throws Exception {
+        var orders = context.getBean(nevg.autosilent.Repository.OrderRepository.class);
+        long count = orders.count();
+        String payload = """
+                {"items":[{"productId":1,"quantity":1}],"firstName":"Ivan","lastName":"Ivanov",
+                "email":"ivan@example.com","phone":"0888123456","customerNote":"","promoCode":""}
+                """;
+        var response = MockMvcBuilders.webAppContextSetup(context).build().perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/orders/cart")
+                        .contentType("application/json").content(payload)).andReturn().getResponse();
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(response.getContentAsString(StandardCharsets.UTF_8)).contains("Към доставка").doesNotContain("Bad Request");
+        assertThat(orders.count()).isEqualTo(count);
     }
 
     @Test

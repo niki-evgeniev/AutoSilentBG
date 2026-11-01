@@ -15,7 +15,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     const retry = document.getElementById('shippingRetry');
     const error = document.getElementById('checkoutError');
     const saved = draft.delivery || {};
+    try {
+        const cart = JSON.parse(localStorage.getItem('AutoSilent-cart') || '[]');
+        if (Array.isArray(cart) && cart.length && cart.every(item => item.promotionId)) draft.promoCode = '';
+    } catch (_) { /* Cart validation happens before submission. */ }
     let cities = [], offices = [], selectedCity = null, loadingOffices = false, requestVersion = 0, promoReady = !draft.promoCode, submitting = false;
+    const cityPicker = window.createCityPicker({input: city,
+        panel: document.getElementById('deliveryCityPanel'), list: document.getElementById('deliveryCities'),
+        status: document.getElementById('deliveryCityStatus'), label,
+        onSelect(item) {
+            selectedCity = item;
+            loadOffices();
+            save();
+        }
+    });
 
     document.getElementById('deliveryRecipient').textContent = [draft.firstName + ' ' + draft.lastName, draft.phone, draft.email, draft.customerNote].filter(Boolean).join('\n');
     function headers() {
@@ -75,24 +88,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (!response.ok) throw new Error();
             cities = await response.json();
             if (!cities.length) throw new Error();
-            const list = document.getElementById('deliveryCities'); list.replaceChildren();
-            cities.forEach(item => { const option = document.createElement('option'); option.value = label(item); list.appendChild(option); });
             selectedCity = cities.find(item => item.id === saved.cityId) || null;
             city.value = selectedCity ? label(selectedCity) : '';
             city.disabled = false; loadError.hidden = true; retry.hidden = true;
+            cityPicker.setItems(cities);
             await loadOffices(saved.officeId);
         } catch (_) { showLoadError(); }
         refreshValidity();
     }
     city.addEventListener('input', function () {
         city.setCustomValidity('');
-        const next = cities.find(item => label(item) === city.value) || null;
+        const next = selectedCity && label(selectedCity) === city.value ? selectedCity : null;
         if (next?.id === selectedCity?.id) return;
         selectedCity = next; loadOffices(); save();
-    });
-    city.addEventListener('change', function () {
-        city.setCustomValidity(selectedCity ? '' : document.body.dataset.shippingInvalid);
-        city.reportValidity();
     });
     office.addEventListener('change', () => { showOfficeAddress(); refreshValidity(); save(); });
     address.addEventListener('input', save);
@@ -117,7 +125,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const response = await fetch('/orders/cart', {method: 'POST', headers: headers(), body: JSON.stringify({
                 firstName: draft.firstName, lastName: draft.lastName, email: draft.email, phone: draft.phone,
                 customerNote: draft.customerNote, promoCode: draft.promoCode,
-                items: cart.map(item => ({productId: Number(item.id), quantity: item.quantity})), delivery: draft.delivery
+                items: cart.map(item => ({productId: Number(item.productId || item.id), quantity: item.quantity,
+                    promotionId: item.promotionId ? Number(item.promotionId) : null})), delivery: draft.delivery
             })});
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || document.body.dataset.orderFailed);

@@ -4,6 +4,7 @@ import nevg.autosilent.Models.Dto.SitemapCategoryDto;
 import nevg.autosilent.Models.Dto.SitemapProductDto;
 import nevg.autosilent.Repository.CategoryRepository;
 import nevg.autosilent.Repository.ProductRepository;
+import nevg.autosilent.Repository.PromotionRepository;
 import nevg.autosilent.Service.SitemapService;
 import nevg.autosilent.Utility.ProductSlugGenerator;
 import nevg.autosilent.Utility.CatalogCategoryUrlPolicy;
@@ -26,14 +27,17 @@ public class SitemapServiceImpl implements SitemapService {
     private static final String SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
     private static final String SITE_URL = "https://autosilent.bg";
     private static final List<String> LOCALIZED_STATIC_PUBLIC_PATHS = List.of("/", "/contact");
-    private static final List<String> BULGARIAN_ONLY_STATIC_PUBLIC_PATHS = List.of("/shumoizolaciya");
+    private static final List<String> BULGARIAN_ONLY_STATIC_PUBLIC_PATHS = List.of("/shumoizolaciya", "/promocii");
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final PromotionRepository promotionRepository;
     public SitemapServiceImpl(ProductRepository productRepository,
-                              CategoryRepository categoryRepository) {
+                              CategoryRepository categoryRepository,
+                              PromotionRepository promotionRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.promotionRepository = promotionRepository;
     }
 
     @Override
@@ -77,6 +81,13 @@ public class SitemapServiceImpl implements SitemapService {
             for (SitemapProductDto kit : productRepository.findAllActiveKitsForSitemap()) {
                 writeUrlOnce(xml, SITE_URL + "/shumoizolaciya/kit/" + kit.url(),
                         kit.lastModified(), includedUrls);
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            for (var promotion : promotionRepository.findAllByOrderByIdDesc()) {
+                if (promotion.availableAt(now) && promotion.getSlug() != null && !promotion.getSlug().isBlank()) {
+                    writeUrlOnce(xml, SITE_URL + "/promocii/" + promotion.getSlug(), null, includedUrls);
+                }
             }
 
             xml.writeEndElement();

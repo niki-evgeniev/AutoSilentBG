@@ -73,9 +73,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """)
     Page<Product> findAllByActiveTrueAndCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
-    @Query(value = """
+    String CATALOG_QUERY = """
             select p from Product p left join p.secondaryCategory secondary
-            where p.active = true
+            where p.active = true and not exists (select 1 from Promotion offer where offer.product = p and offer.active = true and offer.hideFromCatalog = true and (offer.startsAt is null or offer.startsAt <= CURRENT_TIMESTAMP) and (offer.endsAt is null or offer.endsAt > CURRENT_TIMESTAMP))
               and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId
                    or exists (select 1 from Product tagged join tagged.additionalCategories extra
                               where tagged = p and extra.id = :categoryId))
@@ -93,10 +93,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                    exists (select 1 from Product tagged join tagged.additionalCategories extra
                            where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                    lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
-            """,
-            countQuery = """
+            """;
+
+    String CATALOG_COUNT_QUERY = """
                     select count(p) from Product p left join p.secondaryCategory secondary
-                    where p.active = true
+                    where p.active = true and not exists (select 1 from Promotion offer where offer.product = p and offer.active = true and offer.hideFromCatalog = true and (offer.startsAt is null or offer.startsAt <= CURRENT_TIMESTAMP) and (offer.endsAt is null or offer.endsAt > CURRENT_TIMESTAMP))
                       and (:categoryId is null or p.category.id = :categoryId or secondary.id = :categoryId
                            or exists (select 1 from Product tagged join tagged.additionalCategories extra
                                       where tagged = p and extra.id = :categoryId))
@@ -114,8 +115,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                            exists (select 1 from Product tagged join tagged.additionalCategories extra
                                    where tagged = p and lower(extra.category) like lower(concat('%', :search, '%'))) or
                            lower(coalesce(p.description, '')) like lower(concat('%', :search, '%')))
-                    """)
+                    """;
+
+    @Query(value = CATALOG_QUERY, countQuery = CATALOG_COUNT_QUERY)
     Page<Product> filterActive(@Param("search") String search,
+                               @Param("brand") String brand,
+                               @Param("model") String model,
+                               @Param("minPrice") BigDecimal minPrice,
+                               @Param("maxPrice") BigDecimal maxPrice,
+                               @Param("inStock") boolean inStock,
+                               @Param("categoryId") Long categoryId,
+                               Pageable pageable);
+
+    @Query(value = CATALOG_QUERY + """
+            order by coalesce((select sum(item.quantity * item.unitsPerItem)
+                               from OrderItemEntity item
+                               where item.product = p
+                                 and item.order.orderStatus = nevg.autosilent.Models.Enums.OrderStatus.DELIVERED), 0) desc,
+                     p.nameProduct asc, p.model asc, p.id asc
+            """, countQuery = CATALOG_COUNT_QUERY)
+    Page<Product> filterActiveBestSelling(@Param("search") String search,
                                @Param("brand") String brand,
                                @Param("model") String model,
                                @Param("minPrice") BigDecimal minPrice,

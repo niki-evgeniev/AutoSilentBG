@@ -8,6 +8,11 @@ public record AdminOrderItemDto(
         int quantity,
         BigDecimal unitPrice,
         BigDecimal totalPrice,
-        String productImageUrl
+        String productImageUrl,
+        Long id
 ) {
+    public AdminOrderItemDto(String productName, String productSku, int quantity, BigDecimal unitPrice,
+                             BigDecimal totalPrice, String productImageUrl) {
+        this(productName, productSku, quantity, unitPrice, totalPrice, productImageUrl, null);
+    }
 }

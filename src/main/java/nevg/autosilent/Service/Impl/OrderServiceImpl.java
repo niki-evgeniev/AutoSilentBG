@@ -46,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
     private final PromoCodeService promoCodeService;
     private final MessageSource messageSource;
     private final KitRepository kitRepository;
+    private final nevg.autosilent.Repository.PromotionRepository promotionRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderItemRepository orderItemRepository,
@@ -54,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
                             UserRepository userRepository,
                             PromoCodeService promoCodeService,
                             MessageSource messageSource,
-                            KitRepository kitRepository) {
+                            KitRepository kitRepository, nevg.autosilent.Repository.PromotionRepository promotionRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.statusHistoryRepository = statusHistoryRepository;
@@ -63,6 +64,7 @@ public class OrderServiceImpl implements OrderService {
         this.promoCodeService = promoCodeService;
         this.messageSource = messageSource;
         this.kitRepository = kitRepository;
+        this.promotionRepository = promotionRepository;
     }
 
     @Override
@@ -142,13 +144,13 @@ public class OrderServiceImpl implements OrderService {
         for (PreparedItem item : preparedItems) {
             var kit = kitRepository.findByCatalogProductId(item.product().getId());
             if (kit.isEmpty()) {
-                stockNeeded.merge(item.product().getId(), item.quantity(), this::addQuantities);
+                stockNeeded.merge(item.product().getId(), multiply(item.quantity(), item.units()), this::addQuantities);
                 stockProducts.put(item.product().getId(), item.product());
             } else {
                 for (KitItem component : kit.get().getItems()) {
                     int required;
                     try {
-                        required = Math.multiplyExact(item.quantity(), component.getQuantity());
+                        required = Math.multiplyExact(multiply(item.quantity(), item.units()), component.getQuantity());
                     } catch (ArithmeticException exception) {
                         throw new OrderCreationException(message("order.error.quantityTooLarge"));
                     }
@@ -165,13 +167,16 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         BigDecimal subtotal = preparedItems.stream()
-                .map(item -> item.product().getPrice().multiply(BigDecimal.valueOf(item.quantity())))
+                .map(item -> item.price().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal promoPercent = promoCodeService.discountPercent(promoCode);
-        String normalizedPromoCode = promoCodeService.normalizeCode(promoCode);
+        BigDecimal eligibleSubtotal = preparedItems.stream().filter(item -> item.promotionId() == null)
+                .map(item -> item.price().multiply(BigDecimal.valueOf(item.quantity()))).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal promoPercent = eligibleSubtotal.signum() > 0 ? promoCodeService.discountPercent(promoCode) : BigDecimal.ZERO;
+        String normalizedPromoCode = eligibleSubtotal.signum() > 0 ? promoCodeService.normalizeCode(promoCode) : "";
         BigDecimal percent = totalDiscountPercent(customerDiscountPercent, promoPercent);
-        BigDecimal discount = subtotal.multiply(percent)
+        order.setAppliedDiscountPercent(percent);
+        BigDecimal discount = eligibleSubtotal.multiply(percent)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         order.setSubtotalPrice(subtotal);
         order.setDiscountPrice(discount);
@@ -263,20 +268,29 @@ public class OrderServiceImpl implements OrderService {
         }
         Product product = productRepository.findActiveByIdForUpdate(request.productId())
                 .orElseThrow(() -> new OrderCreationException(message("order.error.productUnavailable")));
+        int units = 1;
+        BigDecimal price = product.getPrice();
+        if (request.promotionId() != null) {
+            var offer = promotionRepository.findById(request.promotionId())
+                    .filter(p -> p.getProduct().getId().equals(product.getId()) && p.availableAt(LocalDateTime.now()))
+                    .orElseThrow(() -> new OrderCreationException(message("promotion.unavailable")));
+            units = offer.getUnits(); price = offer.getPrice();
+        }
         if (kitRepository.findByCatalogProductId(product.getId()).isEmpty()
-                && product.getStock() < request.quantity()) {
+                && product.getStock() < multiply(request.quantity(), units)) {
             throw new OrderCreationException(message("order.error.insufficientStock", product.getNameProduct()));
         }
-        return new PreparedItem(product, request.quantity());
+        return new PreparedItem(product, request.quantity(), price, units, request.promotionId());
     }
 
     private List<CartItemOrderDto> normalize(List<CartItemOrderDto> requests) {
-        Map<Long, Integer> quantities = new LinkedHashMap<>();
+        record Key(Long productId, Long promotionId) {}
+        Map<Key, Integer> quantities = new LinkedHashMap<>();
         for (CartItemOrderDto request : requests) {
             if (request == null || request.productId() == null || request.quantity() < 1) {
                 throw new OrderCreationException(message("order.error.invalidItem"));
             }
-            quantities.merge(request.productId(), request.quantity(), (current, added) -> {
+            quantities.merge(new Key(request.productId(), request.promotionId()), request.quantity(), (current, added) -> {
                 try {
                     return Math.addExact(current, added);
                 } catch (ArithmeticException exception) {
@@ -285,7 +299,7 @@ public class OrderServiceImpl implements OrderService {
             });
         }
         return quantities.entrySet().stream()
-                .map(entry -> new CartItemOrderDto(entry.getKey(), entry.getValue()))
+                .map(entry -> new CartItemOrderDto(entry.getKey().productId(), entry.getValue(), entry.getKey().promotionId()))
                 .toList();
     }
 
@@ -306,11 +320,21 @@ public class OrderServiceImpl implements OrderService {
         OrderItemEntity orderItem = new OrderItemEntity();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
-        orderItem.setProductName(product.getDisplayName());
+        var kit = kitRepository.findByCatalogProductId(product.getId());
+        if (kit.isPresent()) {
+            kit.get().getItems().forEach(component -> orderItem.getStockAllocation()
+                    .put(component.getProduct().getId(), multiply(component.getQuantity(), item.units())));
+        } else {
+            orderItem.getStockAllocation().put(product.getId(), item.units());
+        }
+        orderItem.setPromotionId(item.promotionId());
+        orderItem.setUnitsPerItem(item.units());
+        String name = item.promotionId() == null ? product.getDisplayName() : message("promotion.orderName", product.getDisplayName(), item.units());
+        orderItem.setProductName(name.substring(0, Math.min(255, name.length())));
         orderItem.setProductSku(product.getSku());
         orderItem.setQuantity(item.quantity());
-        orderItem.setUnitPrice(product.getPrice());
-        orderItem.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(item.quantity())));
+        orderItem.setUnitPrice(item.price());
+        orderItem.setTotalPrice(item.price().multiply(BigDecimal.valueOf(item.quantity())));
         orderItem.setProductImageUrl(mainImageUrl(product));
         return orderItem;
     }
@@ -347,6 +371,11 @@ public class OrderServiceImpl implements OrderService {
         return messageSource.getMessage(code, arguments, LocaleContextHolder.getLocale());
     }
 
-    private record PreparedItem(Product product, int quantity) {
+    private int multiply(int a, int b) {
+        try { return Math.multiplyExact(a, b); }
+        catch (ArithmeticException e) { throw new OrderCreationException(message("order.error.quantityTooLarge")); }
+    }
+
+    private record PreparedItem(Product product, int quantity, BigDecimal price, int units, Long promotionId) {
     }
 }

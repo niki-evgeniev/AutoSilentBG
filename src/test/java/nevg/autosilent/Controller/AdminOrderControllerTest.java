@@ -31,12 +31,13 @@ class AdminOrderControllerTest {
 
     @Mock
     private AdminOrderService adminOrderService;
+    @Mock private nevg.autosilent.Service.OrderItemEditingService editing;
 
     private AdminOrderController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new AdminOrderController(adminOrderService);
+        controller = new AdminOrderController(adminOrderService, editing);
     }
 
     @Test
@@ -100,6 +101,20 @@ class AdminOrderControllerTest {
                 null, BigDecimal.ZERO, new BigDecimal("25.00"), null, null,
                 LocalDateTime.of(2026, 7, 4, 12, 0), List.of(), List.of(), null
         );
+    }
+
+    @Test
+    void deleteIsAdminOnlyAndPreservesCurrentFilters() throws Exception {
+        var authorization = AdminOrderController.class.getMethod("deleteOrder", Long.class, String.class,
+                OrderStatus.class, org.springframework.web.servlet.mvc.support.RedirectAttributes.class)
+                .getAnnotation(PreAuthorize.class);
+        assertThat(authorization.value()).isEqualTo("hasRole('ADMIN')");
+        var attributes = new RedirectAttributesModelMap();
+        var result = controller.deleteOrder(5L, "  NRT-5  ", OrderStatus.NEW, attributes);
+        verify(adminOrderService).deleteOrder(5L);
+        assertThat(result.getViewName()).isEqualTo("redirect:/admin/orders");
+        assertThat(attributes.getFlashAttributes().get("orderDeleted")).isEqualTo(true);
+        assertThat(attributes).containsEntry("search", "NRT-5").containsEntry("status", "NEW");
     }
 
     private ShopUserDetails moderator() {

@@ -192,8 +192,15 @@ class CanonicalTemplateTest {
         String template = template(templateName);
         int headStart = template.indexOf("<head");
         int headEnd = template.indexOf("</head>", headStart) + "</head>".length();
+        var servletContext = new org.springframework.mock.web.MockServletContext();
+        var request = new org.springframework.mock.web.MockHttpServletRequest(servletContext);
+        var response = new org.springframework.mock.web.MockHttpServletResponse();
+        var web = org.thymeleaf.web.servlet.JakartaServletWebApplication.buildApplication(servletContext);
+        var variables = new java.util.HashMap<String, Object>();
+        context.getVariableNames().forEach(key -> variables.put(key, context.getVariable(key)));
+        var webContext = new org.thymeleaf.context.WebContext(web.buildExchange(request, response), context.getLocale(), variables);
         String rendered = new SpringTemplateEngine().process(
-                template.substring(headStart, headEnd), context);
+                template.substring(headStart, headEnd), webContext);
         String json = Jsoup.parse(rendered).selectFirst("script[type='application/ld+json']").data();
         return new ObjectMapper().readTree(json);
     }

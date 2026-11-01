@@ -31,6 +31,37 @@ class SitemapServiceImplTest {
     private ProductRepository productRepository;
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private nevg.autosilent.Repository.PromotionRepository promotionRepository;
+
+    @Test
+    void includesOnlyLivePromotionSlugs() throws Exception {
+        var product = new nevg.autosilent.Models.Entity.Product();
+        var live = promotion(product, "vibrofiltr-2-0");
+        var expired = promotion(product, "expired");
+        expired.setEndsAt(LocalDateTime.now().minusDays(1));
+        var future = promotion(product, "future");
+        future.setStartsAt(LocalDateTime.now().plusDays(1));
+        var stopped = promotion(product, "stopped");
+        stopped.setActive(false);
+        var inactiveProduct = new nevg.autosilent.Models.Entity.Product();
+        inactiveProduct.setActive(false);
+        var inactive = promotion(inactiveProduct, "inactive-product");
+        when(promotionRepository.findAllByOrderByIdDesc()).thenReturn(
+                List.of(live, expired, future, stopped, inactive, promotion(product, null), live));
+        var service = new SitemapServiceImpl(productRepository, categoryRepository, promotionRepository);
+        var urls = textValues(parse(service.generateSitemap()).getElementsByTagNameNS(
+                "http://www.sitemaps.org/schemas/sitemap/0.9", "loc"));
+        assertThat(urls.stream().filter(url -> url.contains("/promocii")).toList())
+                .containsExactly("https://autosilent.bg/promocii", "https://autosilent.bg/promocii/vibrofiltr-2-0");
+    }
+
+    private nevg.autosilent.Models.Entity.Promotion promotion(nevg.autosilent.Models.Entity.Product product, String slug) {
+        var promotion = new nevg.autosilent.Models.Entity.Promotion();
+        promotion.setProduct(product);
+        promotion.setSlug(slug);
+        return promotion;
+    }
 
     @Test
     void sitemapContainsPublicPagesAndActiveProductsWithReliableLastModifiedDate() throws Exception {
@@ -47,7 +78,7 @@ class SitemapServiceImplTest {
                 new SitemapCategoryDto(3L, "Звукоизолация",
                         LocalDateTime.of(2026, 7, 20, 10, 0))
         ));
-        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository);
+        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository, promotionRepository);
 
         String sitemap = service.generateSitemap();
         Document document = parse(sitemap);
@@ -69,6 +100,7 @@ class SitemapServiceImplTest {
                 "https://autosilent.bg/contact",
                 "https://autosilent.bg/contact?lang=en",
                 "https://autosilent.bg/shumoizolaciya",
+                "https://autosilent.bg/promocii",
                 "https://autosilent.bg/shumoizolaciya/kit",
                 "https://autosilent.bg/shumoizolaciya/category/3/zvukoizolatsiya",
                 "https://autosilent.bg/shumoizolaciya/vibrofiltr-2-0",
@@ -93,7 +125,7 @@ class SitemapServiceImplTest {
 
     @Test
     void xmlWriterEscapesAmpersandsInQueryParameters() throws Exception {
-        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository);
+        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository, promotionRepository);
         StringWriter output = new StringWriter();
         XMLStreamWriter xml = XMLOutputFactory.newFactory().createXMLStreamWriter(output);
         xml.writeStartElement("urlset");
@@ -109,7 +141,7 @@ class SitemapServiceImplTest {
     @Test
     void sitemapListsOnlyExistingCatalogPagesWithoutInventedDates() throws Exception {
         when(productRepository.countByActiveTrue()).thenReturn(19L);
-        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository);
+        SitemapServiceImpl service = new SitemapServiceImpl(productRepository, categoryRepository, promotionRepository);
 
         Document document = parse(service.generateSitemap());
         List<String> urls = textValues(document.getElementsByTagNameNS(

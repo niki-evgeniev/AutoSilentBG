@@ -9,6 +9,10 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select o from OrderEntity o where o.id = :id")
+    Optional<OrderEntity> findByIdForUpdate(@org.springframework.data.repository.query.Param("id") Long id);
+
     long countByOrderStatus(OrderStatus orderStatus);
 
     List<OrderEntity> findByUserIdOrderByCreatedAtDesc(Long userId);

@@ -20,9 +20,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AdminOrderController {
 
     private final AdminOrderService adminOrderService;
+    private final nevg.autosilent.Service.OrderItemEditingService editing;
 
-    public AdminOrderController(AdminOrderService adminOrderService) {
+    public AdminOrderController(AdminOrderService adminOrderService, nevg.autosilent.Service.OrderItemEditingService editing) {
         this.adminOrderService = adminOrderService;
+        this.editing = editing;
     }
 
     @GetMapping
@@ -40,7 +42,11 @@ public class AdminOrderController {
     @GetMapping("/{id}")
     public ModelAndView order(@PathVariable Long id) {
         ModelAndView modelAndView = new ModelAndView("admin-order-details");
-        modelAndView.addObject("order", adminOrderService.getOrder(id));
+        var order = adminOrderService.getOrder(id);
+        modelAndView.addObject("order", order);
+        boolean editable = nevg.autosilent.Service.OrderItemEditingService.editable(order.orderStatus(), order.paymentStatus());
+        modelAndView.addObject("itemsEditable", editable);
+        if (editable) modelAndView.addObject("orderChoices", editing.catalog());
         modelAndView.addObject("statuses", OrderStatus.values());
         return modelAndView;
     }
@@ -54,5 +60,34 @@ public class AdminOrderController {
         adminOrderService.updateStatus(id, status, note, currentUser.getUsername());
         redirectAttributes.addFlashAttribute("statusUpdated", true);
         return new ModelAndView("redirect:/admin/orders/" + id);
+    }
+
+    @PostMapping("/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ModelAndView deleteOrder(@PathVariable Long id,
+                                    @RequestParam(required = false) String search,
+                                    @RequestParam(required = false) OrderStatus status,
+                                    RedirectAttributes redirectAttributes) {
+        adminOrderService.deleteOrder(id);
+        redirectAttributes.addFlashAttribute("orderDeleted", true);
+        if (search != null && !search.isBlank()) redirectAttributes.addAttribute("search", search.trim());
+        if (status != null) redirectAttributes.addAttribute("status", status);
+        return new ModelAndView("redirect:/admin/orders");
+    }
+
+    @PostMapping("/{id}/items/add")
+    public String addItem(@PathVariable Long id, @RequestParam Long productId, @RequestParam int quantity,
+                          @AuthenticationPrincipal ShopUserDetails user, RedirectAttributes attributes) {
+        try { editing.add(id, productId, quantity, user.getUsername()); attributes.addFlashAttribute("itemsUpdated", true); }
+        catch (IllegalArgumentException exception) { attributes.addFlashAttribute("itemsError", exception.getMessage()); }
+        return "redirect:/admin/orders/" + id;
+    }
+
+    @PostMapping("/{id}/items/{itemId}/remove")
+    public String removeItem(@PathVariable Long id, @PathVariable Long itemId,
+                             @AuthenticationPrincipal ShopUserDetails user, RedirectAttributes attributes) {
+        try { editing.remove(id, itemId, user.getUsername()); attributes.addFlashAttribute("itemsUpdated", true); }
+        catch (IllegalArgumentException exception) { attributes.addFlashAttribute("itemsError", exception.getMessage()); }
+        return "redirect:/admin/orders/" + id;
     }
 }

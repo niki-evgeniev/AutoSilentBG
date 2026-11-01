@@ -17,4 +17,6 @@ public interface AdminOrderService {
     AdminOrderDetailDto getOrder(Long orderId);
 
     void updateStatus(Long orderId, OrderStatus newStatus, String note, String changedByEmail);
+
+    void deleteOrder(Long orderId);
 }

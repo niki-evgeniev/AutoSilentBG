@@ -522,7 +522,14 @@ class HeadSeoTemplateTest {
         resolver.setTemplateMode("HTML");
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(resolver);
-        Document document = Jsoup.parse(engine.process(fullHead, context));
+        var servletContext = new org.springframework.mock.web.MockServletContext();
+        var request = new org.springframework.mock.web.MockHttpServletRequest(servletContext);
+        var response = new org.springframework.mock.web.MockHttpServletResponse();
+        var web = org.thymeleaf.web.servlet.JakartaServletWebApplication.buildApplication(servletContext);
+        var variables = new java.util.HashMap<String, Object>();
+        context.getVariableNames().forEach(key -> variables.put(key, context.getVariable(key)));
+        var webContext = new org.thymeleaf.context.WebContext(web.buildExchange(request, response), context.getLocale(), variables);
+        Document document = Jsoup.parse(engine.process(fullHead, webContext));
         assertThat(document.select("script[type=application/ld+json]")).hasSize(1);
         JsonNode root = JSON.readTree(document.selectFirst("script[type=application/ld+json]").data());
         assertThat(root.path("@context").asText()).isEqualTo("https://schema.org");

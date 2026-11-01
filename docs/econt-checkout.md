@@ -47,3 +47,14 @@ AutoSilent:
 
 Tests disable scheduled downloads and use deterministic directory fixtures.
 The existing free-delivery banner is preserved for the planned future feature.
+
+## Deployment cache
+
+Local JavaScript and CSS URLs include a content hash through Spring's resource
+chain and Thymeleaf URL expressions. Production can retain its 30-day resource
+cache: changing a file changes its rendered URL, so a new checkout page cannot
+reuse the previous checkout script. Keep `th:src` / `th:href` on local assets in
+new templates. No manual version bump is needed.
+
+Run `node --test src/test/js/checkout.test.cjs` for browser-compatible phone regex
+checks and the regression that step one only saves a draft and opens delivery.

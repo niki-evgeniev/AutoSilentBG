@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+function initializeShop() {
     const header = document.querySelector('.main-header');
     const cartButtons = document.querySelectorAll('.add-cart, .product-add-cart');
     const cartStorageKey = 'AutoSilent-cart';
@@ -11,10 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
             '#footer': 'contacts'
         };
         const activeNavigation = hashNavigation[window.location.hash] ||
+            (window.location.pathname.startsWith('/promocii') ? 'promotions' :
             (window.location.pathname.startsWith('/contact') ? 'contacts' :
             (window.location.pathname.startsWith('/shumoizolaciya/kit') ? 'kits' :
                 (window.location.pathname.startsWith('/products') || window.location.pathname.startsWith('/shumoizolaciya') ? 'products' :
-                (window.location.pathname === '/' ? 'home' : null))));
+                (window.location.pathname === '/' ? 'home' : null)))));
 
         navLinks.forEach(function (link) {
             const isActive = link.dataset.nav === activeNavigation;
@@ -66,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function productFromButton(button) {
-        const card = button.closest('[data-product-id], .product-card');
+        const card = button.closest('[data-promotion-id]') || button.closest('[data-product-id], .product-card');
         if (!card) return null;
 
         const nameElement = card.querySelector('.product-name-link, h1, h3');
@@ -79,7 +80,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const quantityInput = card.querySelector('.quantity-control input');
 
         return {
-            id: card.dataset.productId || name.toLowerCase().replace(/[^a-zа-я0-9]+/gi, '-'),
+            id: card.dataset.promotionId ? 'promotion-' + card.dataset.promotionId : card.dataset.productId || name.toLowerCase().replace(/[^a-zа-я0-9]+/gi, '-'),
+            productId: card.dataset.productId,
+            promotionId: card.dataset.promotionId || null,
             name: name,
             price: price,
             image: card.dataset.productImage || (imageElement ? imageElement.src : ''),
@@ -93,7 +96,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const existing = cart.find(function (item) {
             return item.id === product.id;
         });
-        if (existing) existing.quantity += product.quantity;
+        if (existing) {
+            existing.quantity += product.quantity;
+            if (product.promotionId) Object.assign(existing, {price: product.price, name: product.name, image: product.image, url: product.url});
+        }
         else cart.push(product);
         saveCart(cart);
     }
@@ -128,6 +134,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     cartButtons.forEach(function (button) {
         button.addEventListener('click', function () {
+            if (button.disabled) return;
+            const quantity = button.closest('[data-product-id]')?.querySelector('.quantity-control input');
+            if (quantity?.reportValidity && !quantity.reportValidity()) return;
             const product = productFromButton(button);
             if (!product) return;
             addProduct(product);
@@ -186,14 +195,21 @@ document.addEventListener('DOMContentLoaded', function () {
             return sum + item.price * item.quantity;
         }, 0);
         const discountPercent = Math.min(100, Math.max(0, Number(document.body.dataset.discountPercent) || 0));
-        const discountAmount = subtotal * discountPercent / 100;
+        const eligibleSubtotal = cart.filter(item => !item.promotionId).reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const discountAmount = Math.round((eligibleSubtotal * discountPercent / 100 + Number.EPSILON) * 100) / 100;
         const total = subtotal - discountAmount;
         document.getElementById('cartSummaryCount').textContent = count;
         document.getElementById('cartSummaryTotal').textContent = formatPrice(total);
         const discountPercentElement = document.getElementById('checkoutDiscountPercent');
         const discountAmountElement = document.getElementById('checkoutDiscountAmount');
-        if (discountPercentElement) discountPercentElement.textContent = discountPercent + '%';
+        if (discountPercentElement) discountPercentElement.textContent = (eligibleSubtotal > 0 ? discountPercent : 0) + '%';
         if (discountAmountElement) discountAmountElement.textContent = '-' + formatPrice(discountAmount);
+        const promotionNotice = document.getElementById('promotionDiscountNotice');
+        if (promotionNotice) promotionNotice.hidden = !cart.some(item => item.promotionId);
+        const promoInput = document.getElementById('checkoutPromoCode');
+        if (promoInput) promoInput.disabled = eligibleSubtotal === 0;
+        const promoApply = document.getElementById('checkoutPromoApply');
+        if (promoApply) promoApply.disabled = eligibleSubtotal === 0;
 
         container.querySelectorAll('.cart-item').forEach(function (row) {
             const id = row.dataset.cartId;
@@ -292,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (promoApplyButton && promoCodeInput) {
             promoApplyButton.addEventListener('click', async function () {
+                if (!readCart().some(item => !item.promotionId)) { clearPromoCode(); return; }
                 const code = promoCodeInput.value.trim();
                 if (!code) {
                     clearPromoCode();
@@ -333,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     renderCart();
                 } finally {
-                    promoApplyButton.disabled = false;
+                    promoApplyButton.disabled = !readCart().some(item => !item.promotionId);
                     checkoutButton.disabled = false;
                 }
             });
@@ -348,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const customerNote = document.getElementById('customerNote');
             const errorBox = document.getElementById('checkoutError');
             const items = cart.map(function (item) {
-                return {productId: Number(item.id), quantity: item.quantity};
+                return {productId: Number(item.productId || item.id), quantity: item.quantity, promotionId: item.promotionId ? Number(item.promotionId) : null};
             });
 
             errorBox.hidden = true;
@@ -437,7 +454,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-});
+}
+
+// Also initialize when an optimizer loads the script after DOMContentLoaded.
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeShop, {once: true});
+else initializeShop();
 
 document.addEventListener('DOMContentLoaded', function () {
     const priceRanges = document.querySelectorAll('.price-range');

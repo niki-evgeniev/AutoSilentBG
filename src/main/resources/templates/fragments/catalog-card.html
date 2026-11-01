@@ -1,0 +1,65 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:lang="${#locale.language}"><body>
+<article class="product-card shop-product-card tilt-card"
+                                     th:fragment="card(product, isPromotion)" th:with="cardUrl=${isPromotion ? product.promotionUrl() : (product.category() == 'Кит' ? '/shumoizolaciya/kit/' : '/shumoizolaciya/') + product.url()}" th:data-promotion-id="${isPromotion ? product.promotionId() : null}" th:data-product-id="${product.id()}"
+                                     th:data-product-name="${product.displayName()}"
+                                     th:data-product-price="${product.price()}"
+                                     th:data-product-image="${product.mainImageUrl()}"
+                                     th:data-product-url="${cardUrl}">
+                                <form sec:authorize="isAuthenticated()" method="post"
+                                      th:action="@{/favorites/{id}/toggle(id=${product.id()})}">
+                                    <input type="hidden" name="source" value="products">
+                                    <button type="submit" class="wishlist-btn" th:aria-label="#{products.favorite}">
+                                        <i th:class="${favoriteProductIds.contains(product.id()) ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'}"></i>
+                                    </button>
+                                </form>
+                                <a sec:authorize="isAnonymous()" class="wishlist-btn" th:href="@{/user/sign_in}"
+                                   th:aria-label="#{favorites.loginRequired}"><i class="bi bi-heart"></i></a>
+                                <a class="product-image"
+                                   th:href="${cardUrl}"
+                                   th:aria-label="${product.displayName()}">
+                                    <img th:if="${product.mainImageUrl() != null}"
+                                         th:src="${product.mainImageUrl()}"
+                                         th:alt="${product.displayName()}"
+                                         loading="lazy" decoding="async">
+                                    <i th:unless="${product.mainImageUrl() != null}"
+                                       class="bi bi-box-seam product-placeholder-icon"></i>
+                                </a>
+                                <div class="product-content text-center">
+    <span th:if="${isPromotion}" class="badge text-bg-danger mb-2" th:text="#{promotion.heading}">Промоции</span>
+    <p th:if="${isPromotion}" class="small text-muted" th:text="#{promotion.package(${product.units()})}"></p>
+    <del th:if="${isPromotion and product.originalPrice().compareTo(product.price()) > 0}" th:text="#{product.price(${product.originalPrice()})}"></del>
+                                    <div class="product-meta">
+                                        <span th:text="|#{products.brand}: ${product.name()}|">Марка</span>
+                                        <span th:text="|#{products.model}: ${product.model()}|">Модел</span>
+                                    </div>
+                                    <div class="product-meta">
+                                        <span th:text="${product.category()}">Категория</span>
+                                        <span th:text="${product.sku()}">Код</span>
+                                    </div>
+                                    <h3 class="text-center">
+                                        <a class="product-name-link"
+                                           th:href="${cardUrl}"
+                                           th:text="${product.displayName()}">Марка и модел</a>
+                                    </h3>
+                                    <p class="product-card-description"
+                                       th:text="${product.description()}">
+                                        Описание на продукта
+                                    </p>
+                                    <div class="price"
+                                         th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">
+                                        Цена: 0.00 €
+                                    </div>
+                                    <div class="product-card-actions">
+                                        <a class="btn btn-outline-dark custom-outline"
+                                           th:href="${cardUrl}">
+                                            <span th:text="#{products.more}">Виж повече</span>
+                                        </a>
+                                        <button class="btn btn-orange add-cart" type="button"
+                                                th:disabled="${product.stock() == 0}"
+                                                th:aria-label="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('products.soldOut')}">
+                                            <i th:class="${product.stock() > 0 ? 'bi bi-cart-plus' : 'bi bi-x-circle'}"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+</body></html>

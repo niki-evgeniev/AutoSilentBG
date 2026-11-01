@@ -10,6 +10,7 @@ import nevg.autosilent.Repository.OrderItemRepository;
 import nevg.autosilent.Repository.OrderRepository;
 import nevg.autosilent.Repository.OrderStatusHistoryRepository;
 import nevg.autosilent.Repository.UserRepository;
+import nevg.autosilent.Repository.OrderAddressRepository;
 import nevg.autosilent.Service.AdminOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.context.MessageSource;
@@ -28,17 +29,20 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     private final OrderStatusHistoryRepository historyRepository;
     private final UserRepository userRepository;
     private final MessageSource messageSource;
+    private final OrderAddressRepository addressRepository;
 
     public AdminOrderServiceImpl(OrderRepository orderRepository,
                                  OrderItemRepository orderItemRepository,
                                  OrderStatusHistoryRepository historyRepository,
                                  UserRepository userRepository,
-                                 MessageSource messageSource) {
+                                 MessageSource messageSource,
+                                 OrderAddressRepository addressRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.historyRepository = historyRepository;
         this.userRepository = userRepository;
         this.messageSource = messageSource;
+        this.addressRepository = addressRepository;
     }
 
     @Override
@@ -93,7 +97,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         List<AdminOrderItemDto> items = orderItemRepository.findByOrderId(orderId).stream()
                 .map(item -> new AdminOrderItemDto(
                         item.getProductName(), item.getProductSku(), item.getQuantity(),
-                        item.getUnitPrice(), item.getTotalPrice(), item.getProductImageUrl()))
+                        item.getUnitPrice(), item.getTotalPrice(), item.getProductImageUrl(), item.getId()))
                 .toList();
         List<AdminOrderHistoryDto> history = historyRepository
                 .findByOrderIdOrderByChangedAtDesc(orderId).stream()
@@ -118,7 +122,8 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     @Override
     @Transactional
     public void updateStatus(Long orderId, OrderStatus newStatus, String note, String changedByEmail) {
-        OrderEntity order = findOrder(orderId);
+        OrderEntity order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (order.getOrderStatus() == newStatus) return;
 
         User changedBy = userRepository.findByEmailIgnoreCase(changedByEmail)
@@ -143,5 +148,20 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         messageSource.getMessage("admin.order.notFound", null, LocaleContextHolder.getLocale())));
+    }
+
+    @Override
+    @Transactional
+    public void deleteOrder(Long orderId) {
+        OrderEntity order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        messageSource.getMessage("admin.order.notFound", null, LocaleContextHolder.getLocale())));
+        historyRepository.deleteByOrderId(orderId);
+        orderItemRepository.deleteByOrderId(orderId);
+        addressRepository.findByOrderId(orderId).ifPresent(address -> {
+            order.setAddress(null);
+            addressRepository.delete(address);
+        });
+        orderRepository.delete(order);
     }
 }

@@ -13,13 +13,15 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, Long
 
     List<OrderItemEntity> findByOrderId(Long orderId);
 
+    void deleteByOrderId(Long orderId);
+
     @Query("""
             select new nevg.autosilent.Models.Dto.ProductSoldQuantityDto(
-                item.product.id, sum(item.quantity))
+                item.product.id, sum(item.quantity * item.unitsPerItem))
             from OrderItemEntity item
             where item.product is not null and item.order.orderStatus = :status
             group by item.product.id
-            order by sum(item.quantity) desc, item.product.id asc
+            order by sum(item.quantity * item.unitsPerItem) desc, item.product.id asc
             """)
     List<ProductSoldQuantityDto> sumQuantityByProductForStatus(@Param("status") OrderStatus status);
 }

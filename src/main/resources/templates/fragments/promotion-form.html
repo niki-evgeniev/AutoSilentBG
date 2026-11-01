@@ -1,0 +1,21 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}"><body>
+<div th:fragment="fields(offer)" th:with="key=${offer != null ? offer.id : 'new'}" class="row g-3">
+    <div class="col-md-6"><label class="form-label" th:for="|promotionProduct-${key}|" th:text="#{admin.productInformation.product}"></label>
+        <select class="form-select" th:id="|promotionProduct-${key}|" name="productId" required>
+            <option value="" th:text="#{order.edit.choose}"></option>
+            <option th:each="p : ${catalogProducts}" th:value="${p.id}" th:selected="${offer != null && offer.product.id == p.id}"
+                    th:text="|${p.displayName} · ${p.sku} · ${#messages.msg('product.price', p.price)}|"></option>
+        </select></div>
+    <div class="col-md-3"><label class="form-label" th:for="|promotionUnits-${key}|" th:text="#{promotion.units}"></label>
+        <input class="form-control" th:id="|promotionUnits-${key}|" type="number" name="units" min="1" max="2147483647" step="1" th:value="${offer == null ? 1 : offer.units}" required></div>
+    <div class="col-md-3"><label class="form-label" th:for="|promotionPrice-${key}|" th:text="#{promotion.price}"></label>
+        <input class="form-control" th:id="|promotionPrice-${key}|" type="number" name="price" min="0.01" max="99999999.99" step="0.01" th:value="${offer == null ? null : offer.price}" required></div>
+    <div class="col-md-6"><label class="form-label" th:for="|promotionStart-${key}|" th:text="#{promotion.starts}"></label>
+        <input class="form-control" th:id="|promotionStart-${key}|" type="datetime-local" name="startsAt" th:value="${offer == null ? null : offer.startsAt}"></div>
+    <div class="col-md-6"><label class="form-label" th:for="|promotionEnd-${key}|" th:text="#{promotion.ends}"></label>
+        <input class="form-control" th:id="|promotionEnd-${key}|" type="datetime-local" name="endsAt" th:value="${offer == null ? null : offer.endsAt}"></div>
+    <div class="col-12"><label><input type="checkbox" name="active" th:checked="${offer == null || offer.active}"> <span th:text="#{promotion.active}"></span></label></div>
+    <div class="col-12"><label><input type="checkbox" name="hideFromCatalog" th:checked="${offer != null && offer.hideFromCatalog}"> <span th:text="#{promotion.hide}"></span></label></div>
+    <div class="col-12"><button class="btn btn-orange" type="submit" th:text="${offer == null ? #messages.msg('promotion.add') : #messages.msg('promotion.save')}"></button></div>
+</div>
+</body></html>

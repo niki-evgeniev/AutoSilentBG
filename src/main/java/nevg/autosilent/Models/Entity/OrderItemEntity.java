@@ -13,6 +13,16 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class OrderItemEntity extends BaseEntity {
+    private Long promotionId;
+    @Column(nullable = false, columnDefinition = "integer default 1")
+    private int unitsPerItem = 1;
+
+    // Per-unit inventory consumption, including the component products of a kit.
+    @ElementCollection
+    @CollectionTable(name = "order_item_stock", joinColumns = @JoinColumn(name = "order_item_id"))
+    @MapKeyColumn(name = "product_id")
+    @Column(name = "quantity", nullable = false)
+    private java.util.Map<Long, Integer> stockAllocation = new java.util.HashMap<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)

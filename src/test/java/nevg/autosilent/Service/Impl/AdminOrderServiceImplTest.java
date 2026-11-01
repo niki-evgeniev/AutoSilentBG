@@ -40,12 +40,13 @@ class AdminOrderServiceImplTest {
     @Mock OrderStatusHistoryRepository historyRepository;
     @Mock UserRepository userRepository;
     @Mock MessageSource messageSource;
+    @Mock nevg.autosilent.Repository.OrderAddressRepository addressRepository;
     private AdminOrderServiceImpl service;
 
     @BeforeEach
     void setUp() {
         service = new AdminOrderServiceImpl(orderRepository, orderItemRepository,
-                historyRepository, userRepository, messageSource);
+                historyRepository, userRepository, messageSource, addressRepository);
     }
 
     @Test
@@ -154,7 +155,7 @@ class AdminOrderServiceImplTest {
     void updateStatusSetsDeliveredOrderAsPaidAndCreatesHistory() {
         OrderEntity order = order();
         User moderator = user("moderator@example.com");
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(order));
         when(userRepository.findByEmailIgnoreCase("moderator@example.com")).thenReturn(Optional.of(moderator));
 
         service.updateStatus(10L, OrderStatus.DELIVERED, "  Delivered safely  ", "moderator@example.com");
@@ -174,7 +175,7 @@ class AdminOrderServiceImplTest {
     @Test
     void updateStatusDoesNothingWhenStatusIsUnchanged() {
         OrderEntity order = order();
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(order));
 
         service.updateStatus(10L, OrderStatus.NEW, "Ignored", "moderator@example.com");
 
@@ -186,7 +187,7 @@ class AdminOrderServiceImplTest {
     @Test
     void updateStatusRejectsUnknownModerator() {
         OrderEntity order = order();
-        when(orderRepository.findById(10L)).thenReturn(Optional.of(order));
+        when(orderRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(order));
         when(userRepository.findByEmailIgnoreCase("missing@example.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.updateStatus(
@@ -259,5 +260,22 @@ class AdminOrderServiceImplTest {
         User user = new User();
         user.setEmail(email);
         return user;
+    }
+
+    @Test
+    void deleteRemovesDependentRecordsBeforeTheOrder() {
+        var order = order();
+        var address = new nevg.autosilent.Models.Entity.OrderAddressEntity();
+        address.setOrder(order); order.setAddress(address);
+        when(orderRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(order));
+        when(addressRepository.findByOrderId(10L)).thenReturn(Optional.of(address));
+        service.deleteOrder(10L);
+        var operations = org.mockito.Mockito.inOrder(historyRepository, orderItemRepository, addressRepository, orderRepository);
+        operations.verify(historyRepository).deleteByOrderId(10L);
+        operations.verify(orderItemRepository).deleteByOrderId(10L);
+        operations.verify(addressRepository).findByOrderId(10L);
+        operations.verify(addressRepository).delete(address);
+        operations.verify(orderRepository).delete(order);
+        assertThat(order.getAddress()).isNull();
     }
 }

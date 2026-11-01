@@ -68,6 +68,9 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "discount_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal discountPrice = BigDecimal.ZERO;
 
+    @Column(name = "applied_discount_percent", precision = 9, scale = 6)
+    private BigDecimal appliedDiscountPercent;
+
     @Column(name = "promo_code", length = 40)
     private String promoCode;
 

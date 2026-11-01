@@ -1,4 +1,11 @@
 spring:
+  web:
+    resources:
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths: /js/**,/css/**
   messages:
     basename: messages
     encoding: UTF-8

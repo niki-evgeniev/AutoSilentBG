@@ -686,6 +686,14 @@ public class ProductServiceImpl implements ProductService {
         Sort sort = pageable == null || pageable.getSort().isUnsorted()
                 ? Sort.by(Sort.Direction.ASC, "nameProduct", "model", "id")
                 : pageable.getSort();
+        // Rank by delivered order quantities before pagination, rather than the legacy sold field.
+        if (sort.getOrderFor("sold") != null) {
+            return productRepository.filterActiveBestSelling(
+                            normalized.search(), normalized.brand(), normalized.model(),
+                            normalized.minPrice(), normalized.maxPrice(), normalized.inStock(),
+                            normalized.categoryId(), PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE))
+                    .map(this::toViewDto);
+        }
         PageRequest pageRequest = PageRequest.of(pageNumber, PRODUCTS_PAGE_SIZE, sort);
         return productRepository.filterActive(
                         normalized.search(),

@@ -155,7 +155,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
-    <link href="/css/shop.css" rel="stylesheet">
+    <link href="/css/shop.css" th:href="@{/css/shop.css}" rel="stylesheet">
 </head>
 <body th:data-cart-added="#{product.added}"
       th:data-currency="#{site.currency}">
@@ -173,8 +173,8 @@
                 <ol class="breadcrumb custom-breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/}"
                                                    th:text="#{site.home}">Начало</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/shumoizolaciya}"
-                                                   th:text="#{site.categories}">Шумоизолация</a></li>
+                    <li class="breadcrumb-item"><a th:href="${promotionOffer != null} ? @{/promocii} : @{/shumoizolaciya}"
+                                                   th:text="${promotionOffer != null} ? #{promotion.heading} : #{site.categories}">Шумоизолация</a></li>
                     <li class="breadcrumb-item active" aria-current="page"
                         th:text="${product.displayName()}">Продукт
                     </li>
@@ -210,10 +210,11 @@
                 <div class="col-lg-5">
                     <article class="product-details-card tilt-card"
                              th:data-product-id="${product.id()}"
+                             th:data-promotion-id="${promotionOffer != null ? promotionOffer.promotionId() : null}"
                              th:data-product-name="${product.displayName()}"
                              th:data-product-price="${product.price()}"
                              th:data-product-image="${product.mainImageUrl()}"
-                             th:data-product-url="@{/shumoizolaciya/{url}(url=${product.url()})}">
+                             th:data-product-url="${promotionOffer != null} ? ${promotionOffer.promotionUrl()} : @{/shumoizolaciya/{url}(url=${product.url()})}">
                         <div class="product-details-heading">
                             <h1 th:text="${product.categoryHeading()}">Категория</h1>
                             <span class="eyebrow" th:text="${product.displayName()}">Име на продукта</span>
@@ -268,19 +269,24 @@
                              th:text="#{product.priceWithLabel(${#numbers.formatDecimal(product.price(), 1, 2, 'POINT')})}">
                             Цена: 0.00 €
                         </div>
+                        <div th:if="${promotionOffer != null}">
+                            <p th:text="#{promotion.package(${promotionOffer.units()})}"></p>
+                            <del th:if="${promotionOffer.originalPrice().compareTo(promotionOffer.price()) > 0}" th:text="#{product.price(${promotionOffer.originalPrice()})}"></del>
+                            <p class="small text-muted mt-2" th:text="#{promotion.noDiscounts}"></p>
+                        </div>
 
 
                         <div class="product-stock-info" th:if="${product.stock() > 0}">
                             <i class="bi bi-box2-heart"></i>
-                            <span th:text="#{details.available(${product.stock()})}">Налични 0 броя</span>
+                            <span th:text="${promotionOffer != null} ? #{promotion.available(${product.stock()})} : #{details.available(${product.stock()})}">Налични 0 броя</span>
                         </div>
 
                         <div class="product-purchase-actions">
                             <label class="quantity-control" th:if="${product.stock() > 0}">
-                                <span th:text="#{details.quantity}">Количество</span>
+                                <span th:text="${promotionOffer != null} ? #{promotion.packages} : #{details.quantity}">Количество</span>
                                 <input id="productQuantity" type="number" value="1" min="1" th:max="${product.stock()}">
                             </label>
-                            <button class="btn btn-orange product-add-cart"
+                            <button class="btn btn-orange product-add-cart" type="button"
                                     th:disabled="${product.stock() == 0}">
                                 <i class="bi bi-cart-plus"></i>
                                 <span th:text="${product.stock() > 0 ? #messages.msg('product.addCart') : #messages.msg('details.soldOutLong')}">
@@ -303,7 +309,7 @@
                                     <input id="questionName" name="name" class="form-control mb-3" autocomplete="name" required minlength="2" maxlength="100">
                                     <label for="questionPhone" class="form-label" th:text="#{form.phone}">Телефон</label>
                                     <input id="questionPhone" name="phone" class="form-control mb-3" type="tel" autocomplete="tel" required
-                                           pattern="(?=(?:.*\d){7,})[+]?[0-9 ()-]{7,20}">
+                                           pattern="(?=(?:.*\d){7,})[+]?[0-9 \(\)\-]{7,20}">
                                     <label for="questionEmail" class="form-label" th:text="#{form.email}">Имейл</label>
                                     <input id="questionEmail" name="email" class="form-control mb-3" type="email" autocomplete="email" required maxlength="254">
                                     <label for="questionText" class="form-label" th:text="#{question.label}">Вашият въпрос</label>
@@ -411,7 +417,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="/js/shop.js"></script>
+<script src="/js/shop.js" th:src="@{/js/shop.js}"></script>
 <script>
     if (typeof Swiper !== 'undefined' && document.querySelectorAll('.related-products-swiper .swiper-slide').length > 1) {
         new Swiper('.related-products-swiper', {
@@ -438,6 +444,6 @@
         });
     });
 </script>
-<script src="/js/product-question.js"></script>
+<script src="/js/product-question.js" th:src="@{/js/product-question.js}"></script>
 </body>
 </html>

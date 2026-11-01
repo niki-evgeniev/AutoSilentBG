@@ -34,6 +34,8 @@ public class SpringSecurity {
                         .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt", "/sitemap.xml", "/llms.txt", "/error").permitAll()
+                        .requestMatchers("/admin/orders/*/delete").hasRole("ADMIN")
+                        .requestMatchers("/admin/orders/*/price").hasRole("ADMIN")
                         .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/inquiries/**").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/admin/ip-addresses/**").hasRole("ADMIN")
@@ -43,6 +45,7 @@ public class SpringSecurity {
                         .requestMatchers("/products/add", "/products/*/edit", "/products/*/seo").hasAnyRole("ADMIN", "MODERATOR")
                         .requestMatchers("/products/*/delete").hasRole("ADMIN")
                         .requestMatchers("/products/*/question", "/delivery/econt/**", "/orders/checkout/**").permitAll()
+                        .requestMatchers("/promocii", "/promocii/*").permitAll()
                         .requestMatchers("/", "/cart", "/contact", "/contact/success", "/delivery", "/payment", "/privacy-policy", "/returns", "/returns/success", "/user/sign_in", "/user/forgot-password", "/orders/checkout", "/orders/cart", "/orders/promo-code",
                                 "/orders/quick", "/orders/success/*",
                                 "/api/***", "/user/sign_up",

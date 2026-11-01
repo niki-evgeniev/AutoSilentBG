@@ -100,6 +100,6 @@ class OrderDiscountServiceImplTest {
     private OrderServiceImpl service() {
         return new OrderServiceImpl(orderRepository, orderItemRepository, historyRepository,
                 productRepository, userRepository, promoCodeService, messageSource,
-                org.mockito.Mockito.mock(nevg.autosilent.Repository.KitRepository.class));
+                org.mockito.Mockito.mock(nevg.autosilent.Repository.KitRepository.class), org.mockito.Mockito.mock(nevg.autosilent.Repository.PromotionRepository.class));
     }
 }
