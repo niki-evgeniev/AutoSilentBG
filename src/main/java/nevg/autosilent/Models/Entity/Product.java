@@ -81,16 +81,38 @@ public class Product extends BaseEntity {
     @Column(name = "content_updated_at")
     private LocalDateTime contentUpdatedAt;
 
+    @PrePersist
+    private void initializeContentDate() {
+        if (contentUpdatedAt == null) contentUpdatedAt = LocalDateTime.now();
+    }
+
+    private void contentChanged(Object previous, Object next) {
+        if (!java.util.Objects.equals(previous, next)) contentUpdatedAt = LocalDateTime.now();
+    }
+
+    public void setNameProduct(String value) { contentChanged(nameProduct, value); nameProduct = value; }
+    public void setModel(String value) { contentChanged(model, value); model = value; }
+    public void setSku(String value) { contentChanged(sku, value); sku = value; }
+    public void setDescription(String value) { contentChanged(description, value); description = value; }
+    public void setUrl(String value) { contentChanged(url, value); url = value; }
+    public void setPrice(BigDecimal value) { contentChanged(price, value); price = value; }
+    public void setStock(int value) { contentChanged(stock, value); stock = value; }
+    public void setActive(boolean value) { contentChanged(active, value); active = value; }
+    public void setCategory(Category value) { contentChanged(category, value); category = value; }
+    public void setSecondaryCategory(Category value) { contentChanged(secondaryCategory, value); secondaryCategory = value; }
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public void addPicture(Picture picture) {
+        contentUpdatedAt = LocalDateTime.now();
         picture.setProduct(this);
         pictures.add(picture);
     }
 
     public void removePicture(Picture picture) {
+        contentUpdatedAt = LocalDateTime.now();
         pictures.remove(picture);
         picture.setProduct(null);
     }
@@ -100,6 +122,7 @@ public class Product extends BaseEntity {
             throw new IllegalArgumentException("Снимката не принадлежи на този продукт.");
         }
         pictures.forEach(picture -> picture.setMainImage(picture == newMainPicture));
+        contentUpdatedAt = LocalDateTime.now();
     }
 
     public void incrementCount() {

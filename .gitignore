@@ -39,3 +39,4 @@ out/
 .vscode/
 #/src/main/resources/static/
 #*.html
+.guide-backups/

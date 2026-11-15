@@ -35,7 +35,7 @@ public class SitemapScheduler {
         createSitemap();
     }
 
-    @Scheduled(cron = "0 0 */12 * * *", zone = "Europe/Sofia")
+    @Scheduled(cron = "0 0 */6 * * *", zone = "Europe/Sofia")
     public synchronized void createSitemap() {
         Path temporaryFile = null;
         try {

@@ -27,7 +27,6 @@ public class SitemapServiceImpl implements SitemapService {
     private static final String SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
     private static final String SITE_URL = "https://autosilent.bg";
     private static final List<String> LOCALIZED_STATIC_PUBLIC_PATHS = List.of("/", "/contact");
-    private static final List<String> BULGARIAN_ONLY_STATIC_PUBLIC_PATHS = List.of("/shumoizolaciya", "/promocii");
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -53,17 +52,30 @@ public class SitemapServiceImpl implements SitemapService {
             xml.writeDefaultNamespace(SITEMAP_NAMESPACE);
             xml.writeCharacters("\n");
             Set<String> includedUrls = new HashSet<>();
+            LocalDateTime now = LocalDateTime.now();
+            var promotions = promotionRepository.findAllByOrderByIdDesc();
+            LocalDateTime catalogModified = productRepository.findLatestContentUpdate();
+            LocalDateTime promotionsModified = null;
+            for (var promotion : promotions) {
+                LocalDateTime modified = promotionModified(promotion);
+                // Scheduled starts and ends also change the public listing.
+                if (promotion.getStartsAt() != null && !promotion.getStartsAt().isAfter(now))
+                    modified = latest(modified, promotion.getStartsAt());
+                if (promotion.getEndsAt() != null && !promotion.getEndsAt().isAfter(now))
+                    modified = latest(modified, promotion.getEndsAt());
+                promotionsModified = latest(promotionsModified, modified);
+            }
+            catalogModified = latest(catalogModified, promotionsModified);
 
             for (String path : LOCALIZED_STATIC_PUBLIC_PATHS) {
                 writeUrlOnce(xml, SITE_URL + path, null, includedUrls);
                 writeUrlOnce(xml, SITE_URL + path + "?lang=en", null, includedUrls);
             }
-            for (String path : BULGARIAN_ONLY_STATIC_PUBLIC_PATHS) {
-                writeUrlOnce(xml, SITE_URL + path, null, includedUrls);
-            }
+            writeUrlOnce(xml, SITE_URL + "/shumoizolaciya", catalogModified, includedUrls);
+            writeUrlOnce(xml, SITE_URL + "/promocii", promotionsModified, includedUrls);
             long catalogPages = (productRepository.countByActiveTrue() + 8) / 9;
             for (long page = 1; page < catalogPages; page++) {
-                writeUrlOnce(xml, SITE_URL + "/shumoizolaciya?page=" + page, null, includedUrls);
+                writeUrlOnce(xml, SITE_URL + "/shumoizolaciya?page=" + page, catalogModified, includedUrls);
             }
             writeUrlOnce(xml, SITE_URL + "/shumoizolaciya/kit", null, includedUrls);
             for (SitemapCategoryDto category : categoryRepository.findAllWithActiveProductsForSitemap()) {
@@ -83,10 +95,9 @@ public class SitemapServiceImpl implements SitemapService {
                         kit.lastModified(), includedUrls);
             }
 
-            LocalDateTime now = LocalDateTime.now();
-            for (var promotion : promotionRepository.findAllByOrderByIdDesc()) {
+            for (var promotion : promotions) {
                 if (promotion.availableAt(now) && promotion.getSlug() != null && !promotion.getSlug().isBlank()) {
-                    writeUrlOnce(xml, SITE_URL + "/promocii/" + promotion.getSlug(), null, includedUrls);
+                    writeUrlOnce(xml, SITE_URL + "/promocii/" + promotion.getSlug(), promotionModified(promotion), includedUrls);
                 }
             }
 
@@ -106,6 +117,17 @@ public class SitemapServiceImpl implements SitemapService {
         if (includedUrls.add(location)) {
             writeUrl(xml, location, lastModified);
         }
+    }
+
+    private LocalDateTime promotionModified(nevg.autosilent.Models.Entity.Promotion promotion) {
+        var product = promotion.getProduct();
+        return latest(promotion.getContentUpdatedAt(),
+                product.getContentUpdatedAt() != null ? product.getContentUpdatedAt() : product.getAddDate());
+    }
+
+    private LocalDateTime latest(LocalDateTime first, LocalDateTime second) {
+        if (first == null) return second;
+        return second != null && second.isAfter(first) ? second : first;
     }
 
     void writeUrl(XMLStreamWriter xml, String location, LocalDateTime lastModified)

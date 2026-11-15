@@ -19,6 +19,13 @@ public class Promotion extends BaseEntity {
     @Column(nullable = false) private boolean hideFromCatalog;
     private LocalDateTime startsAt;
     private LocalDateTime endsAt;
+    private LocalDateTime contentUpdatedAt;
+
+    @PrePersist
+    @PreUpdate
+    private void markContentUpdated() {
+        contentUpdatedAt = LocalDateTime.now();
+    }
 
     public boolean availableAt(LocalDateTime now) {
         return active && product.isActive() && (startsAt == null || !now.isBefore(startsAt))

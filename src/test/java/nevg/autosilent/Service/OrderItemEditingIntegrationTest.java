@@ -26,8 +26,29 @@ class OrderItemEditingIntegrationTest {
     @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
     @Autowired org.springframework.web.context.WebApplicationContext web;
     Product first, second;
+    @Autowired AdminOrderService adminOrders;
     OrderEntity order;
     User actor;
+
+    @Test void editedItemsSaveImagesAndOlderMissingSnapshotsStillDisplayImages() {
+        new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(tx -> {
+            var product = products.findById(second.getId()).orElseThrow();
+            var picture = new Picture();
+            picture.setFileName("main photo.jpg"); picture.setMainImage(true);
+            product.addPicture(picture);
+        });
+        editing.add(order.getId(), second.getId(), 1, actor.getEmail());
+        var added = items.findByOrderId(order.getId()).stream()
+                .filter(i -> i.getProductName().equals(second.getDisplayName())).findFirst().orElseThrow();
+        String image = added.getProductImageUrl();
+        assertThat(image).startsWith("/ProductImages/").endsWith("/main%20photo.jpg");
+        added.setProductImageUrl(null); items.saveAndFlush(added);
+        assertThat(adminOrders.getOrder(order.getId()).items()).filteredOn(i -> i.id().equals(added.getId()))
+                .extracting(nevg.autosilent.Models.Dto.AdminOrderItemDto::productImageUrl).containsExactly(image);
+        manualPrices.update(order.getId(), new BigDecimal("45"), actor.getEmail());
+        assertThat(adminOrders.getOrder(order.getId()).items()).filteredOn(i -> i.id().equals(added.getId()))
+                .extracting(nevg.autosilent.Models.Dto.AdminOrderItemDto::productImageUrl).containsExactly(image);
+    }
 
     @BeforeEach void prepare() {
         actor = users.findAll().getFirst();

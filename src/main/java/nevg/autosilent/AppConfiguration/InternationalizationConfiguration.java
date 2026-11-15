@@ -25,6 +25,7 @@ public class InternationalizationConfiguration implements WebMvcConfigurer {
         resolver.setCookieHttpOnly(true);
         resolver.setCookieSameSite("Lax");
         resolver.setLanguageTagCompliant(true);
+        resolver.setRejectInvalidCookies(false);
         resolver.setDefaultLocale(BULGARIAN);
         return resolver;
     }

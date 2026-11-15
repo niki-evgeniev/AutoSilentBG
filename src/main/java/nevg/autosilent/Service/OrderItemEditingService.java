@@ -55,6 +55,7 @@ public class OrderItemEditingService {
         var item = new OrderItemEntity();
         item.setOrder(order); item.setProduct(product); item.setProductName(product.getDisplayName());
         item.setProductSku(product.getSku()); item.setQuantity(quantity); item.setUnitPrice(product.getPrice());
+        item.setProductImageUrl(nevg.autosilent.Utility.OrderItemImage.mainImageUrl(product));
         item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         item.getStockAllocation().putAll(allocation);
         items.saveAndFlush(item);

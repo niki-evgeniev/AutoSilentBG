@@ -55,7 +55,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         List<AdminOrderItemDto> items = orderItemRepository.findByOrderId(order.getId()).stream()
                 .map(item -> new AdminOrderItemDto(
                         item.getProductName(), item.getProductSku(), item.getQuantity(),
-                        item.getUnitPrice(), item.getTotalPrice(), item.getProductImageUrl()))
+                        item.getUnitPrice(), item.getTotalPrice(), nevg.autosilent.Utility.OrderItemImage.resolve(item)))
                 .toList();
 
         return new UserOrderDetailDto(

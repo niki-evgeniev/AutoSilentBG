@@ -31,6 +31,69 @@ class PromotionIntegrationTest {
     Product product;
     Promotion offer;
     User customer;
+    @Autowired SitemapService sitemap;
+    @Autowired AdminProductInformationService information;
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"10, 1", "20, 1", "10, 3", "20, 2"})
+    void informationCountsDeliveredSheetsUsingPurchasedPackSize(int sheetsPerPack, int packs) {
+        offer.setUnits(sheetsPerPack);
+        offers.saveAndFlush(offer);
+        var order = purchase(List.of(new CartItemOrderDto(product.getId(), packs, offer.getId()),
+                new CartItemOrderDto(product.getId(), 2)), "");
+
+        // Pending orders do not contribute to delivered sales.
+        assertThat(information.getProductInformation().products()).filteredOn(p -> p.id().equals(product.getId()))
+                .singleElement().satisfies(p -> assertThat(p.sold()).isZero());
+
+        order.setOrderStatus(nevg.autosilent.Models.Enums.OrderStatus.DELIVERED);
+        orders.saveAndFlush(order);
+        // Later offer edits must not change the number of sheets already purchased.
+        offer.setUnits(1);
+        offers.saveAndFlush(offer);
+        long expectedSheets = (long) packs * sheetsPerPack + 2;
+        assertThat(information.getProductInformation().products()).filteredOn(p -> p.id().equals(product.getId()))
+                .singleElement().satisfies(p -> assertThat(p.sold()).isEqualTo(expectedSheets));
+        assertThat(products.findById(product.getId()).orElseThrow().getStock()).isEqualTo(100 - (int) expectedSheets);
+
+        order.setOrderStatus(nevg.autosilent.Models.Enums.OrderStatus.RETURNED);
+        orders.saveAndFlush(order);
+        assertThat(information.getProductInformation().products()).filteredOn(p -> p.id().equals(product.getId()))
+                .singleElement().satisfies(p -> assertThat(p.sold()).isZero());
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void contentChangesUpdateSitemapDatesButPageViewsDoNot() {
+        var old = java.time.LocalDateTime.of(2020, 1, 1, 0, 0);
+        product.setContentUpdatedAt(old);
+        products.saveAndFlush(product);
+        product.incrementCount();
+        products.flush();
+        assertThat(product.getContentUpdatedAt()).isEqualTo(old);
+        product.setDescription("One small text change");
+        products.flush();
+        assertThat(product.getContentUpdatedAt()).isAfter(old);
+        product.setContentUpdatedAt(old);
+        products.flush();
+        product.setPrice(new BigDecimal("11"));
+        products.flush();
+        assertThat(product.getContentUpdatedAt()).isAfter(old);
+        product.setContentUpdatedAt(old);
+        products.flush();
+        product.setStock(99);
+        products.flush();
+        assertThat(product.getContentUpdatedAt()).isAfter(old);
+        offer.setContentUpdatedAt(old);
+        offer.setPrice(new BigDecimal("160"));
+        offers.saveAndFlush(offer);
+        assertThat(offer.getContentUpdatedAt()).isAfter(old);
+        String xml = sitemap.generateSitemap();
+        String today = java.time.LocalDate.now().toString();
+        for (String path : List.of("/promocii", "/promocii/" + offer.getSlug(), "/shumoizolaciya", "/shumoizolaciya/" + product.getUrl())) {
+            assertThat(xml).contains("<loc>https://autosilent.bg" + path + "</loc>\n    <lastmod>" + today + "</lastmod>");
+        }
+    }
 
     @BeforeEach void fixtures() {
         customer = new User(); customer.setEmail(UUID.randomUUID() + "@example.com"); customer.setPassword("test");

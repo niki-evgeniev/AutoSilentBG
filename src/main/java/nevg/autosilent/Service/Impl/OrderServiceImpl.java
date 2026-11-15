@@ -21,12 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -335,26 +332,8 @@ public class OrderServiceImpl implements OrderService {
         orderItem.setQuantity(item.quantity());
         orderItem.setUnitPrice(item.price());
         orderItem.setTotalPrice(item.price().multiply(BigDecimal.valueOf(item.quantity())));
-        orderItem.setProductImageUrl(mainImageUrl(product));
+        orderItem.setProductImageUrl(nevg.autosilent.Utility.OrderItemImage.mainImageUrl(product));
         return orderItem;
-    }
-
-    private String mainImageUrl(Product product) {
-        return product.getPictures().stream()
-                .filter(Picture::isMainImage)
-                .findFirst()
-                .map(picture -> "/ProductImages/" +
-                        UriUtils.encodePathSegment(directoryName(product.getDisplayName()), StandardCharsets.UTF_8) + "/" +
-                        UriUtils.encodePathSegment(picture.getFileName(), StandardCharsets.UTF_8))
-                .orElse(null);
-    }
-
-    private String directoryName(String productName) {
-        return Normalizer.normalize(productName.trim(), Normalizer.Form.NFC)
-                .replaceAll("[<>:\"/\\\\|?*\\p{Cntrl}]", "-")
-                .replaceAll("\\s+", "-")
-                .replaceAll("-+", "-")
-                .replaceAll("^[. -]+|[. -]+$", "");
     }
 
     private String generateOrderNumber() {

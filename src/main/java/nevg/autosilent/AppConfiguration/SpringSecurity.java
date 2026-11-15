@@ -34,6 +34,7 @@ public class SpringSecurity {
                         .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/ProductImages/**").permitAll()
                         .requestMatchers("/robots.txt", "/sitemap.xml", "/llms.txt", "/error").permitAll()
+                        .requestMatchers("/koe-da-izpolzvam", "/koe-da-izpolzvam.html").permitAll() // material-guide
                         .requestMatchers("/admin/orders/*/delete").hasRole("ADMIN")
                         .requestMatchers("/admin/orders/*/price").hasRole("ADMIN")
                         .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "MODERATOR")

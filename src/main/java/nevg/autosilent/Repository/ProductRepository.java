@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    @Query("select max(coalesce(p.contentUpdatedAt, p.addDate)) from Product p")
+    java.time.LocalDateTime findLatestContentUpdate();
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Product p where p.id = :id")
     Optional<Product> findByIdForStockUpdate(@Param("id") Long id);

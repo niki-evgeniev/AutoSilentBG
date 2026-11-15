@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.LocaleContextResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
@@ -31,6 +32,17 @@ class InternationalizationConfigurationTest {
         request.addPreferredLocale(Locale.ENGLISH);
 
         assertThat(localeResolver.resolveLocale(request).getLanguage()).isEqualTo("bg");
+    }
+
+    @Test
+    void usesBulgarianDefaultWhenLocaleCookieContainsQuotes() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addPreferredLocale(Locale.ENGLISH);
+        request.setCookies(new Cookie("AutoSilent_LOCALE", "\"\""));
+
+        assertThat(((LocaleContextResolver) localeResolver)
+                .resolveLocaleContext(request).getLocale())
+                .isEqualTo(InternationalizationConfiguration.BULGARIAN);
     }
 
     @Test

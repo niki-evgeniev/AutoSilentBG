@@ -97,7 +97,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         List<AdminOrderItemDto> items = orderItemRepository.findByOrderId(orderId).stream()
                 .map(item -> new AdminOrderItemDto(
                         item.getProductName(), item.getProductSku(), item.getQuantity(),
-                        item.getUnitPrice(), item.getTotalPrice(), item.getProductImageUrl(), item.getId()))
+                        item.getUnitPrice(), item.getTotalPrice(), nevg.autosilent.Utility.OrderItemImage.resolve(item), item.getId()))
                 .toList();
         List<AdminOrderHistoryDto> history = historyRepository
                 .findByOrderIdOrderByChangedAtDesc(orderId).stream()

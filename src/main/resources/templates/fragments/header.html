@@ -40,6 +40,11 @@
                             class="nav-link"
                             data-nav="promotions" th:href="@{/promocii}"
                             th:text="#{promotion.heading}">Промоции</a></li>
+                    <!-- material-guide:start -->
+                    <!-- Temporarily hidden; set th:if to true to restore. -->
+                    <li class="nav-item" th:if="${false}"><a class="nav-link" data-nav="material-guide"
+                            th:href="@{/koe-da-izpolzvam}">Кое да използвам</a></li>
+                    <!-- material-guide:end -->
                     <li class="nav-item"><a class="nav-link"
                             data-nav="contacts" th:href="@{/contact}"
                             th:text="#{site.contacts}">Контакти</a></li>
